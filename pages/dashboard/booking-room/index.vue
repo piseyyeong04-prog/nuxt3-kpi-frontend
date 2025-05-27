@@ -952,7 +952,7 @@ const showBookingHelp = () => {
 
         <b>📅 Book with AI</b><br>
         Just type:<br>
-        <code>"Book a room on Monday from 2pm to 4pm for team meeting"</code><br><br>
+        <code>"Book a room on 29 May 2025 from 2pm to 4pm for team meeting"</code><br><br>
 
         <b>📝 Manual Booking</b><br>
         Click "Booking Manual" to enter details yourself.<br><br>
