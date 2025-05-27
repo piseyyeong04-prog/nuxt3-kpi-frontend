@@ -99,12 +99,11 @@
             </button>
           </div>
         </div>
-
         <!-- User Avatar Dropdown -->
         <div class="relative" ref="userDropdownContainer">
           <button @click="toggleUserDropdown" class="flex items-center focus:outline-none group">
             <div class="relative">
-              <img :src="useImg(auth.user?.avatar || '/default-avatar.png')" alt="User Avatar"
+              <img :src="useImg(auth.user?.avatar || '/user-avatar.png')" alt="User Avatar"
                 class="w-9 h-9 rounded-full object-cover border-2 border-gray-200 transition-all duration-300 group-hover:border-primary-500 dark:border-gray-700 dark:group-hover:border-primary-400" />
               <div
                 class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-white dark:border-gray-800">
@@ -512,6 +511,12 @@ const menuItems: MenuItem[] = [
     to: '/dashboard/monthly-ads-video-tracker',
     icon: 'mdi:currency-usd',
     label: { en: 'Monthly Video Ads Tracker', km: 'កម្មវិធីតាមដានការផ្សាយពាណិជ្ជកម្មវីដេអូប្រចាំខែ' }
+  },
+  // ai booking room
+  {
+    to: '/dashboard/booking-room',
+    icon: 'mdi:calendar-clock',
+    label: { en: 'AI Booking Room', km: 'ការកក់បន្ទប់ប្រើ AI' }
   },
   // Track Performance Staff
   {
