@@ -48,6 +48,12 @@
                 class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md">
                 🔍 Check Availabile time with AI
               </button>
+              <button @click="showBookingHelp"
+                class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-md">
+                🤖 Help Me Use This
+              </button>
+
+
             </div>
           </form>
         </div>
@@ -297,23 +303,29 @@
       <form @submit.prevent="updateBookingData" class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label for="edit-date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-          <input type="date" id="edit-date" v-model="editBooking.date" required class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+          <input type="date" id="edit-date" v-model="editBooking.date" required
+            class="w-full px-3 py-2 border border-gray-300 rounded-md" />
         </div>
         <div>
           <label for="edit-purpose" class="block text-sm font-medium text-gray-700 mb-1">Purpose</label>
-          <input type="text" id="edit-purpose" v-model="editBooking.purpose" required class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+          <input type="text" id="edit-purpose" v-model="editBooking.purpose" required
+            class="w-full px-3 py-2 border border-gray-300 rounded-md" />
         </div>
         <div>
           <label for="edit-start" class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
-          <input type="time" id="edit-start" v-model="editBooking.start" required class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+          <input type="time" id="edit-start" v-model="editBooking.start" required
+            class="w-full px-3 py-2 border border-gray-300 rounded-md" />
         </div>
         <div>
           <label for="edit-end" class="block text-sm font-medium text-gray-700 mb-1">End Time</label>
-          <input type="time" id="edit-end" v-model="editBooking.end" required class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+          <input type="time" id="edit-end" v-model="editBooking.end" required
+            class="w-full px-3 py-2 border border-gray-300 rounded-md" />
         </div>
         <div class="md:col-span-2 flex justify-end space-x-3 mt-4">
-          <button type="button" @click="showEditModal = false" class="px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400 text-gray-800">Cancel</button>
-          <button type="submit" class="px-4 py-2 rounded-md bg-green-600 hover:bg-green-700 text-white">📂 Update Booking</button>
+          <button type="button" @click="showEditModal = false"
+            class="px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400 text-gray-800">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-md bg-green-600 hover:bg-green-700 text-white">📂 Update
+            Booking</button>
         </div>
       </form>
     </div>
@@ -926,6 +938,34 @@ const editBookingFromEvent = (booking: Booking) => {
   showEditModal.value = true
 }
 // ====================end edit booking modal ===================
+
+// ==================== function ask ai for help ===================
+const showBookingHelp = () => {
+  Swal.fire({
+    icon: 'info',
+    title: '🤖 How to Use Booking System',
+    html: `
+      <div style="text-align: left; font-size: 15px; line-height: 1.6;">
+        <b>🔍 Check Availability</b><br>
+        Ask something like:<br>
+        <code>"Is the room free on June 1st from 10am to 11am?"</code><br><br>
+
+        <b>📅 Book with AI</b><br>
+        Just type:<br>
+        <code>"Book a room on Monday from 2pm to 4pm for team meeting"</code><br><br>
+
+        <b>📝 Manual Booking</b><br>
+        Click "Booking Manual" to enter details yourself.<br><br>
+
+        ⚠️ The system will help avoid overlaps and suggest the next available time slot if your request conflicts with existing bookings.
+      </div>
+    `,
+    confirmButtonText: 'Got it!',
+    width: '34em'
+  });
+};
+
+// =====================end function ask ai for help ===================
 // Initialize
 onMounted(() => {
   loadBookings()
