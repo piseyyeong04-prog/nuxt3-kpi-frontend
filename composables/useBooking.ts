@@ -1,7 +1,7 @@
 import type { Booking } from "~/types/booking";
 
 export const useBooking = () => {
-  const createBooking = async (bookingData: Omit<Booking, 'id' | 'date_created' | 'updated_at'>) => {
+  const createBooking = async (bookingData: Omit<Booking, 'id' | 'date_created' | 'user_created' | 'updated_at'>) => {
     try {
       const response = await useApi<Booking>('/items/booking_room', {
         method: 'POST',
@@ -15,14 +15,18 @@ export const useBooking = () => {
 
   const getBookings = async () => {
     try {
-      const response = await useApi<{ data: Booking[] }>('/items/booking_room', {
-        method: 'GET'
-      });
+      const response = await useApi<{ data: Booking[] }>(
+        `/items/booking_room?fields=*,user_created.first_name,user_created.last_name,user_created.department.title,user_created.avatar`,
+        {
+          method: 'GET'
+        }
+      );
       return response.data;
     } catch (error) {
       throw error;
     }
   };
+
 
   const updateBooking = async (id: string, bookingData: Partial<Booking>) => {
     try {
