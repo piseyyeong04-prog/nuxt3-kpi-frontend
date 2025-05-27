@@ -50,6 +50,7 @@ export default defineNuxtConfig({
     },
     public: {
       API_BASE_URL: process.env.API_BASE_URL ,
+      GEMINI_API_KEY: process.env.GEMINI_API_KEY ,
     },
   },
 
