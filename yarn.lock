@@ -243,6 +243,11 @@
   dependencies:
     regenerator-runtime "^0.14.0"
 
+"@babel/runtime@^7.21.0":
+  version "7.27.1"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.27.1.tgz#9fce313d12c9a77507f264de74626e87fd0dc541"
+  integrity sha512-1x3D2xEk2fRo3PAhwQwu5UubzgiVWSXTBfWpVd2Mx2AzRqJuDJCsgaDVZ7HB5iGzDW1Hl1sWN2mFyKjmR9uAog==
+
 "@babel/standalone@^7.25.7":
   version "7.26.3"
   resolved "https://registry.yarnpkg.com/@babel/standalone/-/standalone-7.26.3.tgz#8d398e97524d9194c1b5e740d3998a0c63954414"
@@ -658,6 +663,28 @@
   integrity sha512-g8mXuqcFKbgH2CZKwPfVtsUJDHyvcgIABQI7Y0tzWEFXpGxJaXuAuzlifT2oTakjDBLTK4Gaa9/5PERDhqUjtw==
   dependencies:
     tslib "^2.4.1"
+
+"@fullcalendar/core@^6.1.17":
+  version "6.1.17"
+  resolved "https://registry.yarnpkg.com/@fullcalendar/core/-/core-6.1.17.tgz#faaffa100f020636a9b4c900462bdc6d652b58ef"
+  integrity sha512-0W7lnIrv18ruJ5zeWBeNZXO8qCWlzxDdp9COFEsZnyNjiEhUVnrW/dPbjRKYpL0edGG0/Lhs0ghp1z/5ekt8ZA==
+  dependencies:
+    preact "~10.12.1"
+
+"@fullcalendar/daygrid@^6.1.17":
+  version "6.1.17"
+  resolved "https://registry.yarnpkg.com/@fullcalendar/daygrid/-/daygrid-6.1.17.tgz#3ff9d8d99da872631b661bf9ca5a47ed849421cf"
+  integrity sha512-K7m+pd7oVJ9fW4h7CLDdDGJbc9szJ1xDU1DZ2ag+7oOo1aCNLv44CehzkkknM6r8EYlOOhgaelxQpKAI4glj7A==
+
+"@fullcalendar/interaction@^6.1.17":
+  version "6.1.17"
+  resolved "https://registry.yarnpkg.com/@fullcalendar/interaction/-/interaction-6.1.17.tgz#f0d14cb6f6c3cb7e2b20299dfb39a866232e2976"
+  integrity sha512-AudvQvgmJP2FU89wpSulUUjeWv24SuyCx8FzH2WIPVaYg+vDGGYarI7K6PcM3TH7B/CyaBjm5Rqw9lXgnwt5YA==
+
+"@fullcalendar/vue3@^6.1.17":
+  version "6.1.17"
+  resolved "https://registry.yarnpkg.com/@fullcalendar/vue3/-/vue3-6.1.17.tgz#f9c7fb4e6d94ff1dc401aeb730b6dd411b39cbe0"
+  integrity sha512-0+qi/PK/xCkTQXh2CaeN2AkP+SvQTznPhwBXuIyrtsR0Ua8UpmGEXI+my3qQ6o003r8gPUY2e785ywIyhX2zCA==
 
 "@headlessui/vue@^1.7.23":
   version "1.7.23"
@@ -2770,6 +2797,13 @@ csstype@^3.1.3:
   version "3.1.3"
   resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.1.3.tgz#d80ff294d114fb0e6ac500fbf85b60137d7eff81"
   integrity sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==
+
+date-fns@^2.22.1:
+  version "2.30.0"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.30.0.tgz#f367e644839ff57894ec6ac480de40cae4b0f4d0"
+  integrity sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==
+  dependencies:
+    "@babel/runtime" "^7.21.0"
 
 date-fns@^4.1.0:
   version "4.1.0"
@@ -5252,6 +5286,11 @@ postcss@^8.4.39, postcss@^8.4.43, postcss@^8.4.47, postcss@^8.4.48, postcss@^8.4
     picocolors "^1.1.1"
     source-map-js "^1.2.1"
 
+preact@~10.12.1:
+  version "10.12.1"
+  resolved "https://registry.yarnpkg.com/preact/-/preact-10.12.1.tgz#8f9cb5442f560e532729b7d23d42fd1161354a21"
+  integrity sha512-l8386ixSsBdbreOAkqtrwqHwdvR35ID8c3rKPa8lCWuO86dBi32QWHV4vfsZK1utLLFMvw+Z5Ad4XLkZzchscg==
+
 pretty-bytes@^6.1.1:
   version "6.1.1"
   resolved "https://registry.yarnpkg.com/pretty-bytes/-/pretty-bytes-6.1.1.tgz#38cd6bb46f47afbf667c202cfc754bffd2016a3b"
@@ -6529,6 +6568,13 @@ vue3-carousel@0.3.1:
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/vue3-carousel/-/vue3-carousel-0.3.1.tgz#d001be7dea416dc2f4e66afc4d56af66696dc117"
   integrity sha512-86vUkNPBzL2PVuR9w6hUsI90ccFjLp+K8cSFpRTISf+SjUQY3fMHc5CFF5MUL62v1xYYm27zEBmQupO9VQx9Kw==
+
+vue3-datepicker@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/vue3-datepicker/-/vue3-datepicker-0.4.0.tgz#d9493e801022062a89ba41e7927b391e5fe2e039"
+  integrity sha512-o0/y4yuZZc0DXYhiAlX8Znrkm/zvkeYuyV9PUt0UAvwxkno2jqMS388jVUa9Ns+a2s2pOAAybyXo5uQ9YAIwVw==
+  dependencies:
+    date-fns "^2.22.1"
 
 vue3-toastify@0.2.2:
   version "0.2.2"
