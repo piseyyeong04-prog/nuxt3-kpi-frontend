@@ -948,7 +948,7 @@ const showBookingHelp = () => {
       <div style="text-align: left; font-size: 15px; line-height: 1.6;">
         <b>🔍 Check Availability</b><br>
         Ask something like:<br>
-        <code>"Is the room free on June 1st from 10am to 11am?"</code><br><br>
+        <code>"Is the room free on June 1st 2025 from 10am to 11am?"</code><br><br>
 
         <b>📅 Book with AI</b><br>
         Just type:<br>
