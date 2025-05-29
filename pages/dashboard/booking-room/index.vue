@@ -3,65 +3,130 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
       <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-        <div class="px-6 py-4 bg-blue-600 flex items-center justify-between">
-          <div>
-            <h1 class="text-2xl font-bold text-white">AI Room Booking System</h1>
-            <p class="text-blue-100 mt-1">Book rooms using natural language</p>
-          </div>
-          <div>
-            <h2 class="text-lg font-semibold text-white mb-4">Manual Booking</h2>
-            <button @click="showManualModal = true"
-              class="mb-4 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md">
-              Booking Manual
-            </button>
-          </div>
-        </div>
         <!-- AI Booking Form -->
-        <div class="p-6 border-b border-gray-200">
-          <h2 class="text-lg font-semibold text-gray-900 mb-4">Natural Language Booking</h2>
-          <form @submit.prevent="handleAIBooking" class="space-y-4">
-            <div>
-              <label for="booking-text" class="block text-sm font-medium text-gray-700 mb-2">
-                Describe your booking
-              </label>
-              <textarea id="booking-text" v-model="bookingText"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                rows="3" placeholder="e.g., 'Book meeting room for tomorrow from 2 PM to 4 PM for team standup'"
-                required></textarea>
-            </div>
-            <div class="flex space-x-3">
-              <button type="submit" :disabled="isProcessing"
-                class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200">
-                <span v-if="!isProcessing">📅 Book with AI</span>
-                <span v-else class="flex items-center justify-center">
-                  <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-                    viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                    </path>
-                  </svg>
-                  Processing...
-                </span>
-              </button>
-              <button @click="askAvailability" :disabled="isProcessing"
-                class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md">
-                🔍 Check Availabile time with AI
-              </button>
-              <button @click="showBookingHelp"
-                class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-md">
-                🤖 Help Me Use This
-              </button>
+        <div
+          class="relative bg-gradient-to-br from-slate-50 to-blue-50/30 rounded-2xl border border-slate-200/60 shadow-xl shadow-blue-500/5 overflow-hidden">
+          <!-- Decorative background elements -->
+          <div
+            class="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-10">
+          </div>
+          <div
+            class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-400/10 to-indigo-500/10 rounded-full blur-3xl -translate-y-20 translate-x-20">
+          </div>
+          <div
+            class="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-purple-400/10 to-pink-500/10 rounded-full blur-2xl translate-y-16 -translate-x-16">
+          </div>
 
-
+          <div class="relative p-8 border-b border-slate-200/70 backdrop-blur-sm">
+            <!-- Header with icon and title -->
+            <div class="flex items-center space-x-3 mb-6">
+              <div class="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/25">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <div>
+                <h2
+                  class="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                  AI-Powered Booking
+                </h2>
+                <p class="text-sm text-slate-500 mt-0.5">Describe your booking in natural language</p>
+              </div>
+              <div class="flex justify-end flex-1">
+                <button @click="showManualModal = true"
+                  class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl font-medium shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-200">
+                  <span class="flex items-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>Book Manual</span>
+                  </span>
+                </button>
+              </div>
             </div>
-          </form>
+
+            <form @submit.prevent="handleAIBooking" class="space-y-6">
+              <!-- Text input with enhanced styling -->
+              <div class="group">
+                <label for="booking-text"
+                  class="block text-sm font-semibold text-slate-700 mb-3 flex items-center space-x-2">
+                  <span>📝</span>
+                  <span>Describe your booking</span>
+                </label>
+                <div class="relative">
+                  <textarea id="booking-text" v-model="bookingText" class="w-full px-4 py-4 bg-white/80 backdrop-blur-sm border-2 border-slate-200 rounded-xl shadow-sm 
+                   focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 
+                   transition-all duration-300 ease-out resize-none
+                   placeholder:text-slate-400 text-slate-700 font-medium
+                   group-hover:border-slate-300 group-hover:shadow-md" rows="4"
+                    placeholder="✨ Try: 'Book the conference room 30 may 2025 from 2-4 PM for our team standup meeting'"
+                    required>
+                  </textarea>
+                  <!-- Character counter or word count could go here -->
+                  <div class="absolute bottom-3 right-3 text-xs text-slate-400 bg-slate-100/80 px-2 py-1 rounded-full">
+                    AI Ready
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action buttons with modern design -->
+              <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                <!-- Primary booking button -->
+                <button type="submit" :disabled="isProcessing" class="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 
+                 disabled:from-slate-400 disabled:to-slate-500 text-white font-semibold py-4 px-6 rounded-xl 
+                 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-xl hover:shadow-blue-500/25
+                 disabled:transform-none disabled:shadow-none disabled:cursor-not-allowed
+                 focus:outline-none focus:ring-4 focus:ring-blue-500/20">
+                  <div
+                    class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700">
+                  </div>
+                  <span v-if="!isProcessing" class="relative flex items-center justify-center space-x-2">
+                    <span>🚀</span>
+                    <span>Book with AI</span>
+                  </span>
+                  <span v-else class="relative flex items-center justify-center space-x-2">
+                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                      viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                      </path>
+                    </svg>
+                    <span>Processing...</span>
+                  </span>
+                </button>
+
+                <!-- Availability check button -->
+                <button @click="askAvailability" :disabled="isProcessing" class="group bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 
+                 disabled:from-slate-400 disabled:to-slate-500 text-white font-semibold py-4 px-6 rounded-xl 
+                 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/25
+                 disabled:transform-none disabled:shadow-none disabled:cursor-not-allowed
+                 focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
+                  <span class="flex items-center justify-center space-x-2">
+                    <span>🔍</span>
+                    <span class="hidden sm:inline">Check Available</span>
+                    <span class="sm:hidden">Available</span>
+                  </span>
+                </button>
+
+                <!-- Help button -->
+                <button @click="showBookingHelp" class="group bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 
+                 text-white font-semibold py-4 px-6 rounded-xl 
+                 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-xl hover:shadow-red-500/25
+                 focus:outline-none focus:ring-4 focus:ring-red-500/20">
+                  <span class="flex items-center justify-center space-x-2">
+                    <span>🤖</span>
+                    <span class="hidden sm:inline">Get Help</span>
+                    <span class="sm:hidden">Help</span>
+                  </span>
+                </button>
+              </div>
+            </form>
+            <!-- Optional: Quick examples/suggestions -->
+
+          </div>
         </div>
-        <!-- Success/Error Messages -->
-        <!-- <div v-if="message" :class="messageClass" class="mt-4 p-4 rounded-md">
-        {{ message }}
-      </div> -->
-
         <!-- Calendar View -->
         <div class="p-6">
           <div class="flex justify-between items-center mb-4">
@@ -435,15 +500,6 @@ const calendarOptions = computed<CalendarOptions>(() => ({
   }
 }))
 
-// Methods
-// const showMessage = (msg: string, type: 'success' | 'error' = 'success') => {
-//   message.value = msg
-//   messageType.value = type
-//   setTimeout(() => {
-//     message.value = ''
-//   }, 5000)
-// }
-
 const getEventColor = (status: string) => {
   switch (status) {
     case 'published': return '#059669'
@@ -652,9 +708,6 @@ const handleAIBooking = async () => {
     isProcessing.value = false;
   }
 };
-
-
-
 const handleManualBooking = async () => {
   isProcessing.value = true;
   try {
@@ -741,9 +794,6 @@ const handleManualBooking = async () => {
     isProcessing.value = false;
   }
 };
-
-
-
 const loadBookings = async () => {
   loading.value = true
   try {
@@ -755,19 +805,6 @@ const loadBookings = async () => {
     loading.value = false
   }
 }
-
-// const editBookingFromEvent = (booking: Booking) => {
-//   manualBooking.value = {
-//     date: booking.date,
-//     start: booking.start,
-//     end: booking.end,
-//     purpose: booking.purpose
-//   }
-
-//   selectedEvent.value = null
-//   showManualModal.value = true
-// }
-
 const confirmDeleteBookingFromEvent = async (booking: Booking) => {
   if (!booking.id) return
 
