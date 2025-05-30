@@ -404,6 +404,7 @@ import interactionPlugin from '@fullcalendar/interaction'
 import type { CalendarOptions, EventClickArg, DateSelectArg } from '@fullcalendar/core'
 import type { Booking, ParsedBookingData } from '~/types/booking'
 import Swal from 'sweetalert2'
+import { useAuthStore } from '~/store/useAuthStore'
 
 const { extractBookingInfo } = useGeminiAI()
 const { createBooking, getBookings, updateBooking, deleteBooking } = useBooking()
@@ -693,7 +694,8 @@ const handleAIBooking = async () => {
       date: parsed.date,
       start: parsed.start_time,
       end: parsed.end_time,
-      purpose: bookingText.value,
+      purpose: parsed.purpose ?? bookingText.value,
+
       status: 'published'
     };
 
@@ -701,6 +703,19 @@ const handleAIBooking = async () => {
     showMessage('✅ Booking created successfully using AI!', 'success');
     bookingText.value = '';
     await loadBookings();
+    const auth = useAuthStore();
+    const currentUser = auth.user;
+
+    await sendTelegramMessage(
+      `📅 <b>មានការកក់បន្ទប់ស្ទូឌីយ៉ូ</b>\n\n` +
+      `<b>Full Name:</b> ${currentUser?.first_name ?? 'N/A'} ${currentUser?.last_name ?? ''}\n` +
+      `<b>Department:</b> ${currentUser?.department?.title ?? 'N/A'}\n` +
+      `<b>Purpose:</b> ${booking.purpose}\n` +
+      `<b>Date:</b> ${booking.date}\n` +
+      `<b>Time:</b> ${booking.start} – ${booking.end}\n` +
+      `<b>Status:</b> ${booking.status}`
+    );
+
   } catch (error) {
     console.error('AI Booking error:', error);
     showMessage('❌ Failed to create booking.', 'error');
@@ -787,6 +802,10 @@ const handleManualBooking = async () => {
     manualBooking.value = { date: '', start: '', end: '', purpose: '' };
     showManualModal.value = false;
     await loadBookings();
+    await sendTelegramMessage(
+      `📅 <b>New Booking</b>\n\n<b>Purpose:</b> ${booking.purpose}\n<b>Date:</b> ${booking.date}\n<b>Time:</b> ${booking.start} – ${booking.end}`
+    );
+
   } catch (error) {
     console.error('Manual booking error:', error);
     showMessage('❌ Failed to create booking.', 'error');
@@ -1000,6 +1019,20 @@ const showBookingHelp = () => {
     confirmButtonText: 'Got it!',
     width: '34em'
   });
+};
+const sendTelegramMessage = async (text: string) => {
+  try {
+    await $fetch(`https://api.telegram.org/bot7611691528:AAHKm4sEPEvMUDZGgBqJ7Fp3yNxLZO_HMJM/sendMessage`, {
+      method: 'POST',
+      body: {
+        chat_id: '-1002544759581',
+        text: text,
+        parse_mode: 'HTML'
+      }
+    });
+  } catch (error) {
+    console.error('Failed to send Telegram message:', error);
+  }
 };
 
 // =====================end function ask ai for help ===================

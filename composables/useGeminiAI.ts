@@ -1,6 +1,6 @@
+// composables/useGeminiAI.ts
 import type { ParsedBookingData } from "~/types/booking";
 
-// composables/useGeminiAI.ts
 export const useGeminiAI = () => {
   const config = useRuntimeConfig();
 
@@ -15,7 +15,7 @@ export const useGeminiAI = () => {
         body: {
           contents: [{
             parts: [{
-              text: `Extract date, start time, and end time from this sentence. Respond only in raw JSON (no markdown). Use format: {"date":"2025-06-05", "start_time":"17:00", "end_time":"19:00"}. Sentence: ${text}`
+              text: `Extract date, start time, end time, and purpose from this sentence. Respond only in raw JSON (no markdown). Use format: {\"date\":\"2025-06-05\", \"start_time\":\"17:00\", \"end_time\":\"19:00\", \"purpose\":\"team meeting\"}. Sentence: ${text}`
             }]
           }]
         }
