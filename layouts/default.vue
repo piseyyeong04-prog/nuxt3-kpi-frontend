@@ -219,7 +219,7 @@
               'text-primary-600 dark:text-primary-400 bg-primary-50/80 dark:bg-primary-900/15 font-medium':
                 $route.path.includes(sub.to) && sub.to !== '/'
             }">
-                    {{ sub.label[locale] }}
+                    {{ sub.label[locale as 'en' | 'km'] }}
                   </NuxtLink>
                 </div>
               </div>
@@ -483,7 +483,9 @@ interface MenuItem {
   to: string;
   icon: string;
   label: { en: string; km: string };
+  hasSubmenu?: boolean;
   role?: string | string[];
+  submenu?: { to: string; label: { en: string; km: string } }[];
 }
 
 const menuItems: MenuItem[] = [
@@ -511,6 +513,12 @@ const menuItems: MenuItem[] = [
     to: '/dashboard/monthly-ads-video-tracker',
     icon: 'mdi:currency-usd',
     label: { en: 'Monthly Video Ads Tracker', km: 'កម្មវិធីតាមដានការផ្សាយពាណិជ្ជកម្មវីដេអូប្រចាំខែ' }
+  },
+  // Interview tracking
+  {
+    to: '/dashboard/interview-tracking',
+    icon: 'mdi:account-search',
+    label: { en: 'Interview Tracking', km: 'ការតាមដានសម្ភាសន៍' }
   },
   // ai booking room
   {
