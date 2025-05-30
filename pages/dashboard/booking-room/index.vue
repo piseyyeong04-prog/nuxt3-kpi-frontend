@@ -694,7 +694,7 @@ const handleAIBooking = async () => {
       date: parsed.date,
       start: parsed.start_time,
       end: parsed.end_time,
-      purpose: parsed.purpose ?? bookingText.value,
+      purpose: bookingText.value,
 
       status: 'published'
     };
