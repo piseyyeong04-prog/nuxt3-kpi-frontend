@@ -290,6 +290,10 @@ import { ref, onMounted, computed, watch } from 'vue'
 import type { IResponse } from '~/types/api';
 import Swal from 'sweetalert2';
 
+definePageMeta({
+    middleware: 'auth',
+});
+
 interface InterviewTracking {
     id?: number
     status?: string
