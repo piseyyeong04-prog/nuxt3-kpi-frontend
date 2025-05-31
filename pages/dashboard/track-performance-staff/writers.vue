@@ -1,134 +1,199 @@
 <template>
-  <div class="min-h-screen dark:from-gray-900 dark:to-indigo-950 py-10">
-    <div class="container mx-auto px-4 max-w-6xl">
+  <div class="min-h-screen dark:from-gray-900 dark:to-indigo-950 ">
+    <div class="container mx-auto px-4 ">
       <div class="grid grid-cols-1 gap-8">
-        <!-- Article Form -->
-        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 border border-indigo-100 dark:border-indigo-900">
-          <div class="flex items-center mb-6">
-            <div class="mr-3 bg-indigo-100 dark:bg-indigo-900 p-2 rounded-lg">
-              <Icon icon="basil:add-solid" class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-            </div>
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Add Article</h2>
-          </div>
+        <div class="  dark:from-gray-900 dark:via-gray-800 dark:to-indigo-950 p-4 md:p-6">
+          <div class=" mx-auto space-y-8">
+            <div
+              class="backdrop-blur-sm bg-white/70 dark:bg-gray-800/70 rounded-3xl p-8 border border-white/20 dark:border-gray-700/30">
+              <div class="flex items-center gap-4 mb-8">
+                <div
+                  class="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg">
+                  <Icon icon="basil:add-solid" class="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Add New Article</h2>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Enter URL to automatically fetch article details
+                  </p>
+                </div>
+              </div>
 
-          <form @submit.prevent="addArticleData" class="space-y-5">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Website URL
-                </label>
-                <div class="relative flex gap-2">
-                  <div class="relative flex-grow">
-                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                      <Icon icon="iconoir:www" class="h-5 w-5 text-gray-400" />
+              <form @submit.prevent="addArticleData" class="space-y-2">
+                <!-- URL Input Section -->
+                <div class="space-y-3">
+                  <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                    Website URL
+                  </label>
+                  <div class="flex gap-3">
+                    <div class="relative flex-1">
+                      <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                        <Icon icon="iconoir:www" class="h-5 w-5 text-indigo-400" />
+                      </div>
+                      <input v-model="article_link" type="url"
+                        class="w-full h-14 pl-12 pr-4 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-2xl text-gray-900 dark:text-white placeholder-gray-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all duration-200"
+                        placeholder="https://www.tech-cambodia.com/example-slug" required />
                     </div>
-                    <input v-model="article_link" type="text"
-                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 p-3"
-                      placeholder="https://www.tech-cambodia.com/example-slug" required />
+                    <button type="button" @click="fetchArticleData"
+                      class="h-14 px-6 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-2xl transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none"
+                      :disabled="loading || !article_link">
+                      <span v-if="loading" class="flex items-center gap-2">
+                        <Icon icon="line-md:loading-twotone-loop" class="h-5 w-5" />
+                        <span class="hidden sm:inline">Fetching</span>
+                      </span>
+                      <span v-else class="flex items-center gap-2">
+                        <Icon icon="material-symbols:search" class="h-5 w-5" />
+                        <span class="hidden sm:inline">Fetch</span>
+                      </span>
+                    </button>
                   </div>
-                  <button type="button" @click="fetchArticleData"
-                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-3 rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg"
-                    :disabled="loading || !article_link">
-                    <span v-if="loading" class="flex items-center">
-                      <Icon icon="line-md:loading-twotone-loop" class="h-5 w-5" />
+                </div>
+
+                <!-- Form Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <!-- Left Column -->
+                  <div class="space-y-2">
+                    <!-- Writer Selection -->
+                    <div class="space-y-3">
+                      <label
+                        class="block text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                        Select Writer
+                      </label>
+                      <div class="relative">
+                        <select v-model="selectedCreator"
+                          class="w-full h-14 pl-4 pr-10 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-2xl text-gray-900 dark:text-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all duration-200 appearance-none cursor-pointer"
+                          required>
+                          <option v-for="creator in creatorsList" :key="creator.id" :value="creator.id">
+                            {{ getUserName(creator.staff) || (auth.user?.first_name + ' ' + auth.user?.last_name) }}
+                          </option>
+                        </select>
+                        <!-- <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                          <Icon icon="material-symbols:keyboard-arrow-down" class="h-5 w-5 text-gray-400" />
+                        </div> -->
+                      </div>
+                    </div>
+
+                    <!-- Article Title -->
+                    <div class="space-y-2">
+                      <label
+                        class="block text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                        Article Title
+                        <span class="text-xs text-gray-400 normal-case ml-1">(Optional)</span>
+                      </label>
+                      <input v-model="article_title" type="text"
+                        class="w-full h-14 px-4 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-2xl text-gray-900 dark:text-white placeholder-gray-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all duration-200"
+                        placeholder="Auto-filled from URL if left blank" />
+                    </div>
+                  </div>
+
+                  <!-- Right Column -->
+                  <div class="space-y-2">
+                    <!-- Article Views -->
+                    <div class="space-y-2">
+                      <label
+                        class="block text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                        Article Views
+                      </label>
+                      <div class="relative">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                          <Icon icon="icon-park:preview-open" class="h-5 w-5 text-gray-400" />
+                        </div>
+                        <input v-model.number="article_view" type="number" disabled
+                          class="w-full h-14 pl-12 pr-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl text-gray-500 dark:text-gray-400"
+                          placeholder="0" required />
+                      </div>
+                    </div>
+
+                    <!-- Article Date -->
+                    <div class="space-y-3">
+                      <label
+                        class="block text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                        Date Created
+                        <span class="text-xs text-gray-400 normal-case ml-1">(Auto-filled)</span>
+                      </label>
+                      <div class="relative">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                          <Icon icon="material-symbols:calendar-today" class="h-5 w-5 text-gray-400" />
+                        </div>
+                        <input v-model="formattedArticleDate" type="text" readonly
+                          class="w-full h-14 pl-12 pr-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl text-gray-500 dark:text-gray-400"
+                          placeholder="Auto-filled from URL" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-center pt-4">
+                  <button type="submit"
+                    class="h-14 px-8 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-2xl transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none font-semibold text-lg min-w-[200px]"
+                    :disabled="loading">
+                    <span v-if="loading" class="flex items-center gap-3">
+                      <Icon icon="line-md:loading-twotone-loop" class="h-6 w-6" />
+                      Processing...
                     </span>
-                    <span v-else class="flex items-center">
-                      <Icon icon="material-symbols:search" class="h-5 w-5" />
+                    <span v-else class="flex items-center gap-3">
+                      <Icon icon="basil:add-solid" class="h-6 w-6" />
+                      Add Article
                     </span>
                   </button>
                 </div>
-              </div>
-              <!-- Creator select dropdown -->
-              <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Select Writer
-                </label>
-                <select v-model="selectedCreator"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3"
-                  required>
-                  <option v-for="creator in creatorsList" :key="creator.id" :value="creator.id">
-                    {{ getUserName(creator.staff) || (auth.user?.first_name + ' ' + auth.user?.last_name) }}
-                  </option>
-                </select>
-              </div>
+              </form>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Article Title (Optional)
-                </label>
-                <input v-model="article_title" type="text"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3"
-                  placeholder="Article title will be fetched automatically if left blank" />
-              </div>
-              <!-- article_view input -->
-              <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Article Views
-                </label>
-                <input v-model.number="article_view" type="number"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3"
-                  placeholder="0" required />
+            <!-- Performance Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <!-- Total Articles Card -->
+              <div
+                class="group relative overflow-hidden bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-700 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+                <div class="relative space-y-3">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-center w-12 h-12 bg-white/20 rounded-2xl backdrop-blur-sm">
+                      <Icon icon="fluent:document-16-filled" class="h-6 w-6 text-white" />
+                    </div>
+                  </div>
+                  <p class="text-indigo-100 text-sm font-medium uppercase tracking-wide">Articles (This Period)</p>
+                  <p class="text-4xl font-bold text-white">
+                    {{ getTotalArticlesCountInCurrentPeriod(creators, currentKpiPeriod) }}
+                  </p>
+                </div>
               </div>
 
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Article Date Created (Optional)
-                </label>
-                <input v-model="formattedArticleDate" type="text" readonly
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3" 
-                  placeholder="Article date will be fetched automatically if left blank" />
-
+              <!-- Total Views Card -->
+              <div
+                class="group relative overflow-hidden bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+                <div class="relative space-y-3">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-center w-12 h-12 bg-white/20 rounded-2xl backdrop-blur-sm">
+                      <Icon icon="icon-park:preview-open" class="h-6 w-6 text-white" />
+                    </div>
+                  </div>
+                  <p class="text-emerald-100 text-sm font-medium uppercase tracking-wide">Views (This Period)</p>
+                  <p class="text-4xl font-bold text-white">
+                    {{ formatNumber(getTotalViewsAcrossAllInCurrentPeriod(creators, currentKpiPeriod)) }}
+                  </p>
+                </div>
               </div>
 
-
+              <!-- Completed Targets Card -->
+              <div
+                class="group relative overflow-hidden bg-gradient-to-br from-rose-500 via-rose-600 to-pink-700 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+                <div class="relative space-y-3">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-center w-12 h-12 bg-white/20 rounded-2xl backdrop-blur-sm">
+                      <Icon icon="fluent-mdl2:completed" class="h-6 w-6 text-white" />
+                    </div>
+                  </div>
+                  <p class="text-rose-100 text-sm font-medium uppercase tracking-wide">Completed Targets</p>
+                  <p class="text-4xl font-bold text-white">
+                    {{ getCompletedTargetsCountInCurrentPeriod(creators, currentKpiPeriod) }}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div class="flex flex-col sm:flex-row items-center gap-4 pt-2">
-              <button type="submit"
-                class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg"
-                :disabled="loading">
-                <span v-if="loading" class="flex items-center">
-                  <Icon icon="line-md:loading-twotone-loop" class="h-6 w-6 mr-2" />
-                  Processing...
-                </span>
-                <span v-else class="flex items-center">
-                  <Icon icon="basil:add-solid" class="h-6 w-6 mr-2 text-white" />
-                  Add Article
-                </span>
-              </button>
-            </div>
-          </form>
-        </div>
-        <!-- Performance Summary Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-5 border-l-4 border-indigo-500">
-            <p class="text-sm text-gray-500 dark:text-gray-400">Total Articles</p>
-            <div class="flex items-center mt-2">
-              <Icon icon="fluent:document-16-filled" class="h-8 w-8 text-indigo-500 mr-3" />
-              <span class="text-2xl font-bold text-gray-800 dark:text-white">{{ getTotalArticlesCount(creators)
-                }}</span>
-            </div>
-          </div>
-
-          <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-5 border-l-4 border-emerald-500">
-            <p class="text-sm text-gray-500 dark:text-gray-400">Total Views</p>
-            <div class="flex items-center mt-2">
-              <Icon icon="icon-park:preview-open" class="h-8 w-8 text-emerald-500 mr-3" />
-              <span class="text-2xl font-bold text-gray-800 dark:text-white">{{
-                formatNumber(getTotalViewsAcrossAll(creators)) }}</span>
-            </div>
-          </div>
-          <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-5 border-l-4 border-rose-500">
-            <p class="text-sm text-gray-500 dark:text-gray-400">Completed Targets</p>
-            <div class="flex items-center mt-2">
-              <Icon icon="fluent-mdl2:completed" class="h-8 w-8 text-rose-500 mr-3" />
-              <span class="text-2xl font-bold text-gray-800 dark:text-white">{{ getCompletedTargetsCount(creators)
-                }}</span>
-            </div>
           </div>
         </div>
 
@@ -180,16 +245,30 @@
               <tbody>
                 <tr v-for="(creator, index) in creatorsList" :key="creator.id"
                   class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+
+                  <!-- Staff Name -->
                   <td class="py-4 px-6 font-medium text-gray-800 dark:text-white">
                     {{ getUserName(creator.staff) || (auth.user?.first_name + ' ' + auth.user?.last_name) }}
                   </td>
-                  <td class="py-4 px-6 text-gray-600 dark:text-gray-300">{{ creator.user_created?.title || 'N/A' }}</td>
-                  <td class="py-4 px-6 text-gray-600 dark:text-gray-300">{{ creator.user_created?.department?.title ||
-                    'N/A' }}
+
+                  <!-- Position -->
+                  <td class="py-4 px-6 text-gray-600 dark:text-gray-300">
+                    {{ creator.user_created?.title || 'N/A' }}
                   </td>
-                  <td class="py-4 px-6 font-medium dark:text-white">{{ formatNumber(creator.target) }}</td>
+
+                  <!-- Department -->
+                  <td class="py-4 px-6 text-gray-600 dark:text-gray-300">
+                    {{ creator.user_created?.department?.title || 'N/A' }}
+                  </td>
+
+                  <!-- View Target -->
+                  <td class="py-4 px-6 font-medium dark:text-white">
+                    {{ formatNumber(creator.target) }}
+                  </td>
+
+                  <!-- Status -->
                   <td class="py-4 px-6">
-                    <span v-if="isCompleted(creator)"
+                    <span v-if="isCompleted({ ...creator, remarks: getRemarksInCurrentPeriod(creator) })"
                       class="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full text-xs font-medium">
                       Completed
                     </span>
@@ -198,35 +277,46 @@
                       In Progress
                     </span>
                   </td>
+
+                  <!-- Views in KPI Period -->
                   <td class="py-4 px-6 font-medium"
                     :class="index % 2 === 0 ? 'text-indigo-600 dark:text-indigo-400' : 'text-rose-600 dark:text-rose-400'">
-                    {{ getTotalViews(creator.remarks) }}
-
+                    {{ getTotalViews(getRemarksInCurrentPeriod(creator)) }}
                   </td>
-                  <td class="py-4 px-6">
-                    <button @click="viewWriterArticles(creator.id)" class="px-3 py-1 flex bg-blue-500  dark:bg-indigo-900/30 dark:hover:bg-indigo-900/50
-                      text-white  dark:text-indigo-400 rounded-md transition-colors">
-                      {{ creator.remarks?.length || 0 }} Articles
-                      <Icon icon="game-icons:click" width="24" height="24" />
 
+                  <!-- Article Count (KPI period only) -->
+                  <td class="py-4 px-6">
+                    <button @click="viewWriterArticles(creator.id)"
+                      class="px-3 py-1 flex bg-blue-500 dark:bg-indigo-900/30 dark:hover:bg-indigo-900/50 text-white dark:text-indigo-400 rounded-md transition-colors">
+                      {{ getRemarksInCurrentPeriod(creator).length }} Articles
+                      <Icon icon="game-icons:click" width="24" height="24" />
                     </button>
                   </td>
-                  <td class="py-4 px-6 font-medium dark:text-white">{{ formatTotalViews(getTotalViews(creator.remarks))
-                    }}</td>
+
+                  <!-- Formatted Views (KPI period) -->
+                  <td class="py-4 px-6 font-medium dark:text-white">
+                    {{ formatTotalViews(getTotalViews(getRemarksInCurrentPeriod(creator))) }}
+                  </td>
+
+                  <!-- Progress Bar -->
                   <td class="py-4 px-6 w-40 dark:text-white">
                     <div class="flex items-center">
                       <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mr-2">
-                        <div class="h-2.5 rounded-full" :class="getProgressBarColor(calculatePercent(creator))"
-                          :style="`width: ${Math.min(calculatePercent(creator), 100)}%`"></div>
+                        <div class="h-2.5 rounded-full"
+                          :class="getProgressBarColor(calculatePercent({ ...creator, remarks: getRemarksInCurrentPeriod(creator) }))"
+                          :style="`width: ${Math.min(calculatePercent({ ...creator, remarks: getRemarksInCurrentPeriod(creator) }), 100)}%`">
+                        </div>
                       </div>
                       <div class="whitespace-nowrap text-xs font-medium"
-                        :class="getPercentClass(calculatePercent(creator))">
-                        {{ calculatePercent(creator) }}%
+                        :class="getPercentClass(calculatePercent({ ...creator, remarks: getRemarksInCurrentPeriod(creator) }))">
+                        {{ calculatePercent({ ...creator, remarks: getRemarksInCurrentPeriod(creator) }) }}%
                       </div>
                     </div>
                   </td>
                 </tr>
               </tbody>
+
+
             </table>
           </div>
         </div>
@@ -243,7 +333,7 @@
       <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
       <!-- Modal panel -->
-      <div
+      <div data-aos="fade-down"
         class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
         <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
           <div class="sm:flex sm:items-start">
@@ -255,6 +345,28 @@
                 <button @click="closeArticlesModal" class="text-gray-400 hover:text-gray-500 focus:outline-none">
                   <Icon icon="heroicons:x-mark" class="h-6 w-6" />
                 </button>
+
+              </div>
+              <div class="py-2">
+                <select v-model="selectedMonth" @change="filterArticlesByKpiPeriod"
+                  class="rounded-md text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
+                  <option v-for="(period, key) in kpiPeriods" :key="key" :value="key">{{ period.label }}</option>
+                </select>
+              </div>
+              <!-- KPI Monthly Summary -->
+              <div class="mb-4 mt-2 px-1 text-sm text-gray-700 dark:text-gray-300">
+                <p><strong>Total Views:</strong> {{ formatNumber(getPeriodViews(writerArticles).toString()) }}</p>
+                <p><strong>Total Articles:</strong> {{ writerArticles.length }}</p>
+                <p>
+                  <strong>Status:</strong>
+                  <span v-if="getPeriodViews(writerArticles) >= selectedWriterTarget"
+                    class="text-green-600 font-semibold">
+                    Completed
+                  </span>
+                  <span v-else class="text-yellow-600 font-semibold">
+                    In Progress
+                  </span>
+                </p>
               </div>
 
               <!-- Articles table -->
@@ -362,7 +474,7 @@
       <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
       <!-- Modal panel -->
-      <div
+      <div data-aos="fade-down"
         class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
         <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
           <div class="sm:flex sm:items-start">
@@ -440,6 +552,7 @@ import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
 import { useAuthStore } from '~/store/useAuthStore';
 import type { IResponse } from '~/types/api';
+import { getKpiPeriodsFromArticles } from '~/utils/writers';
 
 // Import writer utilities
 import {
@@ -492,6 +605,7 @@ const { dateRangeHeader, totalViewsHeader } = getKpiDateHeaders();
 // ================== Fetch Article Data =================
 
 // Function to fetch article data from Tech Cambodia API
+
 const fetchArticleData = async () => {
   if (!article_link.value) return;
 
@@ -756,21 +870,79 @@ const showArticlesModal = ref(false);
 const selectedWriterId = ref<number | null>(null);
 const selectedWriterName = ref('');
 const writerArticles = ref<any[]>([]);
+const availableMonths = ref<Record<string, string>>({});
+const selectedMonth = ref<string>('current');
+const currentKpiPeriod = ref<{ from: Date; to: Date } | null>(null);
 
-// Replace the viewWriterArticles function with this:
-const viewWriterArticles = (writerId: number) => {
-  selectedWriterId.value = writerId;
 
-  // Find the writer and their articles
-  const writer = creators.value.find(c => c.id === writerId);
-  if (writer) {
-    selectedWriterName.value = getUserName(writer.staff) || (auth.user?.first_name + ' ' + auth.user?.last_name);
-    writerArticles.value = [...(writer.remarks || [])].sort((a, b) => {
-      return new Date(b.date_created).getTime() - new Date(a.date_created).getTime();
+
+const filterArticlesByMonth = () => {
+  const allArticles = creators.value.find(c => c.id === selectedWriterId.value)?.remarks || [];
+
+  if (selectedMonth.value === 'current') {
+    writerArticles.value = [...allArticles];
+  } else {
+    writerArticles.value = allArticles.filter(article => {
+      const date = new Date(article.date_created);
+      const month = date.getMonth() + 1;
+      const year = date.getFullYear();
+      const formatted = `${year}-${String(month).padStart(2, '0')}`;
+      return formatted === selectedMonth.value;
     });
   }
 
-  // Show the modal
+  writerArticles.value.sort((a, b) => new Date(b.date_created).getTime() - new Date(a.date_created).getTime());
+};
+
+// Replace the viewWriterArticles function with this:
+const filterArticlesByKpiPeriod = () => {
+  const writer = creators.value.find(c => c.id === selectedWriterId.value);
+  const allArticles = writer?.remarks || [];
+
+  if (selectedMonth.value === 'current' || !kpiPeriods.value[selectedMonth.value]) {
+    writerArticles.value = allArticles;
+    return;
+  }
+
+  const { from, to } = kpiPeriods.value[selectedMonth.value];
+  writerArticles.value = allArticles.filter(article => {
+    const date = new Date(article.date_created);
+    return date >= from && date < to;
+  });
+};
+
+const kpiPeriods = ref<Record<string, { label: string, from: Date, to: Date }>>({});
+
+const viewWriterArticles = (writerId: number) => {
+  selectedWriterId.value = writerId;
+  const writer = creators.value.find(c => c.id === writerId);
+  if (!writer) return;
+
+  selectedWriterName.value = getUserName(writer.staff) || (auth.user?.first_name + ' ' + auth.user?.last_name);
+  const allArticles = writer.remarks || [];
+
+  // Sort all articles by date (latest first)
+  allArticles.sort((a, b) => new Date(b.date_created).getTime() - new Date(a.date_created).getTime());
+  writerArticles.value = allArticles;
+
+  // Generate KPI periods
+  kpiPeriods.value = getKpiPeriodsFromArticles(
+    allArticles.map(article => ({
+      ...article,
+      date_created: typeof article.date_created === 'string'
+        ? article.date_created
+        : article.date_created?.toISOString?.() || ''
+    }))
+  );
+
+  // ✅ Fix: Select the latest KPI period dynamically
+  const sortedKeys = Object.keys(kpiPeriods.value).sort((a, b) => {
+    return new Date(kpiPeriods.value[b].from).getTime() - new Date(kpiPeriods.value[a].from).getTime();
+  });
+
+  selectedMonth.value = sortedKeys[0] || 'current';
+
+  filterArticlesByKpiPeriod();
   showArticlesModal.value = true;
 };
 
@@ -1233,6 +1405,21 @@ const deleteArticle = async (articleId: number) => {
 };
 
 // ================== End delete article =================
+
+
+// ================= avaible month history =================
+
+// Return total views for current period
+const getPeriodViews = (articles: any[]): number => {
+  return articles.reduce((sum, article) => sum + (parseInt(article.view) || 0), 0);
+};
+
+// Writer's view target (used in modal summary)
+const selectedWriterTarget = computed(() => {
+  const creator = creators.value.find(c => c.id === selectedWriterId.value);
+  return creator ? parseInt(creator.target) : 0;
+});
+// =================end avaible month history =================
 // Set default selected creator when list loads
 watch(creatorsList, (newCreatorsList) => {
   if (newCreatorsList.length > 0 && !selectedCreator.value) {
@@ -1244,9 +1431,38 @@ watch(creatorsList, (newCreatorsList) => {
 definePageMeta({
   middleware: ['auth', 'role'],
 });
+const getRemarksInCurrentPeriod = (creator: IWriter) => {
+  if (!currentKpiPeriod.value) return creator.remarks || [];
+
+  const { from, to } = currentKpiPeriod.value;
+  return (creator.remarks || []).filter(article => {
+    const date = new Date(article.date_created);
+    return date >= from && date < to;
+  });
+};
 
 // Fetch data on component mount
 onMounted(async () => {
   await fetchCreators();
+
+  // Optional: use today’s date to match KPI period
+  const now = new Date();
+  const periods = getKpiPeriodsFromArticles(
+    creators.value.flatMap(c =>
+      (c.remarks || []).map(r => ({
+        ...r,
+        date_created: typeof r.date_created === 'string'
+          ? r.date_created
+          : r.date_created?.toISOString?.() || ''
+      }))
+    )
+  );
+
+  const sortedKeys = Object.keys(periods).sort((a, b) => new Date(periods[b].from).getTime() - new Date(periods[a].from).getTime());
+  const latestKey = sortedKeys[0];
+  if (latestKey) {
+    currentKpiPeriod.value = periods[latestKey];
+  }
 });
+
 </script>

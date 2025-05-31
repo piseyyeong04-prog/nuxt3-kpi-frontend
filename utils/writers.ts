@@ -145,3 +145,82 @@ export const getTotalViewsAcrossAll = (creators: IWriter[]): string => {
   });
   return totalViews.toString();
 };
+export const getTotalArticlesCountInCurrentPeriod = (creators: IWriter[], period: { from: Date; to: Date } | null): number => {
+  if (!period) return 0;
+  return creators.reduce((total, creator) => {
+    const count = (creator.remarks || []).filter(article => {
+      const date = new Date(article.date_created);
+      return date >= period.from && date < period.to;
+    }).length;
+    return total + count;
+  }, 0);
+};
+
+export const getTotalViewsAcrossAllInCurrentPeriod = (creators: IWriter[], period: { from: Date; to: Date } | null): string => {
+  if (!period) return '0';
+  let totalViews = 0;
+  creators.forEach(creator => {
+    const views = (creator.remarks || []).filter(article => {
+      const date = new Date(article.date_created);
+      return date >= period.from && date < period.to;
+    }).reduce((sum, article) => sum + (parseInt(article.view || '0')), 0);
+    totalViews += views;
+  });
+  return totalViews.toString();
+};
+
+export const getCompletedTargetsCountInCurrentPeriod = (creators: IWriter[], period: { from: Date; to: Date } | null): number => {
+  if (!period) return 0;
+  return creators.filter(creator => {
+    const remarksInPeriod = (creator.remarks || []).filter(article => {
+      const date = new Date(article.date_created);
+      return date >= period.from && date < period.to;
+    });
+    const views = remarksInPeriod.reduce((sum, r) => sum + (parseInt(r.view || '0')), 0);
+    const target = parseInt(creator.target || '0');
+    return views >= target;
+  }).length;
+};
+
+/**
+ * Generate KPI period ranges (23rd of month to 23rd of next) from article dates.
+ * @param articles List of articles with date_created
+ * @returns Object with keys like '2025-05' and value containing label, from, to
+ */
+
+export const getKpiPeriodsFromArticles = (articles: { date_created: string }[]) => {
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'];
+
+  const periodMap: Record<string, { label: string, from: Date, to: Date }> = {};
+
+  for (const article of articles) {
+    const created = new Date(article.date_created);
+    const year = created.getFullYear();
+    const month = created.getMonth();
+
+    let periodYear = year;
+    let periodMonth = month;
+
+    if (created.getDate() < 23) {
+      periodMonth = month - 1;
+      if (periodMonth < 0) {
+        periodMonth = 11;
+        periodYear = year - 1;
+      }
+    }
+
+    const periodKey = `${periodYear}-${String(periodMonth + 1).padStart(2, '0')}`;
+
+    const fromDate = new Date(periodYear, periodMonth, 23);
+    const toDate = new Date(periodYear, periodMonth + 1, 23);
+
+    periodMap[periodKey] = {
+      label: `${monthNames[periodMonth]} ${periodYear} (23 ${monthNames[periodMonth].substring(0, 3)} - 23 ${monthNames[(periodMonth + 1) % 12].substring(0, 3)})`,
+      from: fromDate,
+      to: toDate
+    };
+  }
+
+  return periodMap;
+};
