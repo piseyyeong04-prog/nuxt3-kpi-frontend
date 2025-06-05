@@ -15,6 +15,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const adminRoleId = "3a5cb98e-02f8-4f09-afd9-dcd43288c756";
   const writerRoleId = "bb5d4a67-a17e-4cdf-9d59-c8f95518797b";
   const creatorRoleId = "487171a6-b731-4d96-b350-3481868c8f92";
+  const editorRoleId = "af115dbc-3aad-4879-8c1e-5ed0059ec576";
   const hrRoleId = "90feab0a-4641-44bc-91ea-806387b95230";
   
   // Check if user is an admin (admins can access all pages)
@@ -39,6 +40,11 @@ export default defineNuxtRouteMiddleware((to, from) => {
   // Check access for creators page
   if (to.path.includes('/dashboard/track-performance-staff/creators') && 
       auth.user.role.id !== creatorRoleId) {
+    return navigateTo('/access-denied');
+  }
+  // Check access for editors page
+  if (to.path.includes('/dashboard/track-performance-staff/editors') &&
+      auth.user.role.id !== editorRoleId) {
     return navigateTo('/access-denied');
   }
 });

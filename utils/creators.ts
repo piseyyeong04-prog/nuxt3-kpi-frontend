@@ -14,7 +14,7 @@ export interface ICreator {
   status: string;
   staff: string;
   target: string;
-  remarks: IRemark[];
+  remarks: IRemark[]; 
   user_created: {
     id: string;
     first_name: string;

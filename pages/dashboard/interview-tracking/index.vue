@@ -13,23 +13,14 @@
         <div class="mb-6 flex flex-col sm:flex-row gap-4">
             <div class="flex-1">
                 <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search</label>
-                <input 
-                    id="search"
-                    v-model="searchQuery" 
-                    @input="handleSearch"
-                    type="text" 
-                    placeholder="Search by business name, owner, or location..."
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
-                >
+                <input id="search" v-model="searchQuery" @input="handleSearch" type="text"
+                    placeholder="Search by business name, owner, location, or industry..."
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
             </div>
             <div>
                 <label for="per-page" class="block text-sm font-medium text-gray-700 mb-2">Show</label>
-                <select 
-                    id="per-page"
-                    v-model="itemsPerPage" 
-                    @change="handlePerPageChange"
-                    class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
-                >
+                <select id="per-page" v-model="itemsPerPage" @change="handlePerPageChange"
+                    class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
                     <option value="10">10</option>
                     <option value="25">25</option>
                     <option value="50">50</option>
@@ -64,7 +55,16 @@
                             Location
                         </th>
                         <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
-                            Confirm Date 
+                            Industry
+                        </th>
+                        <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
+                            Confirm Date
+                        </th>
+                        <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
+                            Meeting Date
+                        </th>
+                        <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
+                            Price Status
                         </th>
                         <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
                             <div class="flex items-center">
@@ -79,7 +79,7 @@
                             Interview By
                         </th>
                         <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
-                            Contact Link
+                            Contact Links
                         </th>
                         <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
                             Actions
@@ -99,7 +99,24 @@
                             {{ business.location }}
                         </td>
                         <td class="px-6 py-4">
+                            <span v-if="business.industry"
+                                class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                {{ business.industry }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
                             {{ business.confirm_date }}
+                        </td>
+                        <td class="px-6 py-4">
+                            {{ business.meeting_date || 'Not set' }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <span v-if="business.price_status" :class="[
+                                'px-2 py-1 text-xs font-semibold rounded-full',
+                                business.price_status === 'free' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                            ]">
+                                {{ business.price_status }}
+                            </span>
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex items-center">
@@ -117,11 +134,21 @@
                             <span v-else class="text-gray-400 italic">Not set</span>
                         </td>
                         <td class="px-6 py-4">
-                            <a :href="business.contact_link"
-                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline" target="_blank"
-                                rel="noopener noreferrer">
-                                Contact
-                            </a>
+                            <div class="space-y-1">
+                                <a v-if="business.contact_link" :href="business.contact_link"
+                                    class="block font-medium text-blue-600 dark:text-blue-500 hover:underline text-xs"
+                                    target="_blank" rel="noopener noreferrer">
+                                    Main Contact
+                                </a>
+                                <template v-if="business.contact_links && business.contact_links.length > 0">
+                                    <a v-for="(link, linkIndex) in business.contact_links" :key="linkIndex"
+                                        :href="link.name"
+                                        class="block font-medium text-blue-600 dark:text-blue-500 hover:underline text-xs"
+                                        target="_blank" rel="noopener noreferrer">
+                                        Link {{ linkIndex + 1 }}
+                                    </a>
+                                </template>
+                            </div>
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex space-x-2">
@@ -149,51 +176,34 @@
         <!-- Pagination -->
         <div v-if="totalPages > 1" class="flex items-center justify-between mt-6">
             <div class="flex items-center space-x-2">
-                <button 
-                    @click="goToPage(1)" 
-                    :disabled="currentPage === 1"
-                    class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
+                <button @click="goToPage(1)" :disabled="currentPage === 1"
+                    class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
                     First
                 </button>
-                <button 
-                    @click="goToPage(currentPage - 1)" 
-                    :disabled="currentPage === 1"
-                    class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
+                <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1"
+                    class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
                     Previous
                 </button>
             </div>
 
             <div class="flex items-center space-x-1">
-                <button 
-                    v-for="page in visiblePages" 
-                    :key="page"
-                    @click="goToPage(page)"
-                    :class="[
-                        'px-3 py-2 text-sm font-medium rounded-lg',
-                        currentPage === page 
-                            ? 'text-white bg-green-600 hover:bg-green-700' 
-                            : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'
-                    ]"
-                >
+                <button v-for="page in visiblePages" :key="page" @click="goToPage(page)" :class="[
+                    'px-3 py-2 text-sm font-medium rounded-lg',
+                    currentPage === page
+                        ? 'text-white bg-green-600 hover:bg-green-700'
+                        : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'
+                ]">
                     {{ page }}
                 </button>
             </div>
 
             <div class="flex items-center space-x-2">
-                <button 
-                    @click="goToPage(currentPage + 1)" 
-                    :disabled="currentPage === totalPages"
-                    class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
+                <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages"
+                    class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
                     Next
                 </button>
-                <button 
-                    @click="goToPage(totalPages)" 
-                    :disabled="currentPage === totalPages"
-                    class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
+                <button @click="goToPage(totalPages)" :disabled="currentPage === totalPages"
+                    class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
                     Last
                 </button>
             </div>
@@ -205,76 +215,134 @@
                 <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="closeModal"></div>
 
                 <div
-                    class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                    class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
                     <form @submit.prevent="submitForm">
                         <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                            <div class="sm:flex sm:items-start">
-                                <div class="w-full">
-                                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
-                                        {{ isEdit ? 'Edit Business' : 'Add New Business' }}
-                                    </h3>
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                                {{ isEdit ? 'Edit Business' : 'Add New Business' }}
+                            </h3>
 
-                                    <div class="space-y-4">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Business Name</label>
-                                            <input v-model="formData.business_name" type="text" required
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                        </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Business Name *</label>
+                                    <input v-model="formData.business_name" required type="text"
+                                        class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
+                                </div>
 
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Owner Name</label>
-                                            <input v-model="formData.owner_name" type="text" required
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                        </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Owner Name *</label>
+                                    <input v-model="formData.owner_name" required type="text"
+                                        class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
+                                </div>
 
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                                            <input v-model="formData.location" type="text" required
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                        </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Location *</label>
+                                    <input v-model="formData.location" required type="text"
+                                        class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
+                                </div>
 
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Date</label>
-                                            <input v-model="formData.confirm_date" type="text" required
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                        </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Industry</label>
+                                    <input v-model="formData.industry" type="text"
+                                        class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
+                                </div>
 
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Contact Link</label>
-                                            <input v-model="formData.contact_link" type="url" required
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                        </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Date *</label>
+                                    <input v-model="formData.confirm_date"   type="text"
+                                        class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
+                                </div>
 
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Checked</label>
-                                            <select v-model="formData.checked[0]"
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                <option value="yes">Yes</option>
-                                                <option value="no">No</option>
-                                            </select>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Meeting Date</label>
+                                    <input v-model="formData.meeting_date" type="date"
+                                        class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Price Status</label>
+                                    <select v-model="formData.price_status"
+                                        class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
+                                        <option value="">Select Status</option>
+                                        <option value="free">Free</option>
+                                        <option value="paid">Paid</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Checked</label>
+                                    <select v-model="formData.is_checked"
+                                        class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
+                                        <option :value="true">Yes</option>
+                                        <option :value="false">No</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Interviewed By</label>
+                                    <select v-model="formData.interview_by" required
+                                        class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
+                                        <option disabled value="">Select User</option>
+                                        <option v-for="user in users" :key="user.id" :value="user.id">
+                                            {{ user.first_name }} {{ user.last_name }} ({{ user.title }})
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Main Contact Link
+                                        *</label>
+                                    <input v-model="formData.contact_link" required type="url"
+                                        class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Reference</label>
+                                    <input v-model="formData.reference" type="text"
+                                        class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Task</label>
+                                    <input v-model="formData.task" type="text"
+                                        class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
+                                </div>
+
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Additional Contact
+                                        Links</label>
+                                    <div class="space-y-2">
+                                        <div v-for="(link, index) in formData.contact_links" :key="index"
+                                            class="flex items-center space-x-2">
+                                            <input v-model="link.name" type="url" placeholder="Enter contact link"
+                                                class="flex-1 px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
+                                            <button type="button" @click="removeContactLink(index)"
+                                                class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-md text-sm">
+                                                Remove
+                                            </button>
                                         </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Interviewed By</label>
-                                            <select v-model="formData.interview_by" required
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                <option disabled value="">Select User</option>
-                                                <option v-for="user in users" :key="user.id" :value="user.id">
-                                                    {{ user.first_name }} {{ user.last_name }} ({{ user.title }})
-                                                </option>
-                                            </select>
-                                        </div>
+                                        <button type="button" @click="addContactLink"
+                                            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-md text-sm">
+                                            Add Contact Link
+                                        </button>
                                     </div>
+                                </div>
+
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Remark</label>
+                                    <textarea v-model="formData.remark" rows="3"
+                                        class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500"></textarea>
                                 </div>
                             </div>
                         </div>
 
                         <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                             <button type="submit" :disabled="submitting"
-                                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50">
+                                class="w-full sm:w-auto inline-flex justify-center rounded-md bg-green-600 px-4 py-2 text-white text-sm font-medium hover:bg-green-700 disabled:opacity-50">
                                 {{ submitting ? 'Saving...' : (isEdit ? 'Update' : 'Create') }}
                             </button>
                             <button type="button" @click="closeModal"
-                                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                                class="mt-3 w-full sm:w-auto inline-flex justify-center rounded-md bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3">
                                 Cancel
                             </button>
                         </div>
@@ -282,6 +350,7 @@
                 </div>
             </div>
         </div>
+
     </div>
 </template>
 
@@ -293,6 +362,10 @@ import Swal from 'sweetalert2';
 definePageMeta({
     middleware: 'auth',
 });
+
+interface ContactLink {
+    name: string
+}
 
 interface InterviewTracking {
     id?: number
@@ -306,8 +379,15 @@ interface InterviewTracking {
     owner_name: string
     location: string
     confirm_date: string
-    contact_link: string
     checked: string[]
+    contact_link: string
+    meeting_date?: string | null
+    remark?: string | null
+    task?: string | null
+    industry?: string | null
+    reference?: string | null
+    price_status?: string | null
+    contact_links?: ContactLink[]
     interview_by?: {
         id: string
         first_name: string
@@ -317,6 +397,9 @@ interface InterviewTracking {
         email?: string
         department?: { title: string }
     } | string
+}
+const getUserById = (id: string) => {
+  return users.value.find(user => user.id === id)
 }
 
 const users = ref<any[]>([])
@@ -333,14 +416,22 @@ const currentPage = ref(1)
 const itemsPerPage = ref(10)
 
 const formData = ref<InterviewTracking>({
-    business_name: '',
-    owner_name: '',
-    location: '',
-    confirm_date: '',
-    contact_link: '',
-    checked: ['no'],
-    interview_by: '',
+  business_name: '',
+  owner_name: '',
+  location: '',
+  confirm_date: '',
+  contact_link: '',
+  checked: ['no'],
+  interview_by: '', // ✅ PASTE THIS LINE HERE
+  meeting_date: null,
+  remark: null,
+  task: null,
+  industry: null,
+  reference: null,
+  price_status: null,
+  contact_links: []
 })
+
 
 const currentEditId = ref<number | null>(null)
 
@@ -349,15 +440,16 @@ const filteredBusinesses = computed(() => {
     if (!searchQuery.value.trim()) {
         return businesses.value
     }
-    
+
     const query = searchQuery.value.toLowerCase().trim()
-    return businesses.value.filter(business => 
+    return businesses.value.filter(business =>
         business.business_name.toLowerCase().includes(query) ||
         business.owner_name.toLowerCase().includes(query) ||
         business.location.toLowerCase().includes(query) ||
         business.confirm_date.toLowerCase().includes(query) ||
-        (business.interview_by && typeof business.interview_by === 'object' && 
-         `${business.interview_by.first_name} ${business.interview_by.last_name}`.toLowerCase().includes(query))
+        (business.industry && business.industry.toLowerCase().includes(query)) ||
+        (business.interview_by && typeof business.interview_by === 'object' &&
+            `${business.interview_by.first_name} ${business.interview_by.last_name}`.toLowerCase().includes(query))
     )
 })
 
@@ -385,15 +477,15 @@ const visiblePages = computed(() => {
     const maxVisible = 5
     let start = Math.max(1, currentPage.value - Math.floor(maxVisible / 2))
     let end = Math.min(totalPages.value, start + maxVisible - 1)
-    
+
     if (end - start < maxVisible - 1) {
         start = Math.max(1, end - maxVisible + 1)
     }
-    
+
     for (let i = start; i <= end; i++) {
         pages.push(i)
     }
-    
+
     return pages
 })
 
@@ -421,6 +513,18 @@ const goToPage = (page: number) => {
     }
 }
 
+// Contact Links Management
+const addContactLink = () => {
+    formData.value.contact_links = formData.value.contact_links || []
+    formData.value.contact_links.push({ name: '' })
+}
+
+const removeContactLink = (index: number) => {
+    if (formData.value.contact_links) {
+        formData.value.contact_links.splice(index, 1)
+    }
+}
+
 // API methods
 const fetchUsers = async () => {
     try {
@@ -434,7 +538,7 @@ const fetchUsers = async () => {
 const fetchBusinesses = async () => {
     loading.value = true
     try {
-        const response = await useApi(`/items/interview_tracking?sort=-date_created&fields=*,interview_by.id,interview_by.first_name,interview_by.last_name,interview_by.title`, {
+        const response = await useApi(`/items/interview_tracking?filter[status]=published&fields=*,contact_links.name,interview_by.id,interview_by.first_name,interview_by.last_name,interview_by.title&sort=-date_created`, {
             method: 'GET'
         }) as IResponse<any>
 
@@ -495,141 +599,89 @@ const openCreateModal = () => {
         contact_link: '',
         checked: ['no'],
         interview_by: '',
+        meeting_date: null,
+        remark: null,
+        task: null,
+        industry: null,
+        reference: null,
+        price_status: null,
+        contact_links: []
     }
     showModal.value = true
 }
-
 const openEditModal = (business: InterviewTracking) => {
-    isEdit.value = true
-    currentEditId.value = business.id || null
-    formData.value = {
-        business_name: business.business_name,
-        owner_name: business.owner_name,
-        location: business.location,
-        confirm_date: business.confirm_date,
-        contact_link: business.contact_link,
-        checked: business.checked ? [...business.checked] : ['no'],
-        interview_by: business.interview_by ? (typeof business.interview_by === 'string' ? business.interview_by : business.interview_by.id) : ''
-    }
-    showModal.value = true
-}
+  isEdit.value = true;
+  currentEditId.value = business.id || null;
+
+  formData.value = {
+    ...business,
+    interview_by: typeof business.interview_by === 'object' && business.interview_by?.id
+      ? business.interview_by.id
+      : business.interview_by || ''
+  };
+  showModal.value = true;
+};
 
 const closeModal = () => {
     showModal.value = false
     currentEditId.value = null
 }
-
 const submitForm = async () => {
     submitting.value = true
     try {
         if (isEdit.value && currentEditId.value) {
             await updateBusiness(currentEditId.value, formData.value)
-            await Swal.fire('Updated!', 'Business updated successfully.', 'success')
         } else {
             await createBusiness(formData.value)
-            await Swal.fire('Created!', 'New business added successfully.', 'success')
         }
         closeModal()
     } catch (error) {
         console.error('Error submitting form:', error)
-        await Swal.fire('Error', 'Something went wrong. Please try again.', 'error')
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'There was an error saving the business. Please try again.'
+        })
     } finally {
         submitting.value = false
     }
 }
-
-const confirmDelete = async (business: InterviewTracking) => {
-    const result = await Swal.fire({
-        title: `Delete "${business.business_name}"?`,
-        text: "This action cannot be undone.",
+const confirmDelete = (business: InterviewTracking) => {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: `You are about to delete the business "${business.business_name}". This action cannot be undone.`,
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, delete it!'
-    })
-
-    if (result.isConfirmed && business.id) {
-        try {
-            await deleteBusiness(business.id)
-            await Swal.fire('Deleted!', 'Business has been removed.', 'success')
-        } catch (error) {
-            console.error('Error deleting business:', error)
-            await Swal.fire('Error', 'Unable to delete business.', 'error')
-        }
-    }
-}
-
-// Checkbox functions
-const updateCheckbox = async (business: InterviewTracking, event: Event) => {
-    const target = event.target as HTMLInputElement
-    const newCheckedValue = target.checked ? 'yes' : 'no'
-
-    if (business.id) {
-        try {
-            await updateBusiness(business.id, {
-                ...business,
-                checked: [newCheckedValue]
-            })
-            await Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'success',
-                title: 'Status updated',
-                showConfirmButton: false,
-                timer: 1500
-            })
-        } catch (error) {
-            console.error('Error updating checkbox:', error)
-            target.checked = !target.checked
-            await Swal.fire('Error', 'Could not update status.', 'error')
-        }
-    }
-}
-
-const toggleAllCheckboxes = async () => {
-    const newValue = selectAll.value ? 'yes' : 'no'
-
-    for (const business of paginatedBusinesses.value) {
-        if (business.id) {
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'No, cancel!'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
             try {
-                await updateBusiness(business.id, {
-                    ...business,
-                    checked: [newValue]
-                })
+                await deleteBusiness(business.id || 0)
+                Swal.fire('Deleted!', 'The business has been deleted.', 'success')
             } catch (error) {
-                console.error('Error updating business checkbox:', error)
+                console.error('Error deleting business:', error)
+                Swal.fire('Error!', 'There was an error deleting the business. Please try again.', 'error')
             }
         }
-    }
-    await fetchBusinesses()
+    })
 }
-
-// Initialize
+// Toggle all checkboxes
+const toggleAllCheckboxes = () => {
+    businesses.value.forEach(business => {
+        if (!business.checked) {
+            business.checked = []
+        }
+        if (selectAll.value) {
+            business.checked[0] = 'yes'
+        } else {
+            business.checked[0] = 'no'
+        }
+    })
+}// Initialize
 onMounted(() => {
     fetchBusinesses()
     fetchUsers()
 })
+
 </script>
-
-<style scoped>
-.fixed.inset-0 {
-    backdrop-filter: blur(2px);
-}
-
-@media (max-width: 768px) {
-    table {
-        font-size: 0.875rem;
-    }
-
-    th,
-    td {
-        padding: 0.5rem 0.75rem;
-    }
-
-    .px-6 {
-        padding-left: 0.75rem;
-        padding-right: 0.75rem;
-    }
-}
-</style>
