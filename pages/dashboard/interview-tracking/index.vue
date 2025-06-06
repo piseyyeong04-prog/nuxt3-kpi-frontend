@@ -58,15 +58,18 @@
                             Industry
                         </th>
                         <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
-                            Confirm Date
+                            Main Incharge
                         </th>
+                        <!-- <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
+                            Confirm Date
+                        </th> -->
                         <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
                             Meeting Date
                         </th>
                         <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
                             Price Status
                         </th>
-                        <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
+                        <!-- <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
                             <div class="flex items-center">
                                 <input id="checkbox-all" type="checkbox"
                                     class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
@@ -74,13 +77,17 @@
                                 <label for="checkbox-all" class="sr-only">checkbox</label>
                                 <span class="ml-2">Checked</span>
                             </div>
-                        </th>
+                        </th> -->
                         <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
                             Interview By
                         </th>
                         <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
                             Contact Links
                         </th>
+                        <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
+                            Contact Tasks
+                        </th>
+
                         <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
                             Actions
                         </th>
@@ -105,8 +112,11 @@
                             </span>
                         </td>
                         <td class="px-6 py-4">
-                            {{ business.confirm_date }}
+                            {{ business.main_incharge }}
                         </td>
+                        <!-- <td class="px-6 py-4">
+                            {{ business.confirm_date }}
+                        </td> -->
                         <td class="px-6 py-4">
                             {{ business.meeting_date || 'Not set' }}
                         </td>
@@ -118,7 +128,7 @@
                                 {{ business.price_status }}
                             </span>
                         </td>
-                        <td class="px-6 py-4">
+                        <!-- <td class="px-6 py-4">
                             <div class="flex items-center">
                                 <input :id="`checkbox-${index}`" type="checkbox"
                                     class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
@@ -126,7 +136,7 @@
                                     @change="updateCheckbox(business, $event)">
                                 <label :for="`checkbox-${index}`" class="sr-only">checkbox</label>
                             </div>
-                        </td>
+                        </td> -->
                         <td class="px-6 py-4">
                             <span v-if="business.interview_by && typeof business.interview_by === 'object'">
                                 {{ business.interview_by.first_name || '' }} {{ business.interview_by.last_name || '' }}
@@ -150,6 +160,18 @@
                                 </template>
                             </div>
                         </td>
+                        <td class="px-6 py-4">
+                            <div class="space-y-1">
+                                <template v-if="business.contact_task && business.contact_task.length > 0">
+                                    <span v-for="(task, index) in business.contact_task" :key="index"
+                                        class="block text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+                                        Task {{ index + 1 }}: {{ task.name }}
+                                    </span>
+                                </template>
+                                <span v-else class="text-gray-400 italic text-xs">No tasks</span>
+                            </div>
+                        </td>
+
                         <td class="px-6 py-4">
                             <div class="flex space-x-2">
                                 <button @click="openEditModal(business)"
@@ -246,10 +268,15 @@
                                     <input v-model="formData.industry" type="text"
                                         class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
                                 </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Main Incharge</label>
+                                    <input v-model="formData.main_incharge" type="text"
+                                        class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
+                                </div>
 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Date *</label>
-                                    <input v-model="formData.confirm_date"   type="text"
+                                    <input v-model="formData.confirm_date" type="text"
                                         class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
                                 </div>
 
@@ -327,6 +354,25 @@
                                         </button>
                                     </div>
                                 </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Contact Tasks</label>
+                                    <div class="space-y-2">
+                                        <div v-for="(task, index) in formData.contact_task" :key="index"
+                                            class="flex items-center space-x-2">
+                                            <input v-model="task.name" type="text" placeholder="Enter task"
+                                                class="flex-1 px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500" />
+                                            <button type="button" @click="removeContactTask(index)"
+                                                class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-md text-sm">
+                                                Remove
+                                            </button>
+                                        </div>
+                                        <button type="button" @click="addContactTask"
+                                            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-md text-sm">
+                                            Add Contact Task
+                                        </button>
+                                    </div>
+                                </div>
+
 
                                 <div class="md:col-span-2">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Remark</label>
@@ -366,6 +412,9 @@ definePageMeta({
 interface ContactLink {
     name: string
 }
+interface ContactTask {
+    name: string
+}
 
 interface InterviewTracking {
     id?: number
@@ -379,6 +428,7 @@ interface InterviewTracking {
     owner_name: string
     location: string
     confirm_date: string
+    main_incharge: string
     checked: string[]
     contact_link: string
     meeting_date?: string | null
@@ -388,6 +438,7 @@ interface InterviewTracking {
     reference?: string | null
     price_status?: string | null
     contact_links?: ContactLink[]
+    contact_task?: ContactTask[]
     interview_by?: {
         id: string
         first_name: string
@@ -399,7 +450,7 @@ interface InterviewTracking {
     } | string
 }
 const getUserById = (id: string) => {
-  return users.value.find(user => user.id === id)
+    return users.value.find(user => user.id === id)
 }
 
 const users = ref<any[]>([])
@@ -416,20 +467,22 @@ const currentPage = ref(1)
 const itemsPerPage = ref(10)
 
 const formData = ref<InterviewTracking>({
-  business_name: '',
-  owner_name: '',
-  location: '',
-  confirm_date: '',
-  contact_link: '',
-  checked: ['no'],
-  interview_by: '', // ✅ PASTE THIS LINE HERE
-  meeting_date: null,
-  remark: null,
-  task: null,
-  industry: null,
-  reference: null,
-  price_status: null,
-  contact_links: []
+    business_name: '',
+    owner_name: '',
+    location: '',
+    confirm_date: '',
+    contact_link: '',
+    checked: ['no'],
+    contact_task: [],
+    interview_by: '', // ✅ PASTE THIS LINE HERE
+    meeting_date: null,
+    main_incharge: '',
+    remark: null,
+    task: null,
+    industry: null,
+    reference: null,
+    price_status: null,
+    contact_links: []
 })
 
 
@@ -538,7 +591,7 @@ const fetchUsers = async () => {
 const fetchBusinesses = async () => {
     loading.value = true
     try {
-        const response = await useApi(`/items/interview_tracking?filter[status]=published&fields=*,contact_links.name,interview_by.id,interview_by.first_name,interview_by.last_name,interview_by.title&sort=-date_created`, {
+        const response = await useApi(`/items/interview_tracking?filter[status]=published&fields=*,contact_links.name,interview_by.id,interview_by.first_name,interview_by.last_name,interview_by.title,contact_task.name&sort=-date_created`, {
             method: 'GET'
         }) as IResponse<any>
 
@@ -600,6 +653,7 @@ const openCreateModal = () => {
         checked: ['no'],
         interview_by: '',
         meeting_date: null,
+        main_incharge: '',
         remark: null,
         task: null,
         industry: null,
@@ -610,16 +664,16 @@ const openCreateModal = () => {
     showModal.value = true
 }
 const openEditModal = (business: InterviewTracking) => {
-  isEdit.value = true;
-  currentEditId.value = business.id || null;
+    isEdit.value = true;
+    currentEditId.value = business.id || null;
 
-  formData.value = {
-    ...business,
-    interview_by: typeof business.interview_by === 'object' && business.interview_by?.id
-      ? business.interview_by.id
-      : business.interview_by || ''
-  };
-  showModal.value = true;
+    formData.value = {
+        ...business,
+        interview_by: typeof business.interview_by === 'object' && business.interview_by?.id
+            ? business.interview_by.id
+            : business.interview_by || ''
+    };
+    showModal.value = true;
 };
 
 const closeModal = () => {
@@ -679,6 +733,17 @@ const toggleAllCheckboxes = () => {
         }
     })
 }// Initialize
+const addContactTask = () => {
+  formData.value.contact_task = formData.value.contact_task || []
+  formData.value.contact_task.push({ name: '' })
+}
+
+const removeContactTask = (index: number) => {
+  if (formData.value.contact_task) {
+    formData.value.contact_task.splice(index, 1)
+  }
+}
+
 onMounted(() => {
     fetchBusinesses()
     fetchUsers()
