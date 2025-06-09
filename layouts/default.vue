@@ -17,7 +17,7 @@
             :icon="theme === 'dark' ? 'line-md:sunny-filled-loop-to-moon-filled-alt-loop-transition' : 'line-md:moon-filled-alt-to-sunny-filled-loop-transition'"
             class="w-5 h-5 text-gray-700 dark:text-gray-300" />
         </button>
-
+ 
         <!-- Notifications -->
         <div class="relative" ref="notificationDropdownContainer">
           <button @click="toggleNotificationDropdown"
@@ -559,6 +559,13 @@ const menuItems: MenuItem[] = [
     icon: 'hugeicons:advertisement',
     label: { en: 'Ads', km: 'ការផ្សាយពាណិជ្ជកម្ម' },
     role: ['admin', 'sales', 'hr'] // Set multiple roles here 
+  },
+  // BM-CLIENT
+  {
+    to: '/dashboard/bm-client',
+    icon: 'mdi:account-multiple',
+    label: { en: 'BM Client', km: 'អតិថិជន BM' }, 
+    role: ['admin', 'sales'] 
   },
 
   {
