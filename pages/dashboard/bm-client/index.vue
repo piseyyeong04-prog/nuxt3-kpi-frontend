@@ -668,7 +668,9 @@ const openImportModal = () => (isImportModalOpen.value = true)
 const closeImportModal = () => (isImportModalOpen.value = false)
 // Define selectedClient with proper typing
 
-
+definePageMeta({
+  middleware: 'auth',
+});
 
 // Composable
 const { importing, progress, importFromExcel, batchImportFromExcel } = useExcelImport();
