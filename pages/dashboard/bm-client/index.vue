@@ -502,7 +502,7 @@
                                                     <div class="mt-1">
                                                         <p v-if="!isEditing" class="text-gray-900">{{
                                                             selectedClient?.business_name }}</p>
-                                                        <input v-else v-model="selectedClient.business_name"
+                                                        <input v-else v-model="selectedClient!.business_name"
                                                             class="input-modern" />
                                                     </div>
                                                 </div>
@@ -511,7 +511,7 @@
                                                     <div class="mt-1">
                                                         <p v-if="!isEditing" class="text-gray-900">{{
                                                             selectedClient?.industry }}</p>
-                                                        <input v-else v-model="selectedClient.industry"
+                                                        <input v-else v-model="selectedClient!.industry"
                                                             class="input-modern" />
                                                     </div>
                                                 </div>
@@ -520,7 +520,7 @@
                                                     <div class="mt-1">
                                                         <p v-if="!isEditing" class="text-gray-900">{{
                                                             selectedClient?.task || '—' }}</p>
-                                                        <input v-else v-model="selectedClient.task"
+                                                        <input v-else v-model="selectedClient!.task"
                                                             class="input-modern" />
                                                     </div>
                                                 </div>
@@ -540,7 +540,7 @@
                                                     <div class="mt-1">
                                                         <p v-if="!isEditing" class="text-gray-900">{{
                                                             selectedClient?.contact_person || '—' }}</p>
-                                                        <input v-else v-model="selectedClient.contact_person"
+                                                        <input v-else v-model="selectedClient!.contact_person"
                                                             class="input-modern" />
                                                     </div>
                                                 </div>
@@ -550,7 +550,7 @@
                                                         <Icon icon="heroicons:phone" class="h-4 w-4 text-gray-400" />
                                                         <span v-if="!isEditing">{{ selectedClient?.contact || '—'
                                                             }}</span>
-                                                        <input v-else v-model="selectedClient.contact"
+                                                        <input v-else v-model="selectedClient!.contact"
                                                             class="input-modern" />
                                                     </div>
                                                 </div>
@@ -561,7 +561,7 @@
                                                             formatDate(selectedClient?.date_of_last_contact || '') }}
                                                         </p>
                                                         <input v-else type="date"
-                                                            v-model="selectedClient.date_of_last_contact"
+                                                            v-model="selectedClient!.date_of_last_contact"
                                                             class="input-modern" />
                                                     </div>
                                                 </div>
@@ -589,7 +589,7 @@
                                                             </a>
                                                             <span v-else class="text-gray-500">—</span>
                                                         </div>
-                                                        <input v-else v-model="selectedClient.telegram_contact"
+                                                        <input v-else v-model="selectedClient!.telegram_contact"
                                                             class="input-modern" />
                                                     </div>
                                                 </div>
@@ -606,7 +606,7 @@
                                                             </a>
                                                             <span v-else class="text-gray-500">—</span>
                                                         </div>
-                                                        <input v-else v-model="selectedClient.facebook_link"
+                                                        <input v-else v-model="selectedClient!.facebook_link"
                                                             class="input-modern" />
                                                     </div>
                                                 </div>
@@ -623,7 +623,7 @@
                                             <div class="text-sm">
                                                 <p v-if="!isEditing" class="text-gray-900 leading-relaxed">{{
                                                     selectedClient?.remark || '—' }}</p>
-                                                <textarea v-else v-model="selectedClient.remark"
+                                                <textarea v-else v-model="selectedClient!.remark"
                                                     class="input-modern w-full h-24 resize-none"></textarea>
                                             </div>
                                         </div>
@@ -662,9 +662,13 @@ import { Dialog, DialogPanel, DialogTitle, TransitionRoot, TransitionChild } fro
 import { Icon } from '@iconify/vue';
 import { useApi } from '~/composables/useApi';
 import { useExcelImport, type ImportResult } from '~/composables/useExcelImport';
+import type { IResponse } from '~/types/api';
 const isImportModalOpen = ref(false)
 const openImportModal = () => (isImportModalOpen.value = true)
 const closeImportModal = () => (isImportModalOpen.value = false)
+// Define selectedClient with proper typing
+
+
 
 // Composable
 const { importing, progress, importFromExcel, batchImportFromExcel } = useExcelImport();
@@ -700,6 +704,7 @@ const newClient = ref<Client>({
 // Modal state
 const isModalOpen = ref(false);
 const selectedClient = ref<Client | null>(null);
+const hasSelectedClient = computed(() => selectedClient.value !== null)
 
 // Methods
 const triggerFileInput = () => {
