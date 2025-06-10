@@ -368,97 +368,237 @@
                         <p class="text-gray-300 mt-1">Manage your client relationships</p>
                     </div>
                     <div class="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2">
-                        <span class="text-white font-semibold">{{ clients.length }}</span>
+                        <span class="text-white font-semibold">{{ filteredClients.length }}</span>
                         <span class="text-gray-300 ml-1">clients</span>
                     </div>
                 </div>
             </div>
 
             <div class="p-8">
-                <div v-if="clients.length === 0" class="text-center py-12">
+                <!-- Controls -->
+                <!-- Enhanced Controls Section -->
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
+                    <!-- Search and Filter Section -->
+                    <div class="flex flex-col sm:flex-row gap-4 flex-1 max-w-4xl">
+                        <!-- Search Input with Icon -->
+                        <div class="relative flex-1">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <Icon icon="heroicons:magnifying-glass" class="h-5 w-5 text-gray-400" />
+                            </div>
+                            <input v-model="searchQuery" type="text"
+                                placeholder="Search by name, industry, or contact..."
+                                class="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-500" />
+                            <!-- Clear Search Button -->
+                            <button v-if="searchQuery" @click="searchQuery = ''"
+                                class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors">
+                                <Icon icon="heroicons:x-mark" class="h-5 w-5" />
+                            </button>
+                        </div>
+
+                        <!-- User Filter Dropdown -->
+                        <div class="relative min-w-0 sm:w-72">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <Icon icon="heroicons:users" class="h-5 w-5 text-gray-400" />
+                            </div>
+                            <select v-model="selectedUser"
+                                class="w-full pl-12 pr-10 py-3 bg-white border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 appearance-none cursor-pointer">
+                                <option value="">All Users</option>
+                                <option v-for="user in availableUsers" :key="user" :value="user">
+                                    {{ user }}
+                                </option>
+                            </select>
+                          
+                        </div>
+                    </div>
+
+                    <!-- Results Per Page Section -->
+                    <div class="flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-xl border border-gray-200">
+                        <span class="text-sm font-medium text-gray-700 whitespace-nowrap">Show:</span>
+                        <div class="relative">
+                            <select v-model="perPage"
+                                class="pr-8 pl-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none cursor-pointer min-w-[4rem]">
+                                <option :value="10">10</option>
+                                <option :value="20">20</option>
+                                <option :value="50">50</option>
+                                <option :value="100">100</option>
+                                <option :value="0">All</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                                <Icon icon="heroicons:chevron-down" class="h-4 w-4 text-gray-400" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Filters Display -->
+                <div v-if="searchQuery || selectedUser"
+                    class="flex flex-wrap items-center gap-2 mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                    <span class="text-sm font-medium text-blue-800">Active filters:</span>
+
+                    <!-- Search Filter Tag -->
+                    <div v-if="searchQuery"
+                        class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-lg text-sm">
+                        <Icon icon="heroicons:magnifying-glass" class="h-4 w-4" />
+                        <span>"{{ searchQuery }}"</span>
+                        <button @click="searchQuery = ''" class="hover:text-blue-600 transition-colors">
+                            <Icon icon="heroicons:x-mark" class="h-4 w-4" />
+                        </button>
+                    </div>
+
+                    <!-- User Filter Tag -->
+                    <div v-if="selectedUser"
+                        class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-lg text-sm">
+                        <Icon icon="heroicons:users" class="h-4 w-4" />
+                        <span>{{ selectedUser }}</span>
+                        <button @click="selectedUser = ''" class="hover:text-blue-600 transition-colors">
+                            <Icon icon="heroicons:x-mark" class="h-4 w-4" />
+                        </button>
+                    </div>
+
+                    <!-- Clear All Button -->
+                    <button @click="searchQuery = ''; selectedUser = ''"
+                        class="ml-2 px-3 py-1 text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors">
+                        Clear all
+                    </button>
+                </div>
+
+                <div v-if="filteredClients.length === 0" class="text-center py-12">
                     <div class="bg-gray-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Icon icon="heroicons:users" class="h-12 w-12 text-gray-400" />
                     </div>
-                    <h4 class="text-lg font-medium text-gray-900 mb-2">No clients yet</h4>
-                    <p class="text-gray-600 mb-6">Start by importing data or adding clients manually</p>
+                    <h4 class="text-lg font-medium text-gray-900 mb-2">No matching clients</h4>
+                    <p class="text-gray-600 mb-6">Try adjusting your search or filters</p>
                 </div>
 
                 <div v-else class="overflow-hidden rounded-2xl border border-gray-200">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th
-                                        class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        Business</th>
-                                    <th
-                                        class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        Industry</th>
-                                    <th
-                                        class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        Contact</th>
-                                    <th
-                                        class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        Social</th>
-                                    <th
-                                        class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <tr v-for="client in clients" :key="client.id"
-                                    class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-6 py-4">
-                                        <div class="font-medium text-gray-900">{{ client.business_name }}</div>
-                                        <div v-if="client.contact_person" class="text-sm text-gray-600">{{
-                                            client.contact_person }}</div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span
-                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            {{ client.industry }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-gray-900">
-                                        <div v-if="client.contact" class="flex items-center mb-1">
-                                            <Icon icon="heroicons:phone" class="h-4 w-4 mr-2 text-gray-400" />
-                                            {{ client.contact }}
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center space-x-3">
-                                            <a v-if="client.telegram_contact"
-                                                :href="`https://t.me/${client.telegram_contact.replace('@', '')}`"
-                                                target="_blank" class="text-blue-600 hover:text-blue-800">
-                                                <Icon icon="simple-icons:telegram" class="h-5 w-5" />
-                                            </a>
-                                            <a v-if="client.facebook_link" :href="client.facebook_link" target="_blank"
-                                                class="text-blue-600 hover:text-blue-800">
-                                                <Icon icon="simple-icons:facebook" class="h-5 w-5" />
-                                            </a>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center space-x-3">
-                                            <button @click="openClientModal(client)"
-                                                class="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-200 transition-colors">
-                                                <Icon icon="heroicons:eye" class="h-4 w-4 mr-1" />
-                                                View
-                                            </button>
-                                            <button @click="deleteClient(client.id!)"
-                                                class="inline-flex items-center px-3 py-1.5 bg-red-100 text-red-700 text-sm font-medium rounded-lg hover:bg-red-200 transition-colors">
-                                                <Icon icon="heroicons:trash" class="h-4 w-4 mr-1" />
-                                                Delete
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div v-for="group in groupedClients" :key="group.name" class="mb-8">
+                        <div class="flex items-center mb-4 space-x-4 px-6 pt-6">
+                            <img v-if="group.avatar" :src="useImg(group.avatar)"
+                                class="w-10 h-10 rounded-full border-2 border-blue-500" />
+                            <div class="bg-blue-100 w-10 h-10 rounded-full flex items-center justify-center" v-else>
+                                <Icon icon="heroicons:user" class="h-6 w-6 text-blue-600" />
+                            </div>
+                            <h2 class="text-lg font-semibold text-gray-800">
+                                {{ group.name }}
+                                <span class="text-sm text-gray-500">
+                                    ({{ group.clients.length }} clients)
+                                </span>
+                            </h2>
+                        </div>
+                        <div class="overflow-x-auto rounded-xl border border-gray-200 mx-6 mb-6">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            Business</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            Industry</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            Contact</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            Main Incharge</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            Task</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            Social</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr v-for="client in group.clients" :key="client.id"
+                                        class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4">
+                                            <div class="font-medium text-gray-900">{{ client.business_name }}</div>
+                                            <div v-if="client.contact_person" class="text-sm text-gray-600">{{
+                                                client.contact_person }}</div>
+                                        </td>
+                                        <td class="px-6 py-4">{{ client.industry }}</td>
+                                        <td class="px-6 py-4">
+                                            <div v-if="client.contact" class="flex items-center">
+                                                <Icon icon="heroicons:phone" class="h-4 w-4 mr-2 text-gray-400" />
+                                                {{ client.contact }}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 flex items-center gap-x-1">
+                                            <img v-if="client.user_created.avatar"
+                                                :src="useImg(client.user_created.avatar)" class="w-8 h-8 rounded-full"
+                                                alt="">
+                                            <div v-else
+                                                class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                                <Icon icon="heroicons:user" class="h-4 w-4 text-gray-500" />
+                                            </div>
+                                            <span class="ml-2">{{ client.user_created.first_name }} {{
+                                                client.user_created.last_name }}</span>
+                                        </td>
+                                        <td class="px-6 py-4">{{ client.task || '—' }}</td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center space-x-3">
+                                                <a v-if="client.telegram_contact"
+                                                    :href="`https://t.me/${client.telegram_contact.replace('@', '')}`"
+                                                    target="_blank" class="text-blue-600 hover:text-blue-800">
+                                                    <Icon icon="simple-icons:telegram" class="h-5 w-5" />
+                                                </a>
+                                                <a v-if="client.facebook_link" :href="client.facebook_link"
+                                                    target="_blank" class="text-blue-600 hover:text-blue-800">
+                                                    <Icon icon="simple-icons:facebook" class="h-5 w-5" />
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center space-x-3">
+                                                <button @click="openClientModal(client)"
+                                                    class="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-200 transition-colors">
+                                                    <Icon icon="heroicons:eye" class="h-4 w-4 mr-1" />
+                                                    View
+                                                </button>
+                                                <button @click="deleteClient(client.id!)"
+                                                    class="inline-flex items-center px-3 py-1.5 bg-red-100 text-red-700 text-sm font-medium rounded-lg hover:bg-red-200 transition-colors">
+                                                    <Icon icon="heroicons:trash" class="h-4 w-4 mr-1" />
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div v-if="perPage !== 0 && totalPages > 1"
+                        class="flex justify-center items-center gap-2 py-6 bg-white border-t border-gray-200">
+                        <button
+                            class="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            :disabled="currentPage === 1" @click="currentPage--">
+                            Prev
+                        </button>
+
+                        <button v-for="page in totalPages" :key="page" @click="currentPage = page"
+                            class="px-4 py-2 rounded transition-colors" :class="{
+                                'bg-blue-600 text-white': currentPage === page,
+                                'bg-gray-100 hover:bg-gray-200': currentPage !== page
+                            }">
+                            {{ page }}
+                        </button>
+
+                        <button
+                            class="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            :disabled="currentPage === totalPages" @click="currentPage++">
+                            Next
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
+
 
 
         <!-- Client Detail Modal -->
@@ -669,7 +809,7 @@ const closeImportModal = () => (isImportModalOpen.value = false)
 // Define selectedClient with proper typing
 
 definePageMeta({
-  middleware: 'auth',
+    middleware: 'auth',
 });
 
 // Composable
@@ -695,6 +835,10 @@ interface Client {
     remark?: string;
     task?: string;
     date_of_last_contact?: string;
+    user_created?: {
+        first_name: string;
+        last_name: string;
+    };
 }
 
 const clients = ref<Client[]>([]);
@@ -784,9 +928,94 @@ const startImport = async () => {
     }
 };
 
+// =====
+// Reactive variables
+const searchQuery = ref('');
+const perPage = ref(10);
+const currentPage = ref(1);
+const selectedUser = ref(''); // Add user filter
+
+// Filter clients based on search query and selected user
+const filteredClients = computed(() => {
+    let filtered = clients.value;
+
+    // Filter by search query
+    if (searchQuery.value) {
+        const q = searchQuery.value.toLowerCase();
+        filtered = filtered.filter(client =>
+            client.business_name.toLowerCase().includes(q) ||
+            client.industry.toLowerCase().includes(q) ||
+            (client.contact_person || '').toLowerCase().includes(q) ||
+            (client.contact || '').toLowerCase().includes(q)
+        );
+    }
+
+    // Filter by selected user
+    if (selectedUser.value) {
+        filtered = filtered.filter(client => {
+            const user = client.user_created;
+            const userName = user ? `${user.first_name} ${user.last_name}` : 'Unknown';
+            return userName === selectedUser.value;
+        });
+    }
+
+    return filtered;
+});
+
+// Get paginated clients (apply pagination to filtered results)
+const paginatedClients = computed(() => {
+    if (perPage.value === 0) return filteredClients.value; // show all
+    const start = (currentPage.value - 1) * perPage.value;
+    return filteredClients.value.slice(start, start + perPage.value);
+});
+
+// Group the PAGINATED clients (not all filtered clients)
+const groupedClients = computed(() => {
+    const groups: Record<string, { name: string; avatar?: string; clients: Client[] }> = {};
+
+    for (const client of paginatedClients.value) {
+        const user = client.user_created;
+        const key = user ? `${user.first_name} ${user.last_name}` : 'Unknown';
+
+        if (!groups[key]) {
+            groups[key] = {
+                name: key,
+                avatar: user?.avatar,
+                clients: []
+            };
+        }
+
+        groups[key].clients.push(client);
+    }
+
+    return Object.values(groups);
+});
+
+// Get total pages based on filtered results
+const totalPages = computed(() => {
+    return perPage.value === 0 ? 1 : Math.ceil(filteredClients.value.length / perPage.value);
+});
+
+// Get unique users for the filter dropdown
+const availableUsers = computed(() => {
+    const users = new Set<string>();
+    clients.value.forEach(client => {
+        const user = client.user_created;
+        const userName = user ? `${user.first_name} ${user.last_name}` : 'Unknown';
+        users.add(userName);
+    });
+    return Array.from(users).sort();
+});
+
+// Watch for filter changes and reset to first page
+watch([searchQuery, selectedUser, perPage], () => {
+    currentPage.value = 1;
+});
+
+// Load clients function remains the same
 const loadClients = async () => {
     try {
-        const res = await useApi<IResponse<Client[]>>('/items/bm_client', {
+        const res = await useApi<IResponse<Client[]>>('/items/bm_client?filter[status]=published&fields=*,user_created.first_name,user_created.last_name,user_created.avatar,user_created.id', {
             method: 'GET'
         });
         clients.value = res.data || [];
@@ -815,26 +1044,26 @@ const addClient = async () => {
     }
 };
 const saveClientEdits = async () => {
-  if (!selectedClient.value?.id) return;
+    if (!selectedClient.value?.id) return;
 
-  try {
-    const res = await useApi<IResponse<Client>>(`/items/bm_client/${selectedClient.value.id}`, {
-      method: 'PATCH',
-      data: selectedClient.value
-    });
+    try {
+        const res = await useApi<IResponse<Client>>(`/items/bm_client/${selectedClient.value.id}`, {
+            method: 'PATCH',
+            data: selectedClient.value
+        });
 
-    const idx = clients.value.findIndex(c => c.id === res.data.id);
-    if (idx !== -1) clients.value[idx] = res.data;
+        const idx = clients.value.findIndex(c => c.id === res.data.id);
+        if (idx !== -1) clients.value[idx] = res.data;
 
-    showNotification('Client updated successfully!', 'success');
-    isEditing.value = false;
-    closeModal();
-  } catch (err) {
-    showNotification('Failed to update client', 'error');
-    console.error(err);
-  }
+        showNotification('Client updated successfully!', 'success');
+        isEditing.value = false;
+        closeModal();
+    } catch (err) {
+        showNotification('Failed to update client', 'error');
+        console.error(err);
+    }
 };
-    
+
 const deleteClient = async (id: string) => {
     if (!confirm('Are you sure you want to delete this client? This action cannot be undone.')) return;
 
