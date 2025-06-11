@@ -17,7 +17,7 @@
             :icon="theme === 'dark' ? 'line-md:sunny-filled-loop-to-moon-filled-alt-loop-transition' : 'line-md:moon-filled-alt-to-sunny-filled-loop-transition'"
             class="w-5 h-5 text-gray-700 dark:text-gray-300" />
         </button>
- 
+
         <!-- Notifications -->
         <div class="relative" ref="notificationDropdownContainer">
           <button @click="toggleNotificationDropdown"
@@ -184,75 +184,77 @@
 
     <!-- Sidebar -->
     <aside :class="[
-      'fixed top-0 left-0 h-full w-64 transition-transform duration-300 ease-in-out z-50 shadow-md',
+      'fixed top-0 left-0 h-full w-64 z-50 shadow-md',
       'bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100',
       'md:translate-x-0',
       isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
     ]">
-      <div class="pt-16 md:pt-5 p-2">
-        <h2 class="text-2xl font-bold text-center mb-6 hidden md:block">BAKSEY System</h2>
+      <!-- Make this section scrollable -->
+      <div class="h-full flex flex-col pt-16 md:pt-5">
+        <div class="flex-1 overflow-y-auto px-3 py-2">
+          <h2 class="text-2xl font-bold text-center mb-6 hidden md:block">BAKSEY System</h2>
 
-        <nav class="px-3 py-2">
-          <ul class="space-y-1.5">
-            <li v-for="item in localizedMenuItems" :key="item.to" class="group">
-              <!-- Items with submenu -->
-              <div v-if="item.hasSubmenu" class="mb-2">
-                <button @click="toggleSubmenu(item.to)"
-                  class="flex items-center justify-between w-full p-2.5 rounded-lg font-medium transition-all duration-200 ease-in-out
+          <nav>
+            <ul class="space-y-1.5 ">
+              <li v-for="item in localizedMenuItems" :key="item.to" class="group">
+                <!-- Items with submenu -->
+                <div v-if="item.hasSubmenu" class="mb-2">
+                  <button @click="toggleSubmenu(item.to)"
+                    class="flex items-center justify-between w-full p-2.5 rounded-lg font-medium transition-all duration-200 ease-in-out
           text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-primary-900/20 group-hover:text-primary-600 dark:group-hover:text-primary-400"
-                  :class="{ 'bg-primary-50  dark:bg-primary-900/20 text-primary-600 dark:text-primary-400': openSubmenus[item.to] }">
-                  <div class="flex items-center ">
-                    <Icon :icon="item.icon" class="mr-3 text-xl opacity-75 group-hover:opacity-100"
-                      :class="{ 'text-primary-600  dark:text-primary-400 opacity-100': openSubmenus[item.to] }" />
-                    <span class="text-start">{{ item.label }}</span>
-                  </div>
-                  <Icon :icon="openSubmenus[item.to] ? 'mdi:chevron-up' : 'mdi:chevron-down'"
-                    class="text-sm transition-transform duration-200" :class="{ 'rotate-180': openSubmenus[item.to] }" />
-                </button>
+                    :class="{ 'bg-primary-50  dark:bg-primary-900/20 text-primary-600 dark:text-primary-400': openSubmenus[item.to] }">
+                    <div class="flex items-center ">
+                      <Icon :icon="item.icon" class="mr-3 text-xl opacity-75 group-hover:opacity-100"
+                        :class="{ 'text-primary-600  dark:text-primary-400 opacity-100': openSubmenus[item.to] }" />
+                      <span class="text-start">{{ item.label }}</span>
+                    </div>
+                    <Icon :icon="openSubmenus[item.to] ? 'mdi:chevron-up' : 'mdi:chevron-down'"
+                      class="text-sm transition-transform duration-200"
+                      :class="{ 'rotate-180': openSubmenus[item.to] }" />
+                  </button>
 
-                <!-- Submenu with smooth animation -->
-                <div v-show="openSubmenus[item.to]"
-                  class="mt-1 ml-7 pl-2 border-l-2 border-gray-100  dark:border-gray-700 overflow-hidden transition-all duration-200">
-                  <NuxtLink v-for="sub in item.submenu" :key="sub.to" :to="sub.to" class="block  py-2 px-2 my-1 text-sm rounded-md transition-colors duration-200
+                  <!-- Submenu with smooth animation -->
+                  <div v-show="openSubmenus[item.to]"
+                    class="mt-1 ml-7 pl-2 border-l-2 border-gray-100  dark:border-gray-700 overflow-hidden transition-all duration-200">
+                    <NuxtLink v-for="sub in item.submenu" :key="sub.to" :to="sub.to" class="block  py-2 px-2 my-1 text-sm rounded-md transition-colors duration-200
             text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400
             hover:bg-primary-50/50 dark:hover:bg-primary-900/10" @click="closeSidebarOnMobile" :class="{
               'text-primary-600 dark:text-primary-400 bg-primary-50/80 dark:bg-primary-900/15 font-medium':
                 $route.path.includes(sub.to) && sub.to !== '/'
             }">
-                    {{ sub.label[locale as 'en' | 'km'] }}
-                  </NuxtLink>
+                      {{ sub.label[locale as 'en' | 'km'] }}
+                    </NuxtLink>
+                  </div>
                 </div>
-              </div>
 
-              <!-- Regular menu items -->
-              <NuxtLink v-else :to="item.to"
-                class="flex items-center p-2.5 rounded-lg font-medium transition-all duration-200 ease-in-out 
+                <!-- Regular menu items -->
+                <NuxtLink v-else :to="item.to"
+                  class="flex items-center p-2.5 rounded-lg font-medium transition-all duration-200 ease-in-out 
         text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-primary-900/20 group-hover:text-primary-600 dark:group-hover:text-primary-400"
-                :class="{
-                  'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400': $route.path === item.to ||
-                    ($route.path.includes(item.to) && item.to !== '/')
-                }" @click="closeSidebarOnMobile">
-                <Icon :icon="item.icon" class="mr-3 text-xl opacity-75 group-hover:opacity-100" :class="{
-                  'text-primary-600 dark:text-primary-400 opacity-100': $route.path === item.to ||
-                    ($route.path.includes(item.to) && item.to !== '/')
-                }" />
-                <span>{{ item.label }}</span>
-              </NuxtLink>
-            </li>
-          </ul>
-        </nav>
-      </div>
-      <!-- sidebar buttom -->
-      <div class="absolute bottom-0 left-0 right-0 p-4">
-        <InternetSpeed />
+                  :class="{
+                    'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400': $route.path === item.to ||
+                      ($route.path.includes(item.to) && item.to !== '/')
+                  }" @click="closeSidebarOnMobile">
+                  <Icon :icon="item.icon" class="mr-3 text-xl opacity-75 group-hover:opacity-100" :class="{
+                    'text-primary-600 dark:text-primary-400 opacity-100': $route.path === item.to ||
+                      ($route.path.includes(item.to) && item.to !== '/')
+                  }" />
+                  <span>{{ item.label }}</span>
+                </NuxtLink>
+              </li>
+            </ul>
+          </nav>
+        </div>
 
-        <div class="mt-2 text-left">
-          <p class="text-xs text-gray-500 dark:text-gray-400">
-            BAKSEY Tech Solution © {{ new Date().getFullYear() }}
-          </p>
-          <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
-            Version 1.0
-          </p>
+        <!-- Sidebar bottom (sticky footer) -->
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+          <InternetSpeed />
+          <div class="mt-2 text-left">
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              BAKSEY Tech Solution © {{ new Date().getFullYear() }}
+            </p>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Version 1.0</p>
+          </div>
         </div>
       </div>
     </aside>
@@ -564,8 +566,8 @@ const menuItems: MenuItem[] = [
   {
     to: '/dashboard/bm-client',
     icon: 'mdi:account-multiple',
-    label: { en: 'BM Client', km: 'អតិថិជន BM' }, 
-    role: ['admin', 'sales'] 
+    label: { en: 'BM Client', km: 'អតិថិជន BM' },
+    role: ['admin', 'sales']
   },
 
   {
@@ -579,7 +581,6 @@ const menuItems: MenuItem[] = [
     to: '/dashboard/clients',
     icon: 'mdi:account-multiple',
     label: { en: 'Clients', km: 'អតិថិជន' },
-    role: ['admin', 'sales']
   },
 
 ]
