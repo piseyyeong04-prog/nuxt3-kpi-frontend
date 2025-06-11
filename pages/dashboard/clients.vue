@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isSale" >
+  <div >
     <!-- Header with search and add button -->
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold">Client Management</h1>
@@ -79,7 +79,7 @@
             </td>
             <td class="p-4">
               <span>
-                {{ client.status }}
+                {{ formatStatusText(client.status) }}
               </span>
             </td>
             <td class="p-4">{{ formatDate(client.date_created) }}</td>
@@ -262,6 +262,13 @@ const form = ref({
 const hasMorePages = computed(() => {
   return clients.value.length < totalClients.value
 })
+const formatStatusText = (status: string) => {
+  if (!status) return ''
+  return status
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+}
 
 // Load clients from API
 const loadClients = async (pageNum = 1) => {
@@ -497,21 +504,13 @@ const confirmDelete = (client: IClient) => {
   })
 }
 
-// Watch for changes to check if we should reload data
-watch(isSale, (newValue) => {
-  if (newValue) {
-    loadClients()
-  }
-})
 
 // On component mount
 onMounted(() => {
-  if (isSale.value) {
     loadClients()
     loadCategories()
     loadContacts()
     loadStatusOptions() // ✅ fetch statuses
-  }
 })
 </script>
 
