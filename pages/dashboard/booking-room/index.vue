@@ -1,135 +1,9 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
+  <div class="min-h-screen ">
       <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-        <!-- AI Booking Form -->
-        <div
-          class="relative bg-gradient-to-br from-slate-50 to-blue-50/30 rounded-2xl border border-slate-200/60 shadow-xl shadow-blue-500/5 overflow-hidden">
-          <!-- Decorative background elements -->
-          <div
-            class="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-10">
-          </div>
-          <div
-            class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-400/10 to-indigo-500/10 rounded-full blur-3xl -translate-y-20 translate-x-20">
-          </div>
-          <div
-            class="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-purple-400/10 to-pink-500/10 rounded-full blur-2xl translate-y-16 -translate-x-16">
-          </div>
-
-          <div class="relative p-8 border-b border-slate-200/70 backdrop-blur-sm">
-            <!-- Header with icon and title -->
-            <div class="flex items-center space-x-3 mb-6">
-              <div class="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/25">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
-              </div>
-              <div>
-                <h2
-                  class="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                  AI-Powered Booking
-                </h2>
-                <p class="text-sm text-slate-500 mt-0.5">Describe your booking in natural language</p>
-              </div>
-              <div class="flex justify-end flex-1">
-                <button @click="showManualModal = true"
-                  class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl font-medium shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-200">
-                  <span class="flex items-center space-x-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    <span>Book Manual</span>
-                  </span>
-                </button>
-              </div>
-            </div>
-
-            <form @submit.prevent="handleAIBooking" class="space-y-6">
-              <!-- Text input with enhanced styling -->
-              <div class="group">
-                <label for="booking-text"
-                  class="block text-sm font-semibold text-slate-700 mb-3 flex items-center space-x-2">
-                  <span>📝</span>
-                  <span>Describe your booking</span>
-                </label>
-                <div class="relative">
-                  <textarea id="booking-text" v-model="bookingText" class="w-full px-4 py-4 bg-white/80 backdrop-blur-sm border-2 border-slate-200 rounded-xl shadow-sm 
-                   focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 
-                   transition-all duration-300 ease-out resize-none
-                   placeholder:text-slate-400 text-slate-700 font-medium
-                   group-hover:border-slate-300 group-hover:shadow-md" rows="4"
-                    placeholder="✨ Try: 'Book the conference room 30 may 2025 from 2-4 PM for our team standup meeting'"
-                    required>
-                  </textarea>
-                  <!-- Character counter or word count could go here -->
-                  <div class="absolute bottom-3 right-3 text-xs text-slate-400 bg-slate-100/80 px-2 py-1 rounded-full">
-                    AI Ready
-                  </div>
-                </div>
-              </div>
-
-              <!-- Action buttons with modern design -->
-              <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
-                <!-- Primary booking button -->
-                <button type="submit" :disabled="isProcessing" class="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 
-                 disabled:from-slate-400 disabled:to-slate-500 text-white font-semibold py-4 px-6 rounded-xl 
-                 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-xl hover:shadow-blue-500/25
-                 disabled:transform-none disabled:shadow-none disabled:cursor-not-allowed
-                 focus:outline-none focus:ring-4 focus:ring-blue-500/20">
-                  <div
-                    class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700">
-                  </div>
-                  <span v-if="!isProcessing" class="relative flex items-center justify-center space-x-2">
-                    <span>🚀</span>
-                    <span>Book with AI</span>
-                  </span>
-                  <span v-else class="relative flex items-center justify-center space-x-2">
-                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-                      viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                      </path>
-                    </svg>
-                    <span>Processing...</span>
-                  </span>
-                </button>
-
-                <!-- Availability check button -->
-                <button @click="askAvailability" :disabled="isProcessing" class="group bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 
-                 disabled:from-slate-400 disabled:to-slate-500 text-white font-semibold py-4 px-6 rounded-xl 
-                 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/25
-                 disabled:transform-none disabled:shadow-none disabled:cursor-not-allowed
-                 focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
-                  <span class="flex items-center justify-center space-x-2">
-                    <span>🔍</span>
-                    <span class="hidden sm:inline">Check Available</span>
-                    <span class="sm:hidden">Available</span>
-                  </span>
-                </button>
-
-                <!-- Help button -->
-                <button @click="showBookingHelp" class="group bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 
-                 text-white font-semibold py-4 px-6 rounded-xl 
-                 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-xl hover:shadow-red-500/25
-                 focus:outline-none focus:ring-4 focus:ring-red-500/20">
-                  <span class="flex items-center justify-center space-x-2">
-                    <span>🤖</span>
-                    <span class="hidden sm:inline">Get Help</span>
-                    <span class="sm:hidden">Help</span>
-                  </span>
-                </button>
-              </div>
-            </form>
-            <!-- Optional: Quick examples/suggestions -->
-
-          </div>
-        </div>
         <!-- Calendar View -->
         <div class="p-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div class="flex items-center space-x-3">
               <div class="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg shadow-blue-500/25">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,13 +16,16 @@
                   class="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
                   Room Bookings Calendar
                 </h2>
-                <p class="text-sm text-slate-500 mt-0.5">Manage and view all room reservations</p>
+
               </div>
+
             </div>
 
             <div class="flex items-center space-x-2">
+
               <!-- View Toggle Buttons -->
               <div class="inline-flex bg-slate-100 rounded-xl p-1 shadow-inner">
+
                 <button @click="changeView('dayGridMonth')" :class="currentView === 'dayGridMonth'
                   ? 'bg-white text-blue-600 shadow-sm'
                   : 'text-slate-600 hover:text-slate-800'"
@@ -209,6 +86,19 @@
           </div>
 
           <div v-else class="calendar-container">
+            <div class="py-2 flex items-center gap-x-2 mb-4">
+              <button @click="showManualModal = true"
+                class="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl font-medium shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-200 flex-shrink-0">
+                <span class="flex items-center justify-center sm:justify-start space-x-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span>Book Manual</span>
+                </span>
+              </button>
+              <button @click="showBookingDialog = true" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Open AI Booking
+                Modal</button>
+            </div>
             <FullCalendar ref="fullCalendar" :options="calendarOptions" />
           </div>
         </div>
@@ -351,7 +241,6 @@
         </div>
       </div>
     </div>
-  </div>
 
   <!-- Manual Booking Modal -->
   <div v-if="showManualModal"
@@ -442,6 +331,153 @@
       </form>
     </div>
   </div>
+  <Dialog :open="showBookingDialog" @close="showBookingDialog = false" class="fixed z-50 inset-0 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4 py-6 text-center sm:block sm:p-0">
+      <!-- Background overlay -->
+      <DialogOverlay class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" />
+
+      <!-- Modal content -->
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+
+
+      <div
+        class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w-6xl sm:w-full">
+        <DialogTitle class="sr-only">Room Booking</DialogTitle>
+        <!-- Your full booking content here -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+          <div
+            class="relative bg-gradient-to-br from-slate-50 to-blue-50/30 rounded-2xl border border-slate-200/60 shadow-xl shadow-blue-500/5 overflow-hidden">
+            <!-- Decorative background elements -->
+            <div
+              class="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-10">
+            </div>
+            <div
+              class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-400/10 to-indigo-500/10 rounded-full blur-3xl -translate-y-20 translate-x-20">
+            </div>
+            <div
+              class="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-purple-400/10 to-pink-500/10 rounded-full blur-2xl translate-y-16 -translate-x-16">
+            </div>
+
+            <div class="relative p-4 sm:p-6 lg:p-8 border-b border-slate-200/70 backdrop-blur-sm">
+              <!-- Header with icon and title -->
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <div class="flex items-center space-x-3">
+                  <button @click="showBookingDialog = false"
+                    class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+                    ✖️
+                  </button>
+
+                  <div
+                    class="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/25 flex-shrink-0">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <h2
+                      class="text-lg sm:text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent truncate">
+                      AI-Powered Booking
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Describe your booking in natural language</p>
+                  </div>
+                </div>
+
+                <!-- Manual booking button - moved to top on mobile -->
+
+              </div>
+
+              <form @submit.prevent="handleAIBooking" class="space-y-4 sm:space-y-6">
+                <!-- Text input with enhanced styling -->
+                <div class="group">
+                  <label for="booking-text"
+                    class="block text-sm font-semibold text-slate-700 mb-2 sm:mb-3 flex items-center space-x-2">
+                    <span>📝</span>
+                    <span>Describe your booking</span>
+                  </label>
+                  <div class="relative">
+                    <textarea id="booking-text" v-model="bookingText" class="w-full px-3 sm:px-4 py-3 sm:py-4 bg-white/80 backdrop-blur-sm border-2 border-slate-200 rounded-xl shadow-sm 
+             focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 
+             transition-all duration-300 ease-out resize-none
+             placeholder:text-slate-400 text-slate-700 font-medium text-sm sm:text-base
+             group-hover:border-slate-300 group-hover:shadow-md" :rows="3"
+                      placeholder="✨ Try: 'Book the conference room 30 may 2025 from 2-4 PM for our team standup meeting'"
+                      required />
+                    <!-- Status indicator -->
+                    <div
+                      class="absolute bottom-2 sm:bottom-3 right-2 sm:right-3 text-xs text-slate-400 bg-slate-100/80 px-2 py-1 rounded-full">
+                      AI Ready
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Action buttons with mobile-first design -->
+                <div class="space-y-3 sm:space-y-0 sm:grid sm:grid-cols-3 sm:gap-3">
+                  <!-- Primary booking button -->
+                  <button type="submit" :disabled="isProcessing" class="w-full group relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 
+           disabled:from-slate-400 disabled:to-slate-500 text-white font-semibold py-3 sm:py-4 px-4 sm:px-6 rounded-xl 
+           transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-xl hover:shadow-blue-500/25
+           disabled:transform-none disabled:shadow-none disabled:cursor-not-allowed
+           focus:outline-none focus:ring-4 focus:ring-blue-500/20 order-1">
+                    <div
+                      class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                    <span v-if="!isProcessing" class="relative flex items-center justify-center space-x-2">
+                      <span>🚀</span>
+                      <span>Book with AI</span>
+                    </span>
+                    <span v-else class="relative flex items-center justify-center space-x-2">
+                      <svg class="animate-spin h-4 w-4 sm:h-5 sm:w-5 text-white" xmlns="http://www.w3.org/2000/svg"
+                        fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                        <path class="opacity-75" fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      <span>Processing...</span>
+                    </span>
+                  </button>
+
+                  <!-- Availability check button -->
+                  <button @click="askAvailability" :disabled="isProcessing" class="w-full group bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 
+           disabled:from-slate-400 disabled:to-slate-500 text-white font-semibold py-3 sm:py-4 px-4 sm:px-6 rounded-xl 
+           transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/25
+           disabled:transform-none disabled:shadow-none disabled:cursor-not-allowed
+           focus:outline-none focus:ring-4 focus:ring-emerald-500/20 order-2">
+                    <span class="flex items-center justify-center space-x-2">
+                      <span>🔍</span>
+                      <span>Check Availability</span>
+                    </span>
+                  </button>
+
+                  <!-- Help button -->
+                  <button @click="showBookingHelp" class="w-full group bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 
+           text-white font-semibold py-3 sm:py-4 px-4 sm:px-6 rounded-xl 
+           transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-xl hover:shadow-purple-500/25
+           focus:outline-none focus:ring-4 focus:ring-purple-500/20 order-3">
+                    <span class="flex items-center justify-center space-x-2">
+                      <span>🤖</span>
+                      <span>Get Help</span>
+                    </span>
+                  </button>
+                </div>
+              </form>
+
+              <!-- Quick examples for better UX -->
+              <div class="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-slate-200/50">
+                <p class="text-xs sm:text-sm text-slate-500 mb-2">Quick examples:</p>
+                <div class="flex flex-wrap gap-2">
+                  <button v-for="example in quickExamples" :key="example" @click="bookingText = example"
+                    class="text-xs px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-colors duration-200">
+                    {{ example }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -452,7 +488,9 @@ import type { CalendarOptions, EventClickArg, DateSelectArg } from '@fullcalenda
 import type { Booking, ParsedBookingData } from '~/types/booking'
 import Swal from 'sweetalert2'
 import { useAuthStore } from '~/store/useAuthStore'
+import { Dialog, DialogOverlay, DialogTitle } from '@headlessui/vue'
 
+const showBookingDialog = ref(false)
 const { extractBookingInfo } = useGeminiAI()
 const { createBooking, getBookings, updateBooking, deleteBooking } = useBooking()
 const showMessage = (msg: string, type: 'success' | 'error' = 'success') => {
@@ -467,7 +505,10 @@ const showMessage = (msg: string, type: 'success' | 'error' = 'success') => {
     toast: true
   })
 }
-
+// Quick example suggestions
+const quickExamples = ref([
+  'Book the conference room 30 may 2025 from 2-4 PM for our team standup meeting'
+])
 // Reactive state
 const bookingText = ref('')
 const bookings = ref<Booking[]>([])
@@ -530,7 +571,7 @@ const calendarOptions = computed<CalendarOptions>(() => ({
     left: 'prev,next today title',
     center: '',
     right: ''
-    
+
   },
   selectable: true,
   selectMirror: true,
@@ -1097,10 +1138,10 @@ const screenWidth = ref(window.innerWidth)
 // Initialize
 onMounted(() => {
   loadBookings()
-   window.addEventListener('resize', () => {
+  window.addEventListener('resize', () => {
     screenWidth.value = window.innerWidth
   })
-   if (window.innerWidth <= 640) {
+  if (window.innerWidth <= 640) {
     changeView('dayGridWeek')
   }
 })
@@ -1160,6 +1201,7 @@ definePageMeta({
   text-align: left;
   font-family: monospace;
 }
+
 :deep(.fc-daygrid-day-events) {
   max-height: 60px;
   overflow-y: auto;
@@ -1174,8 +1216,8 @@ definePageMeta({
   }
 
   :deep(.fc) {
-    min-width: 600px; /* prevent calendar columns from becoming too narrow */
+    min-width: 600px;
+    /* prevent calendar columns from becoming too narrow */
   }
 }
-
 </style>
