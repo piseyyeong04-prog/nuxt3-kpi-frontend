@@ -129,35 +129,82 @@
         </div>
         <!-- Calendar View -->
         <div class="p-6">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold text-gray-900">Room Bookings Calendar</h2>
-            <div class="flex space-x-2">
-              <button @click="changeView('dayGridMonth')"
-                :class="currentView === 'dayGridMonth' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
-                class="px-3 py-1 rounded-md text-sm font-medium hover:bg-blue-700 hover:text-white transition-colors">
-                Month
-              </button>
-              <button @click="changeView('dayGridWeek')"
-                :class="currentView === 'dayGridWeek' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
-                class="px-3 py-1 rounded-md text-sm font-medium hover:bg-blue-700 hover:text-white transition-colors">
-                Week
-              </button>
-              <button @click="loadBookings" class="text-blue-600 hover:text-blue-800 font-medium px-3 py-1">
-                🔄 Refresh
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div class="flex items-center space-x-3">
+              <div class="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg shadow-blue-500/25">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <h2
+                  class="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                  Room Bookings Calendar
+                </h2>
+                <p class="text-sm text-slate-500 mt-0.5">Manage and view all room reservations</p>
+              </div>
+            </div>
+
+            <div class="flex items-center space-x-2">
+              <!-- View Toggle Buttons -->
+              <div class="inline-flex bg-slate-100 rounded-xl p-1 shadow-inner">
+                <button @click="changeView('dayGridMonth')" :class="currentView === 'dayGridMonth'
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-800'"
+                  class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ease-out">
+                  <span class="flex items-center space-x-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>Month</span>
+                  </span>
+                </button>
+
+                <button @click="changeView('dayGridWeek')" :class="currentView === 'dayGridWeek'
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-800'"
+                  class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ease-out">
+                  <span class="flex items-center space-x-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    <span>Week</span>
+                  </span>
+                </button>
+              </div>
+
+              <!-- Refresh Button -->
+              <button @click="loadBookings" class="group relative bg-white hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 
+               border border-slate-200 hover:border-emerald-300 text-slate-700 hover:text-emerald-700 
+               font-medium px-4 py-2 rounded-xl shadow-sm hover:shadow-md 
+               transition-all duration-200 ease-out transform hover:scale-105">
+                <span class="flex items-center space-x-2">
+                  <svg class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span>Refresh</span>
+                </span>
               </button>
             </div>
           </div>
 
-          <div v-if="loading" class="text-center py-8">
-            <div class="inline-flex items-center">
-              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                </path>
-              </svg>
-              Loading bookings...
+          <!-- Loading State -->
+          <div v-if="loading" class="flex items-center justify-center py-16">
+            <div class="text-center">
+              <div class="relative">
+                <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto">
+                </div>
+                <div
+                  class="absolute inset-0 w-12 h-12 border-4 border-transparent border-r-blue-400 rounded-full animate-spin mx-auto"
+                  style="animation-delay: -0.15s; animation-duration: 1s;"></div>
+              </div>
+              <p class="text-slate-600 font-medium mt-4">Loading bookings...</p>
+              <p class="text-slate-400 text-sm mt-1">Please wait while we fetch your calendar data</p>
             </div>
           </div>
 
@@ -469,23 +516,30 @@ const calendarEvents = computed(() => {
     }
   }))
 })
+const eventContent = (info: any) => {
+  return {
+    html: `<div title="${info.event.title}" class="text-xs truncate">• ${info.event.title}</div>`
+  }
+}
 
 // Calendar configuration - Fixed to properly bind events
 const calendarOptions = computed<CalendarOptions>(() => ({
   plugins: [dayGridPlugin, interactionPlugin],
   initialView: 'dayGridMonth',
   headerToolbar: {
-    left: 'prev,next today',
-    center: 'title',
+    left: 'prev,next today title',
+    center: '',
     right: ''
+    
   },
   selectable: true,
   selectMirror: true,
   dayMaxEvents: true,
   weekends: true,
-  events: calendarEvents.value, // ✅ Fixed: Properly bind to computed events
+  events: calendarEvents.value,
   eventClick: handleEventClick,
   select: handleDateSelect,
+  eventContent, // ✅ include here
   eventDidMount(info) {
     const status = info.event.extendedProps.booking?.status
     if (status === 'published') {
@@ -500,6 +554,7 @@ const calendarOptions = computed<CalendarOptions>(() => ({
     }
   }
 }))
+
 
 const getEventColor = (status: string) => {
   switch (status) {
@@ -1036,9 +1091,18 @@ const sendTelegramMessage = async (text: string) => {
 };
 
 // =====================end function ask ai for help ===================
+
+
+const screenWidth = ref(window.innerWidth)
 // Initialize
 onMounted(() => {
   loadBookings()
+   window.addEventListener('resize', () => {
+    screenWidth.value = window.innerWidth
+  })
+   if (window.innerWidth <= 640) {
+    changeView('dayGridWeek')
+  }
 })
 definePageMeta({
   middleware: 'auth',
@@ -1096,4 +1160,22 @@ definePageMeta({
   text-align: left;
   font-family: monospace;
 }
+:deep(.fc-daygrid-day-events) {
+  max-height: 60px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+/* Scoped style in <style scoped> or global */
+@media (max-width: 640px) {
+  .calendar-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  :deep(.fc) {
+    min-width: 600px; /* prevent calendar columns from becoming too narrow */
+  }
+}
+
 </style>
