@@ -16,13 +16,9 @@
                   class="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
                   Room Bookings Calendar
                 </h2>
-
               </div>
-
             </div>
-
             <div class="flex items-center space-x-2">
-
               <!-- View Toggle Buttons -->
               <div class="inline-flex bg-slate-100 rounded-xl p-1 shadow-inner">
 
@@ -266,7 +262,7 @@
         </div>
         <div>
           <label for="modal-start" class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
-          <input type="time" id="modal-start" v-model="manualBooking.start" required
+          <input type="time" id="modal-start" v-model="manualBooking.start" required 
             class="w-full px-3 py-2 border border-gray-300 rounded-md" />
         </div>
         <div>
@@ -560,6 +556,11 @@ const eventContent = (info: any) => {
   }
 }
 
+const handleDateClick = (arg: { dateStr: string }) => {
+  manualBooking.value.date = arg.dateStr
+  showManualModal.value = true
+}
+
 // Calendar configuration - Fixed to properly bind events
 const calendarOptions = computed<CalendarOptions>(() => ({
   plugins: [dayGridPlugin, interactionPlugin],
@@ -568,9 +569,10 @@ const calendarOptions = computed<CalendarOptions>(() => ({
     left: 'prev,next today title',
     center: '',
     right: ''
-
   },
   selectable: true,
+  unselectAuto: false, // ← add this
+  dateClick: handleDateClick,
   selectMirror: true,
   dayMaxEvents: true,
   weekends: true,
@@ -705,11 +707,6 @@ const formatTime = (timestamp: number) => {
   const date = new Date(timestamp);
   return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 };
-
-
-
-
-
 const handleAIBooking = async () => {
   if (!bookingText.value.trim()) return;
 
@@ -799,13 +796,13 @@ const handleAIBooking = async () => {
     const auth = useAuthStore();
     const currentUser = auth.user;
 
-    await sendTelegramMessage(
+     await sendTelegramMessage(
       `📅 <b>មានការកក់បន្ទប់ស្ទូឌីយ៉ូ</b>\n\n` +
       `<b>Full Name:</b> ${currentUser?.first_name ?? 'N/A'} ${currentUser?.last_name ?? ''}\n` +
       `<b>Department:</b> ${currentUser?.department?.title ?? 'N/A'}\n` +
       `<b>Purpose:</b> ${booking.purpose}\n` +
       `<b>Date:</b> ${booking.date}\n` +
-      `<b>Time:</b> ${booking.start} – ${booking.end}\n` +
+      `<b>Time:</b> ${formatTime12Hour(booking.date, booking.start)} – ${formatTime12Hour(booking.date, booking.end)}\n` +
       `<b>Status:</b> ${booking.status}`
     );
 
@@ -816,6 +813,15 @@ const handleAIBooking = async () => {
     isProcessing.value = false;
   }
 };
+const formatTime12Hour = (date: string, time: string) => {
+  const fullDateTime = new Date(`${date}T${time}`);
+  return fullDateTime.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+};
+
 const handleManualBooking = async () => {
   isProcessing.value = true;
   try {
@@ -850,7 +856,6 @@ const handleManualBooking = async () => {
     const conflicts = dayBookings.filter(b =>
       requestedStart < b.end + bufferMs && requestedEnd > b.start - bufferMs
     );
-
     if (conflicts.length > 0) {
       const details = conflicts
         .map(b => `• ${formatTime(b.start)} – ${formatTime(b.end)}<br><i>${b.purpose}</i>`)
@@ -895,8 +900,18 @@ const handleManualBooking = async () => {
     manualBooking.value = { date: '', start: '', end: '', purpose: '' };
     showManualModal.value = false;
     await loadBookings();
-    await sendTelegramMessage(
-      `📅 <b>New Booking</b>\n\n<b>Purpose:</b> ${booking.purpose}\n<b>Date:</b> ${booking.date}\n<b>Time:</b> ${booking.start} – ${booking.end}`
+    const auth = useAuthStore();
+    const currentUser = auth.user;
+      await sendTelegramMessage(
+      `📅 <b>មានការកក់បន្ទប់ស្ទូឌីយ៉ូ</b>\n\n` +
+      `<b>កក់ដោយ:</b> ${currentUser?.first_name ?? 'N/A'} ${currentUser?.last_name ?? ''}\n` +
+      `<b>Department:</b> ${currentUser?.department?.title ?? 'N/A'}\n` +
+      `<b>គោលបំណង:</b> ${booking.purpose}\n` +
+      `<b>កាលបរិច្ឆេទ:</b> ${booking.date}\n` +
+     `<b>ចាប់ពីម៉ោង</b> ${formatTime12Hour(booking.date, booking.start)} ដល់ ${formatTime12Hour(booking.date, booking.end)}\n` +
+      `<b>ស្ថានភាព:</b> ${booking.status}` +
+      `\n\n` +
+      `<b>📌 មើលកាលវិភាគកក់:</b> <a href="https://baksey.vercel.app/dashboard/booking-room">ចូលមើលនៅទីនេះ</a>`
     );
 
   } catch (error) {
@@ -941,7 +956,6 @@ const formatDate = (dateString: string) => {
     day: 'numeric'
   })
 }
-
 const getStatusClass = (status: string) => {
   switch (status) {
     case 'published':
