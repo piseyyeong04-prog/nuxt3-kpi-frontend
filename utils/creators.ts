@@ -7,6 +7,7 @@ export interface IRemark {
   video_link: string;
   view: string | null;
   creators: number;
+  date_created: string;
 }
 
 export interface ICreator {
@@ -34,6 +35,18 @@ export interface ICreator {
  * @param remarks List of remarks containing view data
  * @returns Total views as a string
  */
+// export const getTotalViews = (remarks: IRemark[]): string => {
+//   if (!remarks || remarks.length === 0) return '0';
+
+//   let total = 0;
+//   remarks.forEach(remark => {
+//     if (remark.view) {
+//       total += parseInt(remark.view);
+//     }
+//   });
+
+//   return total.toString();
+// };
 export const getTotalViews = (remarks: IRemark[]): string => {
   if (!remarks || remarks.length === 0) return '0';
 
@@ -134,6 +147,25 @@ export const getTotalViewsAcrossAll = (creators: ICreator[]): string => {
  */
 export const getTotalVideosCount = (creators: ICreator[]): number => {
   return creators.reduce((total, creator) => total + (creator.remarks?.length || 0), 0);
+};
+export const filterRemarksByKpiRange = (remarks: IRemark[]): IRemark[] => {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+
+  const start = new Date(currentMonth === 0 ? currentYear - 1 : currentYear, currentMonth === 0 ? 11 : currentMonth - 1, 23);
+  const end = new Date(currentYear, currentMonth, 11, 23, 59, 59);
+
+  return remarks.filter(r => {
+    const created = new Date(r.date_created);
+    return created >= start && created <= end;
+  });
+};
+export const filterRemarksByCustomRange = (remarks: IRemark[], start: Date, end: Date): IRemark[] => {
+  return remarks.filter(r => {
+    const created = new Date(r.date_created);
+    return created >= start && created <= end;
+  });
 };
 
 import { ref, computed } from 'vue';

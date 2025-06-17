@@ -71,3 +71,20 @@ export const getKpiDateHeaders = () => {
 
   return { dateRangeHeader, totalViewsHeader };
 };
+/**
+ * Generate KPI date headers and range for any given month/year
+ * @param month Index from 0 (Jan) to 11 (Dec)
+ * @param year Full year (e.g., 2025)
+ */
+export const getMonthlyKpiRange = (month: number, year: number) => {
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'];
+
+  const dateRangeHeader = `23(${monthNames[month].substring(0, 3)})-11th(${monthNames[(month + 1) % 12].substring(0, 3)})`;
+  const totalViewsHeader = `Total Views on 23 ${monthNames[(month + 1) % 12]}`;
+
+  const start = new Date(year, month, 23);
+  const end = new Date(year, (month + 1) % 12, 11, 23, 59, 59);
+
+  return { dateRangeHeader, totalViewsHeader, start, end };
+};
