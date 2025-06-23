@@ -442,6 +442,13 @@ const editVideo = async (remark: any) => {
         <label class="block text-sm font-medium text-gray-700 mb-1">View Count</label>
         <input id="swal-views" class="w-full p-2 border rounded" disabled value="${remark.view || '0'}">
       </div>
+       <div class="mb-4">
+    <label class="block text-sm font-medium text-gray-700 mb-1">Big Video?</label>
+    <select id="swal-bigvideo" class="w-full p-2 border rounded">
+      <option value="no" ${remark.big_video === 'no' ? 'selected' : ''}>No</option>
+      <option value="yes" ${remark.big_video === 'yes' ? 'selected' : ''}>Yes</option>
+    </select>
+  </div>
     `,
     focusConfirm: false,
     showCancelButton: true,
@@ -450,7 +457,8 @@ const editVideo = async (remark: any) => {
       title: (document.getElementById('swal-title') as HTMLInputElement).value,
       video_link: (document.getElementById('swal-url') as HTMLInputElement).value,
       view: (document.getElementById('swal-views') as HTMLInputElement).value,
-      status: (document.getElementById('swal-status') as HTMLSelectElement)?.value
+      status: (document.getElementById('swal-status') as HTMLSelectElement)?.value,
+      big_video: (document.getElementById('swal-bigvideo') as HTMLSelectElement).value
     })
   });
 
@@ -500,8 +508,8 @@ const createRemarksHtml = (remarks: any[], creatorName: string) => {
           <p class="mt-2"><b>Views:</b> ${formatNumber(r.view)}</p>
           <p class="mt-1">
             ${r.big_video === 'yes'
-              ? `<span class="inline-block bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">Big Video</span>`
-              : ''}
+      ? `<span class="inline-block bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">Big Video</span>`
+      : ''}
           </p>
 
           <p class="text-xs mt-1"><b>Status:</b> 
@@ -525,12 +533,19 @@ const createRemarksHtml = (remarks: any[], creatorName: string) => {
 const setupGlobalHandlers = (creator: ICreator, creatorName: string) => {
   window.editRemark = async (remarkId: string) => {
     const remark = creator.remarks?.find(r => r.id.toString() === remarkId);
-    if (remark) {
-      Swal.close();
-      await editVideo(remark);
-      handleRemarkClick(creator);
+    if (!remark) return;
+
+    Swal.close();
+    const updated = await editVideo(remark);
+    if (updated) {
+      await fetchCreators(); // Wait for data to fully reload
+      const updatedCreator = creators.value.find(c => c.id === creator.id);
+      if (updatedCreator) {
+        handleRemarkClick(updatedCreator); // Reopen modal with fresh data
+      }
     }
   };
+
 
   window.deleteRemark = async (remarkId: string, creatorName: string, videoTitle: string) => {
     Swal.close();
