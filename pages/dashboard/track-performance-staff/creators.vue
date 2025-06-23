@@ -1,54 +1,39 @@
-<!-- pages/dashboard/track-performance-staff -->
+<!-- pages/dashboard/track-performance-staff/creators.vue -->
 <template>
   <div class="min-h-screen p-6">
     <div class="max-w-6xl mx-auto space-y-6">
       <!-- Add Video Form -->
       <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
         <h2 class="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Add Facebook Video</h2>
-        
+
         <form @submit.prevent="addVideoData" class="space-y-4">
           <div class="grid md:grid-cols-2 gap-4">
-            <input 
-              v-model="videoUrl" 
-              type="text"
-              class="border rounded-lg px-3 py-2 w-full"
-              placeholder="Facebook Video URL"
-              required 
-            />
-            <select 
-              v-model="selectedCreator"
-              class="border rounded-lg px-3 py-2 w-full"
-              required
-            >
+            <input v-model="videoUrl" type="text" class="border rounded-lg px-3 py-2 w-full"
+              placeholder="Facebook Video URL" required />
+            <select v-model="selectedCreator" class="border rounded-lg px-3 py-2 w-full" required>
               <option value="" disabled>Select Creator</option>
               <option v-for="creator in creatorsList" :key="creator.id" :value="creator.id">
                 {{ getUserName(creator.staff) || (auth.user?.first_name + ' ' + auth.user?.last_name) }}
               </option>
             </select>
           </div>
-          
-          <input 
-            v-model="videoTitle" 
-            type="text"
-            class="border rounded-lg px-3 py-2 w-full"
-            placeholder="Video Title (Optional)"
-          />
-          
+
+          <input v-model="videoTitle" type="text" class="border rounded-lg px-3 py-2 w-full"
+            placeholder="Video Title (Optional)" />
+          <select v-model="isBigVideo" class="border rounded-lg px-3 py-2 w-full" required>
+            <option value="no">Big Video? - No</option>
+            <option value="yes">Big Video? - Yes</option>
+          </select>
+
+
           <div class="flex gap-3">
-            <button 
-              type="submit"
-              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-              :disabled="loading || fbLoading"
-            >
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+              :disabled="loading || fbLoading">
               {{ loading || fbLoading ? 'Processing...' : 'Add Video' }}
             </button>
-            
-            <button 
-              type="button" 
-              @click="fetchFromFacebook"
-              class="border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50"
-              :disabled="!videoUrl"
-            >
+
+            <button type="button" @click="fetchFromFacebook"
+              class="border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50" :disabled="!videoUrl">
               {{ fbLoading ? 'Fetching...' : 'Fetch Data' }}
             </button>
           </div>
@@ -73,35 +58,28 @@
             <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Staff Performance</h2>
             <p class="text-sm text-gray-500">Track video engagement metrics</p>
           </div>
-          
+
           <div class="flex gap-2">
-            <button 
-              @click="refreshAllVideos"
+            <button @click="refreshAllVideos"
               class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm"
-              :disabled="globalRefreshLoading"
-            >
+              :disabled="globalRefreshLoading">
               {{ globalRefreshLoading ? 'Refreshing...' : 'Reload' }}
             </button>
-            
+
             <div class="relative">
-              <button 
-                @click="isExportDropdownOpen = !isExportDropdownOpen"
-                class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm"
-              >
+              <button @click="isExportDropdownOpen = !isExportDropdownOpen"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm">
                 Export ▼
               </button>
-              
-              <div v-if="isExportDropdownOpen" class="absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 border rounded-lg shadow-lg z-50">
-                <button 
-                  @click="exportToCSV(); isExportDropdownOpen = false"
-                  class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
+
+              <div v-if="isExportDropdownOpen"
+                class="absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 border rounded-lg shadow-lg z-50">
+                <button @click="exportToCSV(); isExportDropdownOpen = false"
+                  class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">
                   Summary CSV
                 </button>
-                <button 
-                  @click="exportDetailedCSV(); isExportDropdownOpen = false"
-                  class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
+                <button @click="exportDetailedCSV(); isExportDropdownOpen = false"
+                  class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">
                   Detailed CSV
                 </button>
               </div>
@@ -125,7 +103,8 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="creator in creatorsList" :key="creator.id" class="border-b hover:bg-gray-50 dark:hover:bg-gray-700">
+              <tr v-for="creator in creatorsList" :key="creator.id"
+                class="border-b hover:bg-gray-50 dark:hover:bg-gray-700">
                 <td class="px-4 py-3 font-medium">
                   {{ getUserName(creator.staff) || (auth.user?.first_name + ' ' + auth.user?.last_name) }}
                 </td>
@@ -133,19 +112,15 @@
                 <td class="px-4 py-3">{{ creator.user_created?.department?.title || 'N/A' }}</td>
                 <td class="px-4 py-3">{{ formatNumber(creator.target) }}</td>
                 <td class="px-4 py-3">
-                  <span 
-                    class="px-2 py-1 rounded-full text-xs"
-                    :class="isCompleted(creator) ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'"
-                  >
+                  <span class="px-2 py-1 rounded-full text-xs"
+                    :class="isCompleted(creator) ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'">
                     {{ isCompleted(creator) ? 'Completed' : 'In Progress' }}
                   </span>
                 </td>
                 <td class="px-4 py-3 font-medium">{{ getTotalViews(creator.remarks) }}</td>
                 <td class="px-4 py-3">
-                  <button 
-                    @click="handleRemarkClick(creator)" 
-                    class="px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-xs"
-                  >
+                  <button @click="handleRemarkClick(creator)"
+                    class="px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-xs">
                     {{ creator.remarks?.length || 0 }} Videos
                   </button>
                 </td>
@@ -153,11 +128,8 @@
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2">
                     <div class="flex-1 bg-gray-200 rounded-full h-2">
-                      <div 
-                        class="h-2 rounded-full"
-                        :class="getProgressBarColor(calculatePercent(creator))"
-                        :style="`width: ${Math.min(calculatePercent(creator), 100)}%`"
-                      ></div>
+                      <div class="h-2 rounded-full" :class="getProgressBarColor(calculatePercent(creator))"
+                        :style="`width: ${Math.min(calculatePercent(creator), 100)}%`"></div>
                     </div>
                     <span class="text-xs font-medium">{{ calculatePercent(creator) }}%</span>
                   </div>
@@ -180,7 +152,6 @@ import Papa from 'papaparse';
 import { useAuthStore } from '~/store/useAuthStore';
 import { useFacebookVideo } from '~/composables/useFacebookVideo';
 import type { IResponse } from '~/types/api';
-
 // Utility imports
 import {
   getTotalViews, isCompleted, calculatePercent, getPercentClass,
@@ -217,6 +188,8 @@ const isExportDropdownOpen = ref(false);
 const videoUrl = ref('');
 const videoTitle = ref('');
 const selectedCreator = ref('');
+const isBigVideo = ref('no');
+
 
 // Data
 const creators = ref<ICreator[]>([]);
@@ -280,7 +253,7 @@ const fetchStaffMembers = async () => {
   try {
     const staffResponse = await useApi('/users', { method: 'GET' });
     const staffData = (staffResponse as IResponse<any>).data;
-    
+
     staffData.forEach((staff: any) => {
       staffMembers.value[staff.id] = `${staff.first_name} ${staff.last_name}`;
     });
@@ -293,7 +266,7 @@ const checkVideoExists = async (videoId: string): Promise<boolean> => {
   const response = await useApi(`/items/remark_link?filter[video_link][_eq]=https://www.facebook.com/watch?v=${videoId}`, {
     method: 'GET'
   }) as IResponse<any>;
-  
+
   return response.data && response.data.length > 0;
 };
 
@@ -303,7 +276,9 @@ const saveVideoRemark = async (videoId: string) => {
     video_link: `https://www.facebook.com/watch?v=${videoId}`,
     view: fbVideoData.value?.views?.toString() || '0',
     status: 'active',
-    creators: parseInt(selectedCreator.value)
+    creators: parseInt(selectedCreator.value),
+    big_video: isBigVideo.value
+
   };
 
   await useApi('/items/remark_link', {
@@ -340,7 +315,7 @@ const addVideoData = async () => {
   if (!videoId) return;
 
   loading.value = true;
-  
+
   try {
     // Check for duplicates
     if (await checkVideoExists(videoId)) {
@@ -376,6 +351,7 @@ const addVideoData = async () => {
 const resetForm = () => {
   videoUrl.value = '';
   videoTitle.value = '';
+  isBigVideo.value = 'no';
   fbVideoData.value = null;
 };
 
@@ -437,7 +413,7 @@ const deleteVideo = async (remarkId: string, creatorName: string, videoTitle: st
 
     loading.value = true;
     await useApi(`/items/remark_link/${remarkId}`, { method: 'DELETE' });
-    
+
     showSuccess('The video has been removed successfully.');
     await fetchCreators();
     return true;
@@ -522,6 +498,12 @@ const createRemarksHtml = (remarks: any[], creatorName: string) => {
             <a href="${r.video_link}" target="_blank" class="text-blue-600 hover:underline">${r.video_link}</a>
           </p>
           <p class="mt-2"><b>Views:</b> ${formatNumber(r.view)}</p>
+          <p class="mt-1">
+            ${r.big_video === 'yes'
+              ? `<span class="inline-block bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">Big Video</span>`
+              : ''}
+          </p>
+
           <p class="text-xs mt-1"><b>Status:</b> 
             <span class="${r.status === 'active' ? 'text-green-600' : 'text-red-600'}">${r.status}</span>
           </p>
@@ -562,26 +544,26 @@ const setupGlobalHandlers = (creator: ICreator, creatorName: string) => {
 };
 
 // ==============================================================================
-// REFRESH FUNCTIONS
+// REFRESH FUNCTIONS      
 // ==============================================================================
 const refreshAllVideos = async () => {
   try {
     globalRefreshLoading.value = true;
     const toast = createLoadingToast();
-    
+
     const allRemarks = creators.value.flatMap(creator => creator.remarks || []);
-    
+
     if (!allRemarks.length) {
       Swal.fire({ title: 'No Videos', text: 'No video data available to refresh', icon: 'info' });
       return;
     }
 
     const stats = { success: 0, error: 0, skipped: 0 };
-    
+
     for (let i = 0; i < allRemarks.length; i++) {
       const remark = allRemarks[i];
       updateRefreshStatus(toast, i + 1, allRemarks.length, stats);
-      
+
       await processVideoRefresh(remark, stats);
       await new Promise(resolve => setTimeout(resolve, 500)); // Rate limiting
     }
@@ -629,7 +611,7 @@ const processVideoRefresh = async (remark: any, stats: any) => {
 
   try {
     await fetchVideoData(videoId);
-    
+
     if (fbError.value || !fbVideoData.value?.views) {
       console.warn(`Couldn't get view count for: ${remark.title}`);
       stats.error++;
@@ -729,7 +711,7 @@ const downloadCSV = (data: any[], filename: string) => {
   const csv = Papa.unparse(data);
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
   saveAs(blob, `${filename}-${new Date().toISOString().slice(0, 10)}.csv`);
-  
+
   Swal.fire({
     title: 'Success',
     text: 'CSV file has been generated and downloaded',
