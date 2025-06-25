@@ -8,6 +8,7 @@ export interface IRemark {
   view: string | null;
   creators: number;
   date_created: string;
+  big_video: string;
 }
 
 export interface ICreator {
@@ -175,3 +176,41 @@ const creators = ref<ICreator[]>([]);
 export const creatorsList = computed(() => {
   return creators.value;
 });
+
+export const getKpiPeriodsFromArticles = (items: { date_created: string }[]) => {
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const map: Record<string, { label: string; from: Date; to: Date }> = {}
+
+  for (const { date_created } of items) {
+    const date = new Date(date_created)
+    let y = date.getFullYear()
+    let m = date.getMonth()
+    if (date.getDate() < 23) {
+      m -= 1
+      if (m < 0) {
+        m = 11
+        y -= 1
+      }
+    }
+    const key = `${y}-${String(m + 1).padStart(2, '0')}`
+    if (!map[key]) {
+      const from = new Date(y, m, 23)
+      const to = new Date(y, m + 1, 23)
+      map[key] = { label: `${monthNames[m]} ${y}`, from, to }
+    }
+  }
+
+  return map
+}
+
+export const countBigVideos = (remarks: IRemark[] = []) => {
+  return remarks.filter(r => r.big_video === 'yes').length;
+};
+
+export const getBigVideoViews = (remarks: IRemark[] = []) => {
+  return remarks
+    .filter(r => r.big_video === 'yes' && r.view)
+    .reduce((sum, r) => sum + parseInt(r.view || '0'), 0)
+    .toString();
+};
+

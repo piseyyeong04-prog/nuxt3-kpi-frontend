@@ -98,6 +98,10 @@
                 <th class="px-4 py-3 text-left">Status</th>
                 <th class="px-4 py-3 text-left">{{ dateRangeHeader }}</th>
                 <th class="px-4 py-3 text-left">Videos</th>
+                <!-- Big Video -->
+                <th class="px-4 py-3 text-left">Big Videos</th>
+                <th class="px-4 py-3 text-left">Big Video Views</th>
+
                 <th class="px-4 py-3 text-left">{{ totalViewsHeader }}</th>
                 <th class="px-4 py-3 text-left">Progress</th>
               </tr>
@@ -123,11 +127,17 @@
                     class="px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-xs">
                     {{ creator.remarks?.length || 0 }} Videos
                   </button>
-                    <button @click="viewCreatorVideos(creator)"
-    class="text-blue-600 hover:underline text-xs">
-    View History
-  </button>
+                  <button @click="viewCreatorVideos(creator)" class="text-blue-600 hover:underline text-xs">
+                    View History
+                  </button>
                 </td>
+                <td class="px-4 py-3 font-medium">
+                  {{ countBigVideos(creator.remarks) }}
+                </td>
+                <td class="px-4 py-3 font-medium">
+                  {{ formatTotalViews(getBigVideoViews(creator.remarks)) }}
+                </td>
+
                 <td class="px-4 py-3 font-medium">{{ formatTotalViews(getTotalViews(creator.remarks)) }}</td>
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2">
@@ -146,62 +156,60 @@
     </div>
   </div>
   <Transition name="fade">
-  <div v-if="showHistoryModal"
-    class="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-3xl">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
-          KPI History for {{ selectedCreatorName }}
-        </h3>
-        <button @click="showHistoryModal = false"
-          class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
-          ✕
-        </button>
-      </div>
+    <div v-if="showHistoryModal" class="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-3xl">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
+            KPI History for {{ selectedCreatorName }}
+          </h3>
+          <button @click="showHistoryModal = false" class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+            ✕
+          </button>
+        </div>
 
-      <div class="mb-4">
-        <label class="text-sm font-medium">KPI Period:</label>
-        <select v-model="selectedMonth" @change="filterVideosByKpiPeriod"
-          class="ml-2 px-2 py-1 border rounded dark:bg-gray-700 dark:text-white">
-          <option v-for="(period, key) in kpiPeriods" :key="key" :value="key">
-            {{ period.label }}
-          </option>
-        </select>
-      </div>
+        <div class="mb-4">
+          <label class="text-sm font-medium">KPI Period:</label>
+          <select v-model="selectedMonth" @change="filterVideosByKpiPeriod"
+            class="ml-2 px-2 py-1 border rounded dark:bg-gray-700 dark:text-white">
+            <option v-for="(period, key) in kpiPeriods" :key="key" :value="key">
+              {{ period.label }}
+            </option>
+          </select>
+        </div>
 
-      <div class="overflow-x-auto max-h-[400px]">
-        <table class="min-w-full text-sm">
-          <thead>
-            <tr class="border-b text-left">
-              <th class="px-4 py-2">Title</th>
-              <th class="px-4 py-2">Link</th>
-              <th class="px-4 py-2">Views</th>
-              <th class="px-4 py-2">Created</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in creatorVideos" :key="item.id" class="border-b">
-              <td class="px-4 py-2">{{ item.title }}</td>
-              <td class="px-4 py-2">
-                <a :href="item.video_link" target="_blank"
-                  class="text-blue-600 hover:underline block truncate max-w-xs">
-                  {{ item.video_link }}
-                </a>
-              </td>
-              <td class="px-4 py-2">{{ formatNumber(item.view || 0) }}</td>
-              <td class="px-4 py-2">{{ formatDate(item.date_created) }}</td>
-            </tr>
-            <tr v-if="creatorVideos.length === 0">
-              <td colspan="4" class="text-center py-4 text-gray-500">
-                No videos in this period.
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="overflow-x-auto max-h-[400px]">
+          <table class="min-w-full text-sm">
+            <thead>
+              <tr class="border-b text-left">
+                <th class="px-4 py-2">Title</th>
+                <th class="px-4 py-2">Link</th>
+                <th class="px-4 py-2">Views</th>
+                <th class="px-4 py-2">Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in creatorVideos" :key="item.id" class="border-b">
+                <td class="px-4 py-2">{{ item.title }}</td>
+                <td class="px-4 py-2">
+                  <a :href="item.video_link" target="_blank"
+                    class="text-blue-600 hover:underline block truncate max-w-xs">
+                    {{ item.video_link }}
+                  </a>
+                </td>
+                <td class="px-4 py-2">{{ formatNumber(item.view || 0) }}</td>
+                <td class="px-4 py-2">{{ formatDate(item.date_created) }}</td>
+              </tr>
+              <tr v-if="creatorVideos.length === 0">
+                <td colspan="4" class="text-center py-4 text-gray-500">
+                  No videos in this period.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-  </div>
-</Transition>
+  </Transition>
 
 
 </template>
@@ -219,7 +227,7 @@ import type { IResponse } from '~/types/api';
 import {
   getTotalViews, isCompleted, calculatePercent, getPercentClass,
   getProgressBarColor, getCompletedTargetsCount, getActiveCreatorsCount,
-  getTotalViewsAcrossAll, getTotalVideosCount
+  getTotalViewsAcrossAll, getTotalVideosCount, countBigVideos, getBigVideoViews
 } from '~/utils/creators';
 import { extractVideoId, isValidVideoInput, buildFacebookVideoUrl } from '~/utils/facebook';
 import { formatDate, formatNumber, formatTotalViews, getKpiDateHeaders } from '~/utils/format';
@@ -384,7 +392,10 @@ const filterVideosByKpiPeriod = () => {
   if (!kpiPeriods.value[selectedMonth.value]) return
 
   const { from } = kpiPeriods.value[selectedMonth.value]
-  const all = creators.value.find(c => c.id === selectedCreatorId.value)?.remarks || []
+  const all = creators.value.find(
+    c => c.id === Number(selectedCreatorId.value)
+  )?.remarks || [];
+
 
   creatorVideos.value = all.filter(video => {
     const created = new Date(video.date_created)
@@ -627,8 +638,8 @@ const createRemarksHtml = (remarks: any[], creatorName: string) => {
           <p class="mt-2"><b>Views:</b> ${formatNumber(r.view)}</p>
           <p class="mt-1">
             ${r.big_video === 'yes'
-              ? `<span class="inline-block bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">Big Video</span>`
-              : ''}
+      ? `<span class="inline-block bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">Big Video</span>`
+      : ''}
           </p>
           <p class="text-xs mt-1"><b>Status:</b> 
             <span class="${r.status === 'active' ? 'text-green-600' : 'text-red-600'}">${r.status}</span>
@@ -786,6 +797,18 @@ const showRefreshComplete = (total: number, stats: any) => {
     icon: 'success'
   });
 };
+// ==============================================================================
+// Big Video
+// ==============================================================================
+
+const showBigVideoModal = ref(false);
+const bigVideoInfo = ref<IRemark | null>(null);
+
+const openBigVideoModal = (remark: IRemark) => {
+  bigVideoInfo.value = remark;
+  showBigVideoModal.value = true;
+};
+
 
 // ==============================================================================
 // EXPORT FUNCTIONS
