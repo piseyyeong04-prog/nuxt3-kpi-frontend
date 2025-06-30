@@ -248,7 +248,7 @@
 
         <!-- Sidebar bottom (sticky footer) -->
         <div class="p-4 border-t border-gray-200 dark:border-gray-700">
-          <InternetSpeed />
+          <!-- <InternetSpeed /> -->
           <div class="mt-2 text-left">
             <p class="text-xs text-gray-500 dark:text-gray-400">
               BAKSEY Tech Solution © {{ new Date().getFullYear() }}
@@ -566,7 +566,7 @@ const menuItems: MenuItem[] = [
   {
     to: '/dashboard/bm-client',
     icon: 'mdi:account-multiple',
-    label: { en: 'BM Client', km: 'អតិថិជន BM' },
+    label: { en: 'Sale client', km: 'អតិថិជន BM' },
     role: ['admin', 'sales']
   },
 
@@ -580,7 +580,7 @@ const menuItems: MenuItem[] = [
   {
     to: '/dashboard/clients',
     icon: 'mdi:account-multiple',
-    label: { en: 'Clients', km: 'អតិថិជន' },
+    label: { en: 'Interview Clients', km: 'អតិថិជន' },
   },
 
 ]
