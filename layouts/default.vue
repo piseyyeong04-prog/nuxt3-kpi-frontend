@@ -567,7 +567,7 @@ const menuItems: MenuItem[] = [
     to: '/dashboard/bm-client',
     icon: 'mdi:account-multiple',
     label: { en: 'Sale client', km: 'អតិថិជន BM' },
-    role: ['admin', 'sales']
+   
   },
 
   {
