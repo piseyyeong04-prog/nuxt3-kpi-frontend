@@ -1,3 +1,4 @@
+<!-- pages/dashboard/track-performance-staff/editors.vue -->
 <template>
   <div class="min-h-screen dark:from-gray-900 dark:to-indigo-950 py-10">
     <div class="container mx-auto px-4 max-w-6xl">
@@ -80,7 +81,7 @@
             <div class="flex items-center mt-2">
               <Icon icon="fluent:document-16-filled" class="h-8 w-8 text-indigo-500 mr-3" />
               <span class="text-2xl font-bold text-gray-800 dark:text-white">{{ getTotalArticlesCount(editors)
-                }}</span>
+              }}</span>
             </div>
           </div>
 
@@ -90,7 +91,7 @@
             <div class="flex items-center mt-2">
               <Icon icon="fluent-mdl2:completed" class="h-8 w-8 text-rose-500 mr-3" />
               <span class="text-2xl font-bold text-gray-800 dark:text-white">{{ getCompletedTargetsCount(editors)
-                }}</span>
+              }}</span>
             </div>
           </div>
         </div>
@@ -142,17 +143,17 @@
                   </td>
                   <td class="py-4 px-6 font-medium"
                     :class="index % 2 === 0 ? 'text-indigo-600 dark:text-indigo-400' : 'text-rose-600 dark:text-rose-400'">
-                    {{ creator.remarks?.length }}
+                    {{ filterRemarksByKpiMonth(creator.remarks).length }}
                   </td>
                   <td class="py-4 px-6">
                     <button @click="viewWriterArticles(creator.id)" class="px-3 py-1 flex bg-blue-500  dark:bg-indigo-900/30 dark:hover:bg-indigo-900/50
                       text-white  dark:text-indigo-400 rounded-md transition-colors">
-                      {{ creator.remarks?.length || 0 }} Articles
+                      {{ filterRemarksByKpiMonth(creator.remarks).length | 0 }} Articles
                       <Icon icon="game-icons:click" width="24" height="24" />
                     </button>
                   </td>
-                  <td class="py-4 px-6 font-medium dark:text-white">{{
-                    formatTotalViews(getTotalViews(creator.remarks)) }}</td>
+                  <td class="py-4 px-6 font-medium dark:text-white"> {{ filterRemarksByKpiMonth(creator.remarks).length
+                    | 0 }}</td>
                   <td class="py-4 px-6 w-40 dark:text-white">
                     <div class="flex items-center">
                       <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mr-2">
@@ -196,6 +197,56 @@
                   <Icon icon="heroicons:x-mark" class="h-6 w-6" />
                 </button>
               </div>
+              <!-- KPI Month Dropdown -->
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Filter by KPI Month
+                </label>
+                <select v-model="selectedKpiMonth" @change="filterWriterArticlesByKpi"
+                  class="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-sm rounded-lg p-2">
+                  <option v-for="(period, key) in kpiPeriods" :key="key" :value="key">
+                    {{ period.label }}
+                  </option>
+                </select>
+              </div>
+              <!-- summry report -->
+              <div class="mb-4">
+                <h4 class="text-md font-semibold text-gray-800 dark:text-white mb-2">Summary Report</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                  <!-- Total Videos -->
+                  <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Total Videos</p>
+                    <p class="text-lg font-bold text-gray-800 dark:text-white">{{ writerArticles.length }}</p>
+                  </div>
+
+                  <!-- Status -->
+                  <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Status</p>
+                    <div>
+                      <span
+                        v-if="editors.find(c => c.id === selectedWriterId) && isCompleted(editors.find(c => c.id === selectedWriterId)!)"
+                        class="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full text-xs font-medium">
+                        Completed
+                      </span>
+                      <span v-else
+                        class="px-2 py-1 bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 rounded-full text-xs font-medium">
+                        In Progress
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Progress % -->
+                  <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Progress</p>
+                    <p class="text-lg font-bold text-gray-800 dark:text-white">
+                      {{ averageEngagement }}%
+                    </p>
+                  </div>
+
+                </div>
+              </div>
+
 
               <!-- Articles table -->
               <div class="overflow-x-auto">
@@ -219,25 +270,29 @@
                   </thead>
                   <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     <tr v-if="writerArticles.length === 0">
-                      <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                      <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                         No articles found for this writer.
                       </td>
                     </tr>
-                    <tr v-for="article in writerArticles" :key="article.id"
-                      class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <tr v-else v-for="article in writerArticles" :key="article.id"
+                      class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+
+                      <!-- Date Created -->
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                        {{  article.date_created ? format(new Date(article.date_created), 'PPPp') : 'N/A' }}
+                        {{ article.date_created ? format(new Date(article.date_created), 'PPPp') : 'N/A' }}
                       </td>
 
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      <!-- Facebook Link -->
+                      <td
+                        class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">
                         <a :href="article.facebook_link" target="_blank"
-                          class="text-blue-600 dark:text-blue-400 hover:underline truncate block max-w-xs">
+                          class="text-blue-600 dark:text-blue-400 hover:underline">
                           {{ article.facebook_link }}
                         </a>
                       </td>
 
-                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-
+                      <!-- Actions -->
+                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-2">
                         <button @click="editArticle(article)"
                           class="text-amber-600 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-300 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors">
                           <span class="flex items-center">
@@ -255,6 +310,7 @@
                       </td>
                     </tr>
                   </tbody>
+
                 </table>
               </div>
             </div>
@@ -304,8 +360,7 @@
                     <div class="absolute inset-y-0 z-[1] left-0 flex items-center pl-3 pointer-events-none">
                       <Icon icon="clarity:date-line" class="h-5 w-5 text-gray-400" />
                     </div>
-                    <Datepicker v-model="editForm.date_created" :enable-time-picker="true" 
-                      format="PPPp"
+                    <Datepicker v-model="editForm.date_created" :enable-time-picker="true" format="PPPp"
                       class="bg-gray-50 border cursor-pointer border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 p-3" />
                   </div>
                 </div>
@@ -356,6 +411,8 @@ import { useAuthStore } from '~/store/useAuthStore';
 import type { IResponse } from '~/types/api';
 import Datepicker from 'vue3-datepicker';
 import { format } from 'date-fns';
+import { filterRemarksByKpiMonth } from '~/utils/editors';
+
 // Import writer utilities
 import {
   getTotalViews,
@@ -535,19 +592,50 @@ const selectedWriterId = ref<number | null>(null);
 const selectedWriterName = ref('');
 const writerArticles = ref<any[]>([]);
 
+// Declare kpiPeriods and selectedKpiMonth refs
+const kpiPeriods = ref<Record<string, any>>({});
+const selectedKpiMonth = ref('');
+
 // Replace the viewWriterArticles function with this:
+
 const viewWriterArticles = (writerId: number) => {
   selectedWriterId.value = writerId;
 
-  // Find the writer and their articles
   const writer = editors.value.find(c => c.id === writerId);
   if (writer) {
     selectedWriterName.value = getUserName(writer.staff) || (auth.user?.first_name + ' ' + auth.user?.last_name);
     writerArticles.value = writer.remarks || [];
+
+    // Build KPI period list from all remarks
+    kpiPeriods.value = getKpiPeriodsFromArticles(
+      (writer.remarks || []).map((r: any) => ({
+        ...r,
+        date_created: typeof r.date_created === 'string'
+          ? r.date_created
+          : r.date_created instanceof Date
+            ? r.date_created.toISOString()
+            : ''
+      }))
+    );
+    const sortedKeys = Object.keys(kpiPeriods.value).sort().reverse();
+    selectedKpiMonth.value = sortedKeys[0] || '';
+    filterWriterArticlesByKpi();
   }
 
-  // Show the modal
   showArticlesModal.value = true;
+};
+const filterWriterArticlesByKpi = () => {
+  const key = selectedKpiMonth.value;
+  if (!key || !kpiPeriods.value[key]) return;
+
+  const { from, to } = kpiPeriods.value[key];
+  const writer = editors.value.find(c => c.id === selectedWriterId.value);
+  if (!writer) return;
+
+  writerArticles.value = (writer.remarks || []).filter(r => {
+    const created = new Date(r.date_created);
+    return created >= from && created <= to;
+  });
 };
 
 // Add a function to close the modal
@@ -556,6 +644,17 @@ const closeArticlesModal = () => {
   selectedWriterId.value = null;
   writerArticles.value = [];
 };
+const totalViews = computed(() => {
+  return getTotalViews(writerArticles.value);
+});
+
+const averageEngagement = computed(() => {
+  const creator = editors.value.find(e => e.id === selectedWriterId.value);
+  const target = Number(creator?.target) || 0;
+  const achieved = writerArticles.value.length;
+  return target > 0 ? ((achieved / target) * 100).toFixed(1) : '0.0';
+});
+
 
 
 // =================
@@ -763,4 +862,9 @@ definePageMeta({
 onMounted(async () => {
   await fetcheditors();
 });
+
+
+// function filterWriterArticlesByKpi() {
+//   throw new Error('Function not implemented.');
+// }
 </script>

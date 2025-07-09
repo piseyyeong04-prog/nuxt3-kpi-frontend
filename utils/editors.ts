@@ -1,4 +1,4 @@
-// utils/writers.ts
+// utils/editors.ts
 
 export interface IRemark {
   id: number;
@@ -52,27 +52,22 @@ export const getTotalViews = (remarks: IRemark[] | undefined): string => {
  * @returns boolean indicating if target is completed
  */
 export const isCompleted = (creator: IEditor): boolean => {
-  if (creator.status === 'completed') return true;
-
-  const totalViews = parseInt(getTotalViews(creator.remarks) || '0');
+  const kpiRemarks = filterRemarksByKpiMonth(creator.remarks || []);
   const target = parseInt(creator.target || '0');
-
-  return totalViews >= target;
+  return kpiRemarks.length >= target;
 };
-
 /**
  * Calculate percentage of target achieved
  * @param creator Creator object with target and remarks
  * @returns Percentage as a number
  */
 export const calculatePercent = (creator: IEditor): number => {
-  const totalViews = parseInt(getTotalViews(creator.remarks) || '0');
+  const kpiRemarks = filterRemarksByKpiMonth(creator.remarks || []);
+  const totalArticles = kpiRemarks.length;
   const target = parseInt(creator.target || '0');
-
   if (target === 0) return 0;
-  return Math.round((totalViews / target) * 100);
+  return Math.min(Math.round((totalArticles / target) * 100), 100);
 };
-
 /**
  * Get the appropriate CSS class for percentage display
  * @param percent Percentage value
@@ -168,4 +163,32 @@ export const getKpiPeriodsFromArticles = (articles: { date_created: string }[]) 
   }
 
   return periodMap;
+};
+
+
+export const filterRemarksByKpiMonth = (
+  remarks: IRemark[],
+  referenceDate: Date = new Date()
+): IRemark[] => {
+  const ref = new Date(referenceDate)
+  const day = ref.getDate()
+  let year = ref.getFullYear()
+  let month = ref.getMonth()
+
+  // if before 23rd → adjust to previous month
+  if (day < 23) {
+    month -= 1
+    if (month < 0) {
+      month = 11
+      year -= 1
+    }
+  }
+
+  const start = new Date(Date.UTC(year, month, 23))             // 23 this or last month
+  const end = new Date(Date.UTC(year, month + 1, 23, 23, 59, 59)) // up to 23 next month
+
+  return remarks.filter(r => {
+    const created = new Date(r.date_created)
+    return created >= start && created <= end
+  });
 };
