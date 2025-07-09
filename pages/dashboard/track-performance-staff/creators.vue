@@ -82,6 +82,15 @@
                   class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">
                   Detailed CSV
                 </button>
+                <button @click="exportToExcelSummary(); isExportDropdownOpen = false"
+                  class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">
+                  Summary Excel
+                </button>
+                <button @click="exportToExcelDetailed(); isExportDropdownOpen = false"
+                  class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">
+                  Detailed Excel
+                </button>
+
               </div>
             </div>
           </div>
@@ -431,6 +440,12 @@ const creatorVideos = ref<any[]>([])
 const selectedMonth = ref('current')
 const kpiPeriods = ref<Record<string, { label: string; from: Date; to: Date }>>({})
 const currentCreator = ref<ICreator | null>(null)
+
+watch(creatorsList, (newCreatorsList) => {
+  if (newCreatorsList.length > 0 && !selectedCreator.value) {
+    selectedCreator.value = String(newCreatorsList[0].id);
+  }
+}, { immediate: true });
 
 const viewCreatorVideos = (creator: any) => {
   selectedCreatorId.value = creator.id
@@ -880,6 +895,59 @@ const openBigVideoModal = (remark: IRemark) => {
 
 
 // ==============================================================================
+// EXPORT exportToExcelSummary
+// ==============================================================================
+import { exportToExcel } from '~/composables/exportToExcel';
+const exportToExcelSummary = () => {
+  if (!creatorsList.value?.length) {
+    showWarning('There is no data available to export');
+    return;
+  }
+
+  const data = creatorsList.value.map(creator => ({
+    Name: getUserName(creator.staff),
+    Position: creator.user_created?.title || 'N/A',
+    Department: auth.user?.department?.title || 'N/A',
+    "View Target": creator.target || 0,
+    Status: isCompleted(creator) ? 'Completed' : 'In Progress',
+    "Number of Videos": creator.remarks?.length || 0,
+    "Total Views": getTotalViews(creator.remarks),
+    "Video Links": creator.remarks?.map(r => r.video_link).join(', ') || ''
+  }));
+
+  exportToExcel(data, 'video-performance-summary');
+};
+
+const exportToExcelDetailed = () => {
+  if (!creatorsList.value?.length) {
+    showWarning('There is no data available to export');
+    return;
+  }
+
+  const detailedData = creatorsList.value.flatMap(creator => {
+    const base = {
+      Name: getUserName(creator.staff),
+      Position: creator.user_created?.title || 'N/A',
+      Department: creator.user_created?.department?.title || 'N/A',
+      "View Target": creator.target || 0,
+      Status: isCompleted(creator) ? 'Completed' : 'In Progress',
+      "Total Views": getTotalViews(creator.remarks)
+    };
+
+    return creator.remarks?.length
+      ? creator.remarks.map(r => ({
+        ...base,
+        "Video Title": r.title || 'Untitled',
+        "Video Link": r.video_link || '',
+        Views: formatNumber(r.view) || 0
+      }))
+      : [{ ...base, "Video Title": 'N/A', "Video Link": 'N/A', Views: 0 }];
+  });
+
+  exportToExcel(detailedData, 'video-performance-detailed');
+};
+
+// ==============================================================================
 // EXPORT FUNCTIONS
 // ==============================================================================
 const exportToCSV = () => {
@@ -890,8 +958,8 @@ const exportToCSV = () => {
 
   const csvData = creatorsList.value.map(creator => ({
     Name: getUserName(creator.staff) || (auth.user?.first_name + ' ' + auth.user?.last_name),
-    Position: auth.user?.title || 'N/A',
-    Department: auth.user?.department?.title || 'N/A',
+    Position: creator.user_created?.title || 'N/A',
+    Department: creator.user_created?.department?.title || 'N/A',
     "View Target": creator.target || 0,
     Status: isCompleted(creator) ? 'Completed' : 'In Progress',
     "Number of Videos": creator.remarks?.length || 0,
@@ -911,8 +979,8 @@ const exportDetailedCSV = () => {
   const detailedData = creatorsList.value.flatMap(creator => {
     const baseData = {
       Name: getUserName(creator.staff) || (auth.user?.first_name + ' ' + auth.user?.last_name),
-      Position: auth.user?.title || 'N/A',
-      Department: auth.user?.department?.title || 'N/A',
+      Position: creator.user_created?.title || 'N/A',
+      Department: creator.user_created?.department?.title || 'N/A',
       "View Target": creator.target || 0,
       Status: isCompleted(creator) ? 'Completed' : 'In Progress',
       "Total Views": getTotalViews(creator.remarks)
@@ -935,7 +1003,9 @@ const exportDetailedCSV = () => {
 
 const downloadCSV = (data: any[], filename: string) => {
   const csv = Papa.unparse(data);
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const bom = new Uint8Array([0xef, 0xbb, 0xbf]); // UTF-8 BOM
+  const blob = new Blob([bom, csv], { type: 'text/csv;charset=utf-8' });
+
   saveAs(blob, `${filename}-${new Date().toISOString().slice(0, 10)}.csv`);
 
   Swal.fire({
@@ -946,6 +1016,7 @@ const downloadCSV = (data: any[], filename: string) => {
     showConfirmButton: false
   });
 };
+
 
 // ==============================================================================
 // EVENT HANDLERS
