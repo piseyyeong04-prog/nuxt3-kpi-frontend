@@ -57,7 +57,7 @@
             v-model="videoTitle" 
             type="text" 
             class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-gray-900 dark:text-white"
-            placeholder="Enter video title..." 
+            placeholder="Video Title will be auto-generated (After Click Fetch Data Button)" 
           />
         </div>
 
