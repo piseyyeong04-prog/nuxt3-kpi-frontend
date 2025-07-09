@@ -649,13 +649,18 @@ const editVideo = async (remark: any) => {
         <label class="block text-sm font-medium text-gray-700 mb-1">View Count</label>
         <input id="swal-views" class="w-full p-2 border rounded" disabled value="${remark.view || '0'}">
       </div>
-       <div class="mb-4">
-    <label class="block text-sm font-medium text-gray-700 mb-1">Big Video?</label>
-    <select id="swal-bigvideo" class="w-full p-2 border rounded">
-      <option value="no" ${remark.big_video === 'no' ? 'selected' : ''}>No</option>
-      <option value="yes" ${remark.big_video === 'yes' ? 'selected' : ''}>Yes</option>
-    </select>
-  </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Date Created</label>
+        <input id="swal-date" type="datetime-local" class="w-full p-2 border rounded"
+          value="${remark.date_created ? new Date(remark.date_created).toISOString().slice(0, 16) : ''}">
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Big Video?</label>
+        <select id="swal-bigvideo" class="w-full p-2 border rounded">
+          <option value="no" ${remark.big_video === 'no' ? 'selected' : ''}>No</option>
+          <option value="yes" ${remark.big_video === 'yes' ? 'selected' : ''}>Yes</option>
+        </select>
+      </div>
     `,
     focusConfirm: false,
     showCancelButton: true,
@@ -664,7 +669,7 @@ const editVideo = async (remark: any) => {
       title: (document.getElementById('swal-title') as HTMLInputElement).value,
       video_link: (document.getElementById('swal-url') as HTMLInputElement).value,
       view: (document.getElementById('swal-views') as HTMLInputElement).value,
-      status: (document.getElementById('swal-status') as HTMLSelectElement)?.value,
+      date_created: new Date((document.getElementById('swal-date') as HTMLInputElement).value).toISOString(),
       big_video: (document.getElementById('swal-bigvideo') as HTMLSelectElement).value
     })
   });
@@ -674,6 +679,7 @@ const editVideo = async (remark: any) => {
   }
   return false;
 };
+
 
 // ==============================================================================
 // MODAL & UI FUNCTIONS
