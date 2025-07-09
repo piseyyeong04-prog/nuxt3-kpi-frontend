@@ -214,3 +214,29 @@ export const getBigVideoViews = (remarks: IRemark[] = []) => {
     .toString();
 };
 
+export const filterRemarksByKpiMonth = (
+  remarks: IRemark[],
+  referenceDate: Date = new Date()
+): IRemark[] => {
+  const ref = new Date(referenceDate)
+  const day = ref.getDate()
+  let year = ref.getFullYear()
+  let month = ref.getMonth()
+
+  // if before 23rd → adjust to previous month
+  if (day < 23) {
+    month -= 1
+    if (month < 0) {
+      month = 11
+      year -= 1
+    }
+  }
+
+  const start = new Date(Date.UTC(year, month, 23))             // 23 this or last month
+  const end = new Date(Date.UTC(year, month + 1, 23, 23, 59, 59)) // up to 23 next month
+
+  return remarks.filter(r => {
+    const created = new Date(r.date_created)
+    return created >= start && created <= end
+  });
+};

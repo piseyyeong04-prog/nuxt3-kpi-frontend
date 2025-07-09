@@ -109,47 +109,70 @@
             <tbody>
               <tr v-for="creator in creatorsList" :key="creator.id"
                 class="border-b hover:bg-gray-50 dark:hover:bg-gray-700">
+
                 <td class="px-4 py-3 font-medium">
                   {{ getUserName(creator.staff) || (auth.user?.first_name + ' ' + auth.user?.last_name) }}
                 </td>
+
                 <td class="px-4 py-3">{{ creator.user_created?.title || 'N/A' }}</td>
                 <td class="px-4 py-3">{{ creator.user_created?.department?.title || 'N/A' }}</td>
                 <td class="px-4 py-3">{{ formatNumber(creator.target) }}</td>
+
                 <td class="px-4 py-3">
-                  <span class="px-2 py-1 rounded-full text-xs"
-                    :class="isCompleted(creator) ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'">
-                    {{ isCompleted(creator) ? 'Completed' : 'In Progress' }}
+                  <span class="px-2 py-1 rounded-full text-xs" :class="isCompleted({ ...creator, remarks: filterRemarksByKpiMonth(creator.remarks) })
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-yellow-100 text-yellow-800'">
+                    {{ isCompleted({ ...creator, remarks: filterRemarksByKpiMonth(creator.remarks) })
+                      ? 'Completed'
+                    : 'In Progress' }}
                   </span>
                 </td>
-                <td class="px-4 py-3 font-medium">{{ getTotalViews(creator.remarks) }}</td>
+
+                <td class="px-4 py-3 font-medium">
+                  {{ getTotalViews(filterRemarksByKpiMonth(creator.remarks)) }}
+                </td>
+
                 <td class="px-4 py-3">
                   <button @click="handleRemarkClick(creator)"
                     class="px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-xs">
-                    {{ creator.remarks?.length || 0 }} Videos
+                    {{ filterRemarksByKpiMonth(creator.remarks).length }} Videos
                   </button>
                   <button @click="viewCreatorVideos(creator)" class="text-blue-600 hover:underline text-xs">
                     View History
                   </button>
                 </td>
+
                 <td class="px-4 py-3 font-medium">
-                  {{ countBigVideos(creator.remarks) }}
-                </td>
-                <td class="px-4 py-3 font-medium">
-                  {{ formatTotalViews(getBigVideoViews(creator.remarks)) }}
+                  {{ countBigVideos(filterRemarksByKpiMonth(creator.remarks)) }}
                 </td>
 
-                <td class="px-4 py-3 font-medium">{{ formatTotalViews(getTotalViews(creator.remarks)) }}</td>
+                <td class="px-4 py-3 font-medium">
+                  {{ formatTotalViews(getBigVideoViews(filterRemarksByKpiMonth(creator.remarks))) }}
+                </td>
+
+                <td class="px-4 py-3 font-medium">
+                  {{ formatTotalViews(getTotalViews(filterRemarksByKpiMonth(creator.remarks))) }}
+                </td>
+
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2">
                     <div class="flex-1 bg-gray-200 rounded-full h-2">
-                      <div class="h-2 rounded-full" :class="getProgressBarColor(calculatePercent(creator))"
-                        :style="`width: ${Math.min(calculatePercent(creator), 100)}%`"></div>
+                      <div class="h-2 rounded-full" :class="getProgressBarColor(
+                        calculatePercent({ ...creator, remarks: filterRemarksByKpiMonth(creator.remarks) })
+                      )" :style="`width: ${Math.min(
+              calculatePercent({ ...creator, remarks: filterRemarksByKpiMonth(creator.remarks) }),
+              100
+            )}%`">
+                      </div>
                     </div>
-                    <span class="text-xs font-medium">{{ calculatePercent(creator) }}%</span>
+                    <span class="text-xs font-medium">
+                      {{ calculatePercent({ ...creator, remarks: filterRemarksByKpiMonth(creator.remarks) }) }}%
+                    </span>
                   </div>
                 </td>
               </tr>
             </tbody>
+
           </table>
         </div>
       </div>
@@ -181,6 +204,8 @@
           <table class="min-w-full text-sm">
             <thead>
               <tr class="border-b text-left">
+                <!-- th for No -->
+                <th class="px-4 py-2">No.</th>
                 <th class="px-4 py-2">Title</th>
                 <th class="px-4 py-2">Link</th>
                 <th class="px-4 py-2">Views</th>
@@ -188,7 +213,11 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in creatorVideos" :key="item.id" class="border-b">
+              <tr v-for="(item, index) in creatorVideos" :key="item.id" class="border-b">
+                <!-- td show No. -->
+                <td>
+                  {{ index + 1 }}
+                </td>
                 <td class="px-4 py-2">{{ item.title }}</td>
                 <td class="px-4 py-2">
                   <a :href="item.video_link" target="_blank"
@@ -362,6 +391,10 @@ const saveVideoRemark = async (videoId: string) => {
 // ==============================================================================
 // show History Modal
 // ==============================================================================
+import { filterRemarksByKpiMonth } from '~/utils/creators';
+
+
+
 const showHistoryModal = ref(false)
 const selectedCreatorId = ref<string | null>(null)
 const selectedCreatorName = ref('')
@@ -598,20 +631,22 @@ const editVideo = async (remark: any) => {
 // MODAL & UI FUNCTIONS
 // ==============================================================================
 const handleRemarkClick = (creator: ICreator) => {
-  if (!creator.remarks?.length) {
+  const kpiRemarks = filterRemarksByKpiMonth(creator.remarks || []);
+
+  if (!kpiRemarks.length) {
     Swal.fire({
       title: 'No Videos',
-      text: 'No video data available for this creator',
+      text: 'No video data available for this creator in the KPI period',
       icon: 'info'
     });
     return;
   }
 
   const creatorName = getUserName(creator.staff) || (auth.user?.first_name + ' ' + auth.user?.last_name);
-  const remarksList = createRemarksHtml(creator.remarks, creatorName);
+  const remarksList = createRemarksHtml(kpiRemarks, creatorName);
 
-  // Setup global handlers
-  setupGlobalHandlers(creator, creatorName);
+  // Setup global handlers to use filtered data
+  setupGlobalHandlers({ ...creator, remarks: kpiRemarks }, creatorName);
 
   Swal.fire({
     title: `Videos for ${creatorName}`,
@@ -621,6 +656,7 @@ const handleRemarkClick = (creator: ICreator) => {
     showCloseButton: true
   });
 };
+
 
 const createRemarksHtml = (remarks: any[], creatorName: string) => {
   const sortedRemarks = [...remarks].sort((a, b) =>
