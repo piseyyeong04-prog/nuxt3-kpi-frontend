@@ -187,97 +187,186 @@
       </div>
     </div>
   </div>
-  <Transition name="fade">
-    <div v-if="showHistoryModal" class="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-3xl overflow-y-auto max-h-[90vh]">
+<Transition name="fade">
+    <div v-if="showHistoryModal" class="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center p-4">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-7xl max-h-[95vh] flex flex-col">
         <!-- Header -->
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
+        <div class="flex justify-between items-center p-4 sm:p-6 border-b border-gray-200 dark:border-gray-600 flex-shrink-0">
+          <h3 class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-white truncate pr-4">
             KPI History for {{ selectedCreatorName }}
           </h3>
-          <button @click="showHistoryModal = false" class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+          <button @click="showHistoryModal = false" 
+            class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-xl p-2 -m-2">
             ✕
           </button>
         </div>
 
-        <!-- Summary Block -->
-        <div class="bg-gray-50 dark:bg-gray-700 rounded p-4 mb-4 text-sm text-gray-700 dark:text-gray-200 space-y-1">
-          <div><strong>KPI Period:</strong> {{ kpiPeriods[selectedMonth]?.label }}</div>
-          <div><strong>Total Videos:</strong> {{ creatorVideos.length }}</div>
-          <div><strong>Total Views:</strong> {{ formatNumber(getTotalViews(creatorVideos)) }}</div>
-          <div>
-            <strong>Status:</strong>
-            <span :class="parseInt(getTotalViews(creatorVideos)) >= parseInt(currentCreator?.target || '0')
-              ? 'text-green-600 font-semibold'
-              : 'text-yellow-600 font-semibold'">
-              {{ parseInt(getTotalViews(creatorVideos)) >= parseInt(currentCreator?.target || '0')
-                ? 'Target Completed'
-                : 'In Progress' }}
-            </span>
+        <!-- Scrollable Content -->
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6">
+          <!-- Summary Block -->
+          <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4 text-sm text-gray-700 dark:text-gray-200">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+              <div><strong>KPI Period:</strong> {{ kpiPeriods[selectedMonth]?.label }}</div>
+              <div><strong>Total Videos:</strong> {{ creatorVideos.length }}</div>
+              <div><strong>Total Views:</strong> {{ formatNumber(getTotalViews(creatorVideos)) }}</div>
+              <div>
+                <strong>Status:</strong>
+                <span :class="parseInt(getTotalViews(creatorVideos)) >= parseInt(currentCreator?.target || '0')
+                  ? 'text-green-600 font-semibold'
+                  : 'text-yellow-600 font-semibold'">
+                  {{ parseInt(getTotalViews(creatorVideos)) >= parseInt(currentCreator?.target || '0')
+                    ? 'Target Completed'
+                    : 'In Progress' }}
+                </span>
+              </div>
+            </div>
+            
+            <!-- Big Videos Section -->
+            <div class="border-t border-gray-200 dark:border-gray-600 pt-3">
+              <div class="mb-2">
+                <strong>Big Videos:</strong> {{ countBigVideos(creatorVideos) }}
+              </div>
+              <div class="space-y-1">
+                <div v-for="big in creatorVideos.filter(v => v.big_video === 'yes')" :key="big.id"
+                  class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-sm">
+                  <a :href="big.video_link" target="_blank" 
+                    class="text-blue-600 hover:underline font-medium break-all">
+                    {{ big.title }}
+                  </a>
+                  <span class="text-gray-500">– {{ formatNumber(big.view || '0') }} views</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <strong>Big Videos:</strong>
-            {{ countBigVideos(creatorVideos) }}
-            <ul class="list-disc ml-5 mt-1">
-              <li v-for="big in creatorVideos.filter(v => v.big_video === 'yes')" :key="big.id">
-                <a :href="big.video_link" target="_blank" class="text-blue-600 hover:underline">
-                  {{ big.title }}
-                </a>
-                – {{ formatNumber(big.view || '0') }} views
-              </li>
-            </ul>
+
+          <!-- KPI Period Selector -->
+          <div class="mb-4 flex flex-col sm:flex-row sm:items-center gap-2">
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">KPI Period:</label>
+            <select v-model="selectedMonth" @change="filterVideosByKpiPeriod"
+              class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                     bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                     focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-0 sm:max-w-xs">
+              <option v-for="(period, key) in kpiPeriods" :key="key" :value="key">
+                {{ period.label }}
+              </option>
+            </select>
           </div>
 
-        </div>
-
-        <!-- KPI Period Selector -->
-        <div class="mb-4">
-          <label class="text-sm font-medium">KPI Period:</label>
-          <select v-model="selectedMonth" @change="filterVideosByKpiPeriod"
-            class="ml-2 px-2 py-1 border rounded dark:bg-gray-700 dark:text-white">
-            <option v-for="(period, key) in kpiPeriods" :key="key" :value="key">
-              {{ period.label }}
-            </option>
-          </select>
-        </div>
-
-        <!-- Video Table -->
-        <div class="overflow-x-auto max-h-[400px]">
-          <table class="min-w-full text-sm">
-            <thead>
-              <tr class="border-b text-left">
-                <th class="px-4 py-2">No.</th>
-                <th class="px-4 py-2">Title</th>
-                <th class="px-4 py-2">Link</th>
-                <th class="px-4 py-2">Views</th>
-                <th class="px-4 py-2">Created</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(item, index) in creatorVideos" :key="item.id" class="border-b">
-                <td>{{ index + 1 }}</td>
-                <td class="px-4 py-2">{{ item.title }}</td>
-                <td class="px-4 py-2">
+          <!-- Mobile Card View (< md) -->
+          <div class="md:hidden space-y-4">
+            <div v-for="(item, index) in creatorVideos" :key="item.id" 
+              class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4 shadow-sm">
+              <div class="flex justify-between items-start mb-3">
+                <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 
+                           text-xs font-medium px-2.5 py-0.5 rounded">
+                  #{{ index + 1 }}
+                </span>
+                <div class="flex space-x-2">
+                  <button @click="editVideo(item)"
+                    class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-medium">
+                    Edit
+                  </button>
+                  <button @click="deleteVideo(item.id, selectedCreatorName, item.title)"
+                    class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-xs font-medium">
+                    Delete
+                  </button>
+                </div>
+              </div>
+              
+              <div class="space-y-2">
+                <div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Title</div>
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.title }}</div>
+                </div>
+                
+                <div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Link</div>
                   <a :href="item.video_link" target="_blank"
-                    class="text-blue-600 hover:underline block truncate max-w-xs">
+                    class="text-blue-600 hover:underline text-sm break-all">
                     {{ item.video_link }}
                   </a>
-                </td>
-                <td class="px-4 py-2">{{ formatNumber(item.view || 0) }}</td>
-                <td class="px-4 py-2">{{ formatDate(item.date_created) }}</td>
-              </tr>
-              <tr v-if="creatorVideos.length === 0">
-                <td colspan="5" class="text-center py-4 text-gray-500">
-                  No videos in this period.
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Views</div>
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ formatNumber(item.view || 0) }}</div>
+                  </div>
+                  <div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Created</div>
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDate(item.date_created) }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Desktop/Tablet Table View (>= md) -->
+          <div class="hidden md:block">
+            <div class="overflow-x-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      No.
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Title
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Link
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Views
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Created
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  <tr v-for="(item, index) in creatorVideos" :key="item.id" 
+                    class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      {{ index + 1 }}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                      <div class="max-w-xs truncate">{{ item.title }}</div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-blue-600 dark:text-blue-400">
+                      <a :href="item.video_link" target="_blank"
+                        class="hover:underline block truncate max-w-xs">
+                        {{ item.video_link }}
+                      </a>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      {{ formatNumber(item.view || 0) }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      {{ formatDate(item.date_created) }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                      <button @click="editVideo(item)"
+                        class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs">
+                        Edit
+                      </button>
+                      <button @click="deleteVideo(item.id, selectedCreatorName, item.title)"
+                        class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-xs">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </Transition>
-
 
 </template>
 
