@@ -124,7 +124,7 @@
                     : 'bg-yellow-100 text-yellow-800'">
                     {{ isCompleted({ ...creator, remarks: filterRemarksByKpiMonth(creator.remarks) })
                       ? 'Completed'
-                    : 'In Progress' }}
+                      : 'In Progress' }}
                   </span>
                 </td>
 
@@ -160,9 +160,9 @@
                       <div class="h-2 rounded-full" :class="getProgressBarColor(
                         calculatePercent({ ...creator, remarks: filterRemarksByKpiMonth(creator.remarks) })
                       )" :style="`width: ${Math.min(
-              calculatePercent({ ...creator, remarks: filterRemarksByKpiMonth(creator.remarks) }),
-              100
-            )}%`">
+                        calculatePercent({ ...creator, remarks: filterRemarksByKpiMonth(creator.remarks) }),
+                        100
+                      )}%`">
                       </div>
                     </div>
                     <span class="text-xs font-medium">
@@ -180,7 +180,8 @@
   </div>
   <Transition name="fade">
     <div v-if="showHistoryModal" class="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-3xl">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-3xl overflow-y-auto max-h-[90vh]">
+        <!-- Header -->
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
             KPI History for {{ selectedCreatorName }}
@@ -190,6 +191,37 @@
           </button>
         </div>
 
+        <!-- Summary Block -->
+        <div class="bg-gray-50 dark:bg-gray-700 rounded p-4 mb-4 text-sm text-gray-700 dark:text-gray-200 space-y-1">
+          <div><strong>KPI Period:</strong> {{ kpiPeriods[selectedMonth]?.label }}</div>
+          <div><strong>Total Videos:</strong> {{ creatorVideos.length }}</div>
+          <div><strong>Total Views:</strong> {{ formatNumber(getTotalViews(creatorVideos)) }}</div>
+          <div>
+            <strong>Status:</strong>
+            <span :class="parseInt(getTotalViews(creatorVideos)) >= parseInt(currentCreator?.target || '0')
+              ? 'text-green-600 font-semibold'
+              : 'text-yellow-600 font-semibold'">
+              {{ parseInt(getTotalViews(creatorVideos)) >= parseInt(currentCreator?.target || '0')
+                ? 'Target Completed'
+                : 'In Progress' }}
+            </span>
+          </div>
+          <div>
+            <strong>Big Videos:</strong>
+            {{ countBigVideos(creatorVideos) }}
+            <ul class="list-disc ml-5 mt-1">
+              <li v-for="big in creatorVideos.filter(v => v.big_video === 'yes')" :key="big.id">
+                <a :href="big.video_link" target="_blank" class="text-blue-600 hover:underline">
+                  {{ big.title }}
+                </a>
+                – {{ formatNumber(big.view || '0') }} views
+              </li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- KPI Period Selector -->
         <div class="mb-4">
           <label class="text-sm font-medium">KPI Period:</label>
           <select v-model="selectedMonth" @change="filterVideosByKpiPeriod"
@@ -200,11 +232,11 @@
           </select>
         </div>
 
+        <!-- Video Table -->
         <div class="overflow-x-auto max-h-[400px]">
           <table class="min-w-full text-sm">
             <thead>
               <tr class="border-b text-left">
-                <!-- th for No -->
                 <th class="px-4 py-2">No.</th>
                 <th class="px-4 py-2">Title</th>
                 <th class="px-4 py-2">Link</th>
@@ -214,10 +246,7 @@
             </thead>
             <tbody>
               <tr v-for="(item, index) in creatorVideos" :key="item.id" class="border-b">
-                <!-- td show No. -->
-                <td>
-                  {{ index + 1 }}
-                </td>
+                <td>{{ index + 1 }}</td>
                 <td class="px-4 py-2">{{ item.title }}</td>
                 <td class="px-4 py-2">
                   <a :href="item.video_link" target="_blank"
@@ -229,7 +258,7 @@
                 <td class="px-4 py-2">{{ formatDate(item.date_created) }}</td>
               </tr>
               <tr v-if="creatorVideos.length === 0">
-                <td colspan="4" class="text-center py-4 text-gray-500">
+                <td colspan="5" class="text-center py-4 text-gray-500">
                   No videos in this period.
                 </td>
               </tr>
@@ -401,10 +430,13 @@ const selectedCreatorName = ref('')
 const creatorVideos = ref<any[]>([])
 const selectedMonth = ref('current')
 const kpiPeriods = ref<Record<string, { label: string; from: Date; to: Date }>>({})
+const currentCreator = ref<ICreator | null>(null)
 
 const viewCreatorVideos = (creator: any) => {
   selectedCreatorId.value = creator.id
   selectedCreatorName.value = getUserName(creator.staff)
+  currentCreator.value = creator // ✅ Save reference to show summary
+
   const allVideos = creator.remarks || []
 
   allVideos.sort((a: { date_created: string | number | Date; }, b: { date_created: string | number | Date; }) => new Date(b.date_created).getTime() - new Date(a.date_created).getTime())
@@ -420,6 +452,7 @@ const viewCreatorVideos = (creator: any) => {
   filterVideosByKpiPeriod()
   showHistoryModal.value = true
 }
+
 
 const filterVideosByKpiPeriod = () => {
   if (!kpiPeriods.value[selectedMonth.value]) return
