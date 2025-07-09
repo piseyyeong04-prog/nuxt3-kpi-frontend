@@ -5,7 +5,7 @@
  * 1. Make sure your .env file is set up with correct Facebook credentials
  * 2. Run with: npx tsx scripts/generateFacebookToken.ts <short-lived-token>
  */
-
+// scripts/generateFacebookToken.ts
 import * as dotenv from 'dotenv';
 import { exchangeForLongLivedToken, getPageAccessToken } from '../server/utils/facebookTokenManager';
 

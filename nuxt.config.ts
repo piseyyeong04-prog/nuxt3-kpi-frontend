@@ -41,18 +41,33 @@ export default defineNuxtConfig({
     },
   },
 
-  runtimeConfig: {
-    facebook: {
+runtimeConfig: {
+  facebook: {
+    TC: {
       appId: process.env.FACEBOOK_APP_ID,
       appSecret: process.env.FACEBOOK_APP_SECRET,
       pageId: process.env.FACEBOOK_PAGE_ID,
       accessToken: process.env.FACEBOOK_ACCESS_TOKEN,
     },
-    public: {
-      API_BASE_URL: process.env.API_BASE_URL ,
-      GEMINI_API_KEY: process.env.GEMINI_API_KEY ,
+    BC: {
+      appId: process.env.FACEBOOK_APP_ID_BC,
+      appSecret: process.env.FACEBOOK_APP_SECRET_BC,
+      pageId: process.env.FACEBOOK_PAGE_ID_BC,
+      accessToken: process.env.FACEBOOK_ACCESS_TOKEN_BC,
+    },
+    HC: {
+      appId: process.env.FACEBOOK_APP_ID_HC,
+      appSecret: process.env.FACEBOOK_APP_SECRET_HC,
+      pageId: process.env.FACEBOOK_PAGE_ID_HC,
+      accessToken: process.env.FACEBOOK_ACCESS_TOKEN_HC,
     },
   },
+  public: {
+    API_BASE_URL: process.env.API_BASE_URL,
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+  },
+},
+
 
   plugins: ['~/plugins/iconify.js'],
   modules: ['@pinia/nuxt']

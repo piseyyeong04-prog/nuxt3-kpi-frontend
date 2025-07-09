@@ -99,7 +99,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function fetchUser() {
     try {
       const response = await useApi<{ data: User[] }>(
-        `/users?filter[id]=$CURRENT_USER&fields=id,first_name,last_name,email,avatar, role.id ,role.name,signature,title,department.id,department.title`,
+        `/users?filter[id]=$CURRENT_USER&fields=id,first_name,last_name,email,avatar, role.id ,role.name,signature,title,department.id,department.title,department.id`,
         {
           method: 'GET',
         }

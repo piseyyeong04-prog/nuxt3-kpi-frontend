@@ -3,172 +3,161 @@
   <div class="min-h-screen p-6">
     <div class="max-w-6xl mx-auto space-y-6">
       <!-- Add Video Form -->
-      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl shadow-gray-100 dark:shadow-gray-900/30 overflow-hidden">
-    <!-- Header with gradient -->
-    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6">
-      <div class="flex items-center gap-3">
-        <div class="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
-          <Icon icon="basil:add-solid" class="h-6 w-6 text-white" />
+      <div
+        class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl shadow-gray-100 dark:shadow-gray-900/30 overflow-hidden">
+        <!-- Header with gradient -->
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6">
+          <div class="flex items-center gap-3">
+            <div class="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
+              <Icon icon="basil:add-solid" class="h-6 w-6 text-white" />
+            </div>
+            <h2 class="text-xl font-semibold text-white">Add Facebook Video</h2>
+          </div>
         </div>
-        <h2 class="text-xl font-semibold text-white">Add Facebook Video</h2>
-      </div>
-    </div>
+        <!-- Form Content -->
+        <div class="p-6 space-y-6">
+          <form @submit.prevent="addVideoData" class="space-y-6">
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Facebook Page</label>
+              <select v-model="selectedPage"
+                class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white appearance-none cursor-pointer"
+                required>
+                <option value="TC">Page: Technology Cambodia</option>
+                <option value="BC">Page: Business Cambodia</option>
+                <option value="HC">Page: Healthy Cambodia</option>
+              </select>
+            </div>
 
-    <!-- Form Content -->
-    <div class="p-6 space-y-6">
-      <form @submit.prevent="addVideoData" class="space-y-6">
-        <!-- URL and Creator Selection -->
-        <div class="grid md:grid-cols-2 gap-4">
-          <div class="space-y-2">
-            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Video URL</label>
-            <div class="relative">
-              <input 
-                v-model="videoUrl" 
-                type="text" 
+            <!-- URL and Creator Selection -->
+            <div class="grid md:grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Video URL</label>
+                <div class="relative">
+                  <input v-model="videoUrl" type="text"
+                    class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-gray-900 dark:text-white"
+                    placeholder="2538985403127510" required />
+                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <Icon icon="mdi:facebook" class="h-5 w-5 text-blue-600" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Creator</label>
+                <select v-model="selectedCreator"
+                  class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white appearance-none cursor-pointer"
+                  required>
+                  <option value="" disabled>Select Creator</option>
+                  <option v-for="creator in creatorsList" :key="creator.id" :value="creator.id">
+                    {{ getUserName(creator.staff) || (auth.user?.first_name + ' ' + auth.user?.last_name) + ' ' +
+                      auth.user?.department?.title }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Video Title -->
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Video Title (Optional)</label>
+              <input v-model="videoTitle" type="text"
                 class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-gray-900 dark:text-white"
-                placeholder="2538985403127510" 
-                required 
-              />
-              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                <Icon icon="mdi:facebook" class="h-5 w-5 text-blue-600" />
+                placeholder="Video Title will be auto-generated (After Click Fetch Data Button)" />
+            </div>
+
+            <!-- Big Video Toggle -->
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Video Type</label>
+              <div class="flex gap-4">
+                <label class="flex items-center cursor-pointer">
+                  <input v-model="isBigVideo" type="radio" value="no" class="sr-only" required />
+                  <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
+                    :class="isBigVideo === 'no' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
+                    <Icon icon="mdi:video" class="h-5 w-5" />
+                    <span class="font-medium">Regular Video</span>
+                  </div>
+                </label>
+                <label class="flex items-center cursor-pointer">
+                  <input v-model="isBigVideo" type="radio" value="yes" class="sr-only" />
+                  <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
+                    :class="isBigVideo === 'yes' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
+                    <Icon icon="mdi:video-high-definition" class="h-5 w-5" />
+                    <span class="font-medium">Big Video</span>
+                  </div>
+                </label>
               </div>
             </div>
-          </div>
 
-          <div class="space-y-2">
-            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Creator</label>
-            <select 
-              v-model="selectedCreator" 
-              class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white appearance-none cursor-pointer"
-              required
-            >
-              <option value="" disabled>Select Creator</option>
-              <option v-for="creator in creatorsList" :key="creator.id" :value="creator.id">
-                {{ getUserName(creator.staff) || (auth.user?.first_name + ' ' + auth.user?.last_name) }}
-              </option>
-            </select>
-          </div>
-        </div>
+            <!-- Action Buttons -->
+            <div class="flex gap-3">
+              <button type="submit"
+                class=" bg-gradient-to-r flex items-center justify-center from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                :disabled="loading || fbLoading">
+                <Icon v-if="loading || fbLoading" icon="mdi:loading" class="animate-spin h-5 w-5 mr-2" />
+                <Icon v-else icon="mdi:plus" class="h-5 w-5 mr-2" />
+                {{ loading || fbLoading ? 'Processing...' : 'Add Video' }}
+              </button>
 
-        <!-- Video Title -->
-        <div class="space-y-2">
-          <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Video Title (Optional)</label>
-          <input 
-            v-model="videoTitle" 
-            type="text" 
-            class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-gray-900 dark:text-white"
-            placeholder="Video Title will be auto-generated (After Click Fetch Data Button)" 
-          />
-        </div>
-
-        <!-- Big Video Toggle -->
-        <div class="space-y-2">
-          <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Video Type</label>
-          <div class="flex gap-4">
-            <label class="flex items-center cursor-pointer">
-              <input 
-                v-model="isBigVideo" 
-                type="radio" 
-                value="no" 
-                class="sr-only" 
-                required
-              />
-              <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
-                   :class="isBigVideo === 'no' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
-                <Icon icon="mdi:video" class="h-5 w-5" />
-                <span class="font-medium">Regular Video</span>
-              </div>
-            </label>
-            <label class="flex items-center cursor-pointer">
-              <input 
-                v-model="isBigVideo" 
-                type="radio" 
-                value="yes" 
-                class="sr-only"
-              />
-              <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
-                   :class="isBigVideo === 'yes' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
-                <Icon icon="mdi:video-high-definition" class="h-5 w-5" />
-                <span class="font-medium">Big Video</span>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex gap-3">
-          <button 
-            type="submit" 
-            class=" bg-gradient-to-r flex items-center justify-center from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-            :disabled="loading || fbLoading"
-          >
-            <Icon v-if="loading || fbLoading" icon="mdi:loading" class="animate-spin h-5 w-5 mr-2" />
-            <Icon v-else icon="mdi:plus" class="h-5 w-5 mr-2" />
-            {{ loading || fbLoading ? 'Processing...' : 'Add Video' }}
-          </button>
-
-          <button 
-            type="button" 
-            @click="fetchFromFacebook"
-            class="px-6 py-3 border-2 flex items-center justify-center border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 transform hover:scale-105 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-            :disabled="!videoUrl"
-          >
-            <Icon v-if="fbLoading" icon="mdi:loading" class="animate-spin h-5 w-5 mr-2" />
-            <Icon v-else icon="mdi:download" class="h-5 w-5 mr-2" />
-            {{ fbLoading ? 'Fetching...' : 'Fetch Data' }}
-          </button>
-        </div>
-      </form>
-
-      <!-- Video Preview -->
-      <div v-if="fbVideoData" class="mt-6 p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-2xl border border-gray-200 dark:border-gray-600">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="bg-green-100 dark:bg-green-900/30 p-2 rounded-xl">
-            <Icon icon="mdi:eye" class="h-5 w-5 text-green-600 dark:text-green-400" />
-          </div>
-          <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Video Preview</h3>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="space-y-3">
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
-              <div class="flex items-center gap-2 mb-1">
-                <Icon icon="mdi:format-title" class="h-4 w-4 text-gray-500" />
-                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Title</span>
-              </div>
-              <p class="text-gray-900 dark:text-white font-medium">{{ fbVideoData.title || 'N/A' }}</p>
+              <button type="button" @click="fetchFromFacebook"
+                class="px-6 py-3 border-2 flex items-center justify-center border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 transform hover:scale-105 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                :disabled="!videoUrl">
+                <Icon v-if="fbLoading" icon="mdi:loading" class="animate-spin h-5 w-5 mr-2" />
+                <Icon v-else icon="mdi:download" class="h-5 w-5 mr-2" />
+                {{ fbLoading ? 'Fetching...' : 'Fetch Data' }}
+              </button>
             </div>
-            
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
-              <div class="flex items-center gap-2 mb-1">
-                <Icon icon="mdi:eye" class="h-4 w-4 text-gray-500" />
-                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Views</span>
+          </form>
+
+          <!-- Video Preview -->
+          <div v-if="fbVideoData"
+            class="mt-6 p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-2xl border border-gray-200 dark:border-gray-600">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="bg-green-100 dark:bg-green-900/30 p-2 rounded-xl">
+                <Icon icon="mdi:eye" class="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
-              <p class="text-gray-900 dark:text-white font-medium">{{ formatNumber(fbVideoData.views?.toString() || '0') }}</p>
+              <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Video Preview</h3>
             </div>
-          </div>
-          
-          <div class="space-y-3">
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
-              <div class="flex items-center gap-2 mb-1">
-                <Icon icon="mdi:calendar" class="h-4 w-4 text-gray-500" />
-                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Created</span>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-3">
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
+                  <div class="flex items-center gap-2 mb-1">
+                    <Icon icon="mdi:format-title" class="h-4 w-4 text-gray-500" />
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Title</span>
+                  </div>
+                  <p class="text-gray-900 dark:text-white font-medium">{{ fbVideoData.title || 'N/A' }}</p>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
+                  <div class="flex items-center gap-2 mb-1">
+                    <Icon icon="mdi:eye" class="h-4 w-4 text-gray-500" />
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Views</span>
+                  </div>
+                  <p class="text-gray-900 dark:text-white font-medium">{{ formatNumber(fbVideoData.views?.toString() ||
+                    '0') }}</p>
+                </div>
               </div>
-              <p class="text-gray-900 dark:text-white font-medium">{{ formatDate(fbVideoData.created_time) }}</p>
-            </div>
-            
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
-              <div class="flex items-center gap-2 mb-1">
-                <Icon icon="mdi:identifier" class="h-4 w-4 text-gray-500" />
-                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Video ID</span>
+
+              <div class="space-y-3">
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
+                  <div class="flex items-center gap-2 mb-1">
+                    <Icon icon="mdi:calendar" class="h-4 w-4 text-gray-500" />
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Created</span>
+                  </div>
+                  <p class="text-gray-900 dark:text-white font-medium">{{ formatDate(fbVideoData.created_time) }}</p>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
+                  <div class="flex items-center gap-2 mb-1">
+                    <Icon icon="mdi:identifier" class="h-4 w-4 text-gray-500" />
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Video ID</span>
+                  </div>
+                  <p class="text-gray-900 dark:text-white font-mono text-sm">{{ fbVideoData.id }}</p>
+                </div>
               </div>
-              <p class="text-gray-900 dark:text-white font-mono text-sm">{{ fbVideoData.id }}</p>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
       <!-- Performance Table -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
@@ -306,16 +295,17 @@
       </div>
     </div>
   </div>
-  
-<Transition name="fade">
+
+  <Transition name="fade">
     <div v-if="showHistoryModal" class="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center p-4">
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-7xl max-h-[95vh] flex flex-col">
         <!-- Header -->
-        <div class="flex justify-between items-center p-4 sm:p-6 border-b border-gray-200 dark:border-gray-600 flex-shrink-0">
+        <div
+          class="flex justify-between items-center p-4 sm:p-6 border-b border-gray-200 dark:border-gray-600 flex-shrink-0">
           <h3 class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-white truncate pr-4">
             KPI History for {{ selectedCreatorName }}
           </h3>
-          <button @click="showHistoryModal = false" 
+          <button @click="showHistoryModal = false"
             class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-xl p-2 -m-2">
             ✕
           </button>
@@ -340,7 +330,7 @@
                 </span>
               </div>
             </div>
-            
+
             <!-- Big Videos Section -->
             <div class="border-t border-gray-200 dark:border-gray-600 pt-3">
               <div class="mb-2">
@@ -349,8 +339,7 @@
               <div class="space-y-1">
                 <div v-for="big in creatorVideos.filter(v => v.big_video === 'yes')" :key="big.id"
                   class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-sm">
-                  <a :href="big.video_link" target="_blank" 
-                    class="text-blue-600 hover:underline font-medium break-all">
+                  <a :href="big.video_link" target="_blank" class="text-blue-600 hover:underline font-medium break-all">
                     {{ big.title }}
                   </a>
                   <span class="text-gray-500">– {{ formatNumber(big.view || '0') }} views</span>
@@ -362,8 +351,7 @@
           <!-- KPI Period Selector -->
           <div class="mb-4 flex flex-col sm:flex-row sm:items-center gap-2">
             <label class="text-sm font-medium text-gray-700 dark:text-gray-300">KPI Period:</label>
-            <select v-model="selectedMonth" @change="filterVideosByKpiPeriod"
-              class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+            <select v-model="selectedMonth" @change="filterVideosByKpiPeriod" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                      focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-0 sm:max-w-xs">
               <option v-for="(period, key) in kpiPeriods" :key="key" :value="key">
@@ -374,7 +362,7 @@
 
           <!-- Mobile Card View (< md) -->
           <div class="md:hidden space-y-4">
-            <div v-for="(item, index) in creatorVideos" :key="item.id" 
+            <div v-for="(item, index) in creatorVideos" :key="item.id"
               class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4 shadow-sm">
               <div class="flex justify-between items-start mb-3">
                 <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 
@@ -392,29 +380,30 @@
                   </button>
                 </div>
               </div>
-              
+
               <div class="space-y-2">
                 <div>
                   <div class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Title</div>
                   <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.title }}</div>
                 </div>
-                
+
                 <div>
                   <div class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Link</div>
-                  <a :href="item.video_link" target="_blank"
-                    class="text-blue-600 hover:underline text-sm break-all">
+                  <a :href="item.video_link" target="_blank" class="text-blue-600 hover:underline text-sm break-all">
                     {{ item.video_link }}
                   </a>
                 </div>
-                
+
                 <div class="grid grid-cols-2 gap-4">
                   <div>
                     <div class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Views</div>
-                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ formatNumber(item.view || 0) }}</div>
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ formatNumber(item.view || 0) }}
+                    </div>
                   </div>
                   <div>
                     <div class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Created</div>
-                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDate(item.date_created) }}</div>
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDate(item.date_created) }}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -423,32 +412,39 @@
 
           <!-- Desktop/Tablet Table View (>= md) -->
           <div class="hidden md:block">
-            <div class="overflow-x-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+            <div
+              class="overflow-x-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
               <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead class="bg-gray-50 dark:bg-gray-700">
                   <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <th
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       No.
                     </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <th
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Title
                     </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <th
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Link
                     </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <th
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Views
                     </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <th
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Created
                     </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <th
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  <tr v-for="(item, index) in creatorVideos" :key="item.id" 
+                  <tr v-for="(item, index) in creatorVideos" :key="item.id"
                     class="hover:bg-gray-50 dark:hover:bg-gray-700">
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {{ index + 1 }}
@@ -457,8 +453,7 @@
                       <div class="max-w-xs truncate">{{ item.title }}</div>
                     </td>
                     <td class="px-6 py-4 text-sm text-blue-600 dark:text-blue-400">
-                      <a :href="item.video_link" target="_blank"
-                        class="hover:underline block truncate max-w-xs">
+                      <a :href="item.video_link" target="_blank" class="hover:underline block truncate max-w-xs">
                         {{ item.video_link }}
                       </a>
                     </td>
@@ -711,7 +706,7 @@ const fetchFromFacebook = async () => {
   const videoId = validateVideoUrl();
   if (!videoId) return;
 
-  await fetchVideoData(videoId);
+  await fetchVideoData(videoId, selectedPage.value); // ✅ Add page argument
 
   if (fbVideoData.value?.title) {
     videoTitle.value = fbVideoData.value.title;
@@ -721,6 +716,7 @@ const fetchFromFacebook = async () => {
     showError(fbError.value);
   }
 };
+
 
 const addVideoData = async () => {
   if (!selectedCreator.value) {
@@ -771,6 +767,26 @@ const resetForm = () => {
   isBigVideo.value = 'no';
   fbVideoData.value = null;
 };
+
+// ==============================================================================
+// Select Page
+// ==============================================================================
+// auto select page by department
+const selectedPage = ref<'TC' | 'BC' | 'HC'>('TC');
+// Automatically set selectedPage based on department ID
+watchEffect(() => {
+  const departmentId = Number(auth.user?.department?.id);
+
+  if (departmentId === 1) {
+    selectedPage.value = 'TC';
+  } else if (departmentId === 2) {
+    selectedPage.value = 'BC';
+  } else if (departmentId === 3) {
+    selectedPage.value = 'HC';
+  }
+});
+
+
 
 // ==============================================================================
 // VIDEO MANAGEMENT FUNCTIONS
@@ -1244,6 +1260,7 @@ const closeDropdowns = (event: MouseEvent) => {
   }
 };
 
+
 // ==============================================================================
 // LIFECYCLE HOOKS
 // ==============================================================================
@@ -1253,8 +1270,19 @@ definePageMeta({
 
 onMounted(async () => {
   await fetchCreators();
+
+  const departmentId = Number(auth.user?.department?.id);
+  if (departmentId === 1) {
+    selectedPage.value = 'TC';
+  } else if (departmentId === 2) {
+    selectedPage.value = 'BC';
+  } else if (departmentId === 3) {
+    selectedPage.value = 'HC';
+  }
+
   document.addEventListener('click', closeDropdowns);
 });
+
 
 onUnmounted(() => {
   document.removeEventListener('click', closeDropdowns);

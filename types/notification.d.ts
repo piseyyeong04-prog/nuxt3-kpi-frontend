@@ -9,5 +9,4 @@ export interface INotification {
     body_en: string;
     thumbnail: string;
 
-
 }
