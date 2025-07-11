@@ -184,62 +184,98 @@
 
     <!-- Sidebar -->
     <aside :class="[
-      'fixed top-0 left-0 h-full w-64 z-50 shadow-md',
+      'fixed top-0 left-0 h-full w-64 z-50 shadow-lg',
       'bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100',
-      'md:translate-x-0',
+      'md:translate-x-0 transition-all duration-300',
       isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
     ]">
       <!-- Make this section scrollable -->
       <div class="h-full flex flex-col pt-16 md:pt-5">
         <div class="flex-1 overflow-y-auto px-3 py-2">
-          <h2 class="text-2xl font-bold text-center mb-6 hidden md:block">BAKSEY System</h2>
+          <h2
+            class="text-2xl font-bold text-center mb-8 hidden md:block text-blue-500">
+            BAKSEY System
+          </h2>
 
           <nav>
-            <ul class="space-y-1.5 ">
+            <ul class="space-y-2">
               <li v-for="item in localizedMenuItems" :key="item.to" class="group">
                 <!-- Items with submenu -->
                 <div v-if="item.hasSubmenu" class="mb-2">
-                  <button @click="toggleSubmenu(item.to)"
-                    class="flex items-center justify-between w-full p-2.5 rounded-lg font-medium transition-all duration-200 ease-in-out
-          text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-primary-900/20 group-hover:text-primary-600 dark:group-hover:text-primary-400"
-                    :class="{ 'bg-primary-50  dark:bg-primary-900/20 text-primary-600 dark:text-primary-400': openSubmenus[item.to] }">
-                    <div class="flex items-center ">
-                      <Icon :icon="item.icon" class="mr-3 text-xl opacity-75 group-hover:opacity-100"
-                        :class="{ 'text-primary-600  dark:text-primary-400 opacity-100': openSubmenus[item.to] }" />
+                  <button @click="toggleSubmenu(item.to)" class="flex items-center justify-between w-full p-3 rounded-xl font-medium transition-all duration-300 ease-in-out
+                relative overflow-hidden group/btn
+                text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50
+                hover:shadow-md transform hover:-translate-y-0.5" :class="{
+                  'bg-gray-50 dark:bg-gray-800/50 shadow-md': openSubmenus[item.to],
+                  'border-b-2 border-blue-500': openSubmenus[item.to] && getIconColor(item.icon) === 'blue',
+                  'border-b-2 border-red-500': openSubmenus[item.to] && getIconColor(item.icon) === 'red',
+                  'border-b-2 border-green-500': openSubmenus[item.to] && getIconColor(item.icon) === 'green'
+                }">
+                    <div class="flex items-center">
+                      <Icon :icon="item.icon" class="mr-3 text-xl transition-all duration-300" :class="[
+                        getIconColorClass(item.icon),
+                        { 'scale-110': openSubmenus[item.to] }
+                      ]" />
                       <span class="text-start">{{ item.label }}</span>
                     </div>
                     <Icon :icon="openSubmenus[item.to] ? 'mdi:chevron-up' : 'mdi:chevron-down'"
-                      class="text-sm transition-transform duration-200"
+                      class="text-sm transition-transform duration-300"
                       :class="{ 'rotate-180': openSubmenus[item.to] }" />
                   </button>
 
                   <!-- Submenu with smooth animation -->
                   <div v-show="openSubmenus[item.to]"
-                    class="mt-1 ml-7 pl-2 border-l-2 border-gray-100  dark:border-gray-700 overflow-hidden transition-all duration-200">
-                    <NuxtLink v-for="sub in item.submenu" :key="sub.to" :to="sub.to" class="block  py-2 px-2 my-1 text-sm rounded-md transition-colors duration-200
-            text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400
-            hover:bg-primary-50/50 dark:hover:bg-primary-900/10" @click="closeSidebarOnMobile" :class="{
-              'text-primary-600 dark:text-primary-400 bg-primary-50/80 dark:bg-primary-900/15 font-medium':
-                $route.path.includes(sub.to) && sub.to !== '/'
-            }">
-                      {{ sub.label[locale as 'en' | 'km'] }}
+                    class="mt-2 ml-8 pl-4 border-l-2 overflow-hidden transition-all duration-300" :class="[
+                      getIconColor(item.icon) === 'blue' ? 'border-blue-200 dark:border-blue-800' : '',
+                      getIconColor(item.icon) === 'red' ? 'border-red-200 dark:border-red-800' : '',
+                      getIconColor(item.icon) === 'green' ? 'border-green-200 dark:border-green-800' : ''
+                    ]">
+                    <NuxtLink v-for="sub in item.submenu" :key="sub.to" :to="sub.to" class="block py-2.5 px-3 my-1 text-sm rounded-lg transition-all duration-300
+                  text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/30
+                  transform hover:translate-x-1 relative group/sub" @click="closeSidebarOnMobile" :class="{
+                    'bg-gray-50 dark:bg-gray-800/50 font-medium border-b-2': $route.path.includes(sub.to) && sub.to !== '/',
+                    'border-blue-500 text-blue-600 dark:text-blue-400': $route.path.includes(sub.to) && sub.to !== '/' && getIconColor(item.icon) === 'blue',
+                    'border-red-500 text-red-600 dark:text-red-400': $route.path.includes(sub.to) && sub.to !== '/' && getIconColor(item.icon) === 'red',
+                    'border-green-500 text-green-600 dark:text-green-400': $route.path.includes(sub.to) && sub.to !== '/' && getIconColor(item.icon) === 'green'
+                  }">
+                      <div class="flex items-center">
+                        <div class="w-1.5 h-1.5 rounded-full mr-2 transition-all duration-300" :class="[
+                          getIconColor(item.icon) === 'blue' ? 'bg-blue-400' : '',
+                          getIconColor(item.icon) === 'red' ? 'bg-red-400' : '',
+                          getIconColor(item.icon) === 'green' ? 'bg-green-400' : '',
+                          { 'scale-150': $route.path.includes(sub.to) && sub.to !== '/' }
+                        ]">
+                        </div>
+                        {{ sub.label[locale as 'en' | 'km'] }}
+                      </div>
                     </NuxtLink>
                   </div>
                 </div>
 
                 <!-- Regular menu items -->
-                <NuxtLink v-else :to="item.to"
-                  class="flex items-center p-2.5 rounded-lg font-medium transition-all duration-200 ease-in-out 
-        text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-primary-900/20 group-hover:text-primary-600 dark:group-hover:text-primary-400"
-                  :class="{
-                    'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400': $route.path === item.to ||
-                      ($route.path.includes(item.to) && item.to !== '/')
-                  }" @click="closeSidebarOnMobile">
-                  <Icon :icon="item.icon" class="mr-3 text-xl opacity-75 group-hover:opacity-100" :class="{
-                    'text-primary-600 dark:text-primary-400 opacity-100': $route.path === item.to ||
-                      ($route.path.includes(item.to) && item.to !== '/')
-                  }" />
+                <NuxtLink v-else :to="item.to" class="flex items-center p-3 rounded-xl font-medium transition-all duration-300 ease-in-out 
+              relative overflow-hidden group/link
+              text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50
+              hover:shadow-md transform hover:-translate-y-0.5" :class="{
+                'bg-gray-50 dark:bg-gray-800/50 shadow-md border-b-2 font-semibold': $route.path === item.to || ($route.path.includes(item.to) && item.to !== '/'),
+                'border-blue-500 text-blue-700 dark:text-blue-400': ($route.path === item.to || ($route.path.includes(item.to) && item.to !== '/')) && getIconColor(item.icon) === 'blue',
+                'border-red-500 text-red-700 dark:text-red-400': ($route.path === item.to || ($route.path.includes(item.to) && item.to !== '/')) && getIconColor(item.icon) === 'red',
+                'border-green-500 text-green-700 dark:text-green-400': ($route.path === item.to || ($route.path.includes(item.to) && item.to !== '/')) && getIconColor(item.icon) === 'green'
+              }" @click="closeSidebarOnMobile">
+                  <Icon :icon="item.icon" class="mr-3 text-xl transition-all duration-300" :class="[
+                    getIconColorClass(item.icon, item),
+                    { 'scale-110': route.path === item.to || (route.path.includes(item.to) && item.to !== '/') }
+                  ]" />
                   <span>{{ item.label }}</span>
+
+                  <!-- Active indicator glow effect -->
+                  <div v-if="$route.path === item.to || ($route.path.includes(item.to) && item.to !== '/')"
+                    class="absolute inset-0 rounded-xl opacity-10 pointer-events-none" :class="[
+                      getIconColor(item.icon) === 'blue' ? 'bg-blue-500' : '',
+                      getIconColor(item.icon) === 'red' ? 'bg-red-500' : '',
+                      getIconColor(item.icon) === 'green' ? 'bg-green-500' : ''
+                    ]">
+                  </div>
                 </NuxtLink>
               </li>
             </ul>
@@ -247,10 +283,9 @@
         </div>
 
         <!-- Sidebar bottom (sticky footer) -->
-        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
-          <!-- <InternetSpeed /> -->
-          <div class="mt-2 text-left">
-            <p class="text-xs text-gray-500 dark:text-gray-400">
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+          <div class="mt-2 text-center">
+            <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">
               BAKSEY Tech Solution © {{ new Date().getFullYear() }}
             </p>
             <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Version 1.0</p>
@@ -276,7 +311,7 @@ import { Icon } from '@iconify/vue'
 import useTheme from '~/composables/useTheme'
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '~/store/useAuthStore'
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import Swal from 'sweetalert2';
 import { useInternetStatus } from '~/utils/useInternetStatus';
 import { usePermissions } from '~/composables/usePermissions'
@@ -285,41 +320,20 @@ import type { IResponse } from '~/types/api';
 import type { INotification } from '~/types/notification';
 
 const { isSale, isAdmin, isHr } = usePermissions()
-
-
-
-// Use the Internet Status composable
-const {
-  connectionStatus,
-  connectionQuality,
-  lastChecked,
-  isOnline,
-  pingTime,
-  downloadSpeed,
-  isChecking,
-  getConnectionStatusColor,
-  getConnectionStatusIcon,
-  checkInternetQuality
-} = useInternetStatus();
-
-
 const auth = useAuthStore()
 const router = useRouter();
+const route = useRoute();
 /// Form State
 const firstName = ref('');
 const lastName = ref('');
 const departments = ref<string[]>([]);
 const roles = ref<string[]>([]);
 const email = ref('');
-const password = ref('');
-const confirmPassword = ref('');
 const avatarFile = ref<File | null>(null);
 const avatarPreview = ref<string | null>(null);
 // Original Values
 const originalFirstName = ref('');
 const originalLastName = ref('');
-const originalEmail = ref('');
-const originalPassword = ref('');
 onMounted(() => {
   if (auth.user) {
     firstName.value = auth.user.first_name;
@@ -567,7 +581,7 @@ const menuItems: MenuItem[] = [
     to: '/dashboard/bm-client',
     icon: 'mdi:account-multiple',
     label: { en: 'Sale client', km: 'អតិថិជន BM' },
-   
+
   },
 
   {
@@ -589,7 +603,49 @@ const openSubmenus = ref<Record<string, boolean>>({});
 const toggleSubmenu = (key: string) => {
   openSubmenus.value[key] = !openSubmenus.value[key];
 };
+const getIconColor = (icon: string): 'blue' | 'red' | 'green' => {
+  // Blue for core system features
+  if (['mdi:view-dashboard', 'material-symbols:edit-document', 'emojione-v1:document', 'mdi:target'].includes(icon)) {
+    return 'blue';
+  }
 
+  // Red for business/sales features
+  if (['hugeicons:advertisement', 'mdi:account-multiple', 'mdi:cash', 'mdi:currency-usd'].includes(icon)) {
+    return 'red';
+  }
+
+  // Green for staff/HR features
+  if (['mdi:account-search', 'mdi:calendar-clock', 'mdi:account-check'].includes(icon)) {
+    return 'green';
+  }
+
+  // Default to blue
+  return 'blue';
+};
+const getIconColorClass = (icon: string, item?: any): string => {
+  const color = getIconColor(icon);
+  // item is optional for backward compatibility, but should be passed when used
+  const isActive = item
+    ? route.path === item.to || (route.path.includes(item.to) && item.to !== '/')
+    : false;
+
+  switch (color) {
+    case 'blue':
+      return isActive
+        ? 'text-blue-600 dark:text-blue-400'
+        : 'text-blue-500 dark:text-blue-400 group-hover:text-blue-600 dark:group-hover:text-blue-300';
+    case 'red':
+      return isActive
+        ? 'text-red-600 dark:text-red-400'
+        : 'text-red-500 dark:text-red-400 group-hover:text-red-600 dark:group-hover:text-red-300';
+    case 'green':
+      return isActive
+        ? 'text-green-600 dark:text-green-400'
+        : 'text-green-500 dark:text-green-400 group-hover:text-green-600 dark:group-hover:text-green-300';
+    default:
+      return 'text-blue-500 dark:text-blue-400';
+  }
+};
 const localizedMenuItems = computed(() =>
   menuItems
     .filter(item => {
@@ -662,7 +718,44 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.router-link-active {
+/* .router-link-active {
   @apply font-bold bg-gray-900 text-white dark:bg-red-500 dark:text-white;
+} */
+
+/* Custom scrollbar */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 4px;
 }
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 2px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.8);
+}
+
+/* Smooth transitions */
+.router-link-active {
+  transition: all 0.3s ease;
+}
+
+/* Hover effects */
+.group\/btn:hover {
+  transform: translateY(-1px);
+}
+
+.group\/link:hover {
+  transform: translateY(-1px);
+}
+
+.group\/sub:hover {
+  transform: translateX(4px);
+}
+
 </style>
