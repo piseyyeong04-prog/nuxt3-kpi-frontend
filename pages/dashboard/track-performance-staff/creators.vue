@@ -168,11 +168,11 @@
           </div>
 
           <div class="flex gap-2">
-            <button @click="refreshAllVideos"
+            <!-- <button @click="refreshAllVideos"
               class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm"
               :disabled="globalRefreshLoading">
               {{ globalRefreshLoading ? 'Refreshing...' : 'Reload' }}
-            </button>
+            </button> -->
 
             <div class="relative">
               <button @click="isExportDropdownOpen = !isExportDropdownOpen"
@@ -509,6 +509,7 @@ declare global {
     editRemark: (remarkId: string) => Promise<void>;
     deleteRemark: (remarkId: string, creatorName: string, videoTitle: string) => Promise<void>;
     refreshViewCount: (remarkId: string) => Promise<void>;
+    refreshAllViewsForCreator: () => Promise<void>; // ✅ Add this line
   }
 }
 
@@ -786,6 +787,17 @@ watchEffect(() => {
   }
 });
 
+const getPageCodeFromCreator = (creator: ICreator): 'TC' | 'BC' | 'HC' => {
+  const deptId =
+    creator?.user_created?.department?.id ??
+    creator?.user_created?.department_id ??
+    creator?.department?.id ??
+    auth.user?.department?.id;
+
+  if (deptId === 2) return 'BC';
+  if (deptId === 3) return 'HC';
+  return 'TC';
+};
 
 
 // ==============================================================================
@@ -943,36 +955,61 @@ const createRemarksHtml = (remarks: any[], creatorName: string) => {
     new Date(b.date_created).getTime() - new Date(a.date_created).getTime()
   );
 
-  return sortedRemarks.map(r => `
-    <div class="mb-4 p-3 border-b">
-      <div class="md:flex justify-between items-start">
-        <div>
-          <p class="font-bold">${r.title}</p>
-          <p class="text-sm break-words">
-            <a href="${r.video_link}" target="_blank" class="text-blue-600 hover:underline">${r.video_link}</a>
-          </p>
-          <p class="mt-2"><b>Views:</b> ${formatNumber(r.view)}</p>
-          <p class="mt-1">
-            ${r.big_video === 'yes'
-      ? `<span class="inline-block bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">Big Video</span>`
-      : ''}
-          </p>
-          <p class="text-xs mt-1"><b>Status:</b> 
-            <span class="${r.status === 'active' ? 'text-green-600' : 'text-red-600'}">${r.status}</span>
-          </p>
-        </div>
-        <div class="flex flex-col space-y-2">
-          <button onclick="window.editRemark('${r.id}')" class="px-3 py-1 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600">
-            Edit
-          </button>
-          <button onclick="window.deleteRemark('${r.id}', '${creatorName}', '${r.title.replace(/'/g, "\\'")}')" 
-            class="px-3 py-1 bg-red-500 text-white rounded-md text-sm hover:bg-red-600">
-            Delete
-          </button> 
+  return `
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
+        Videos for ${creatorName}
+      </h3>
+      <button onclick="window.refreshAllViewsForCreator()" 
+        class="inline-flex items-center gap-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-all">
+        🔄 Refresh All Views
+      </button>
+    </div>
+    ${sortedRemarks.map(r => `
+      <div class="mb-4 p-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="md:flex justify-between items-start gap-4">
+          <div class="flex-1">
+            <p class="font-bold text-gray-900 dark:text-white">${r.title}</p>
+            <p class="text-sm break-words mt-1">
+              <a href="${r.video_link}" target="_blank" class="text-blue-600 hover:underline">
+                ${r.video_link}
+              </a>
+            </p>
+            <p class="mt-2 text-sm text-gray-800 dark:text-gray-300">
+              <b>Views:</b> ${formatNumber(r.view)}
+            </p>
+            <p class="mt-1">
+              ${r.big_video === 'yes'
+                ? `<span class="inline-block bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">
+                    Big Video
+                   </span>`
+                : ''}
+            </p>
+            <p class="text-xs mt-1 text-gray-600 dark:text-gray-400">
+              <b>Status:</b> 
+              <span class="${r.status === 'active' ? 'text-green-600' : 'text-red-600'}">
+                ${r.status}
+              </span>
+            </p>
+          </div>
+          <div class="flex flex-col space-y-2 mt-4 md:mt-0">
+            <button onclick="window.editRemark('${r.id}')" 
+              class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm">
+              Edit
+            </button>
+            <button onclick="window.deleteRemark('${r.id}', '${creatorName}', '${r.title.replace(/'/g, "\\'")}')" 
+              class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm">
+              Delete
+            </button>
+            <button onclick="window.refreshViewCount('${r.id}')" 
+              class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm">
+              Refresh View
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  `).join('');
+    `).join('')}
+  `;
 };
 
 
@@ -1002,6 +1039,137 @@ const setupGlobalHandlers = (creator: ICreator, creatorName: string) => {
       handleRemarkClick(updatedCreator);
     }
   };
+
+window.refreshAllViewsForCreator = async () => {
+  if (!creator.remarks?.length) return;
+
+  const remarksToRefresh = [...creator.remarks]; // Avoid mutation
+  const stats = { success: 0, error: 0, skipped: 0 };
+
+  const toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 0,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.addEventListener('mouseenter', Swal.stopTimer);
+      toast.addEventListener('mouseleave', Swal.resumeTimer);
+    }
+  });
+
+  const pageCode = getPageCodeFromCreator(creator); // ✅ use correct page per creator
+
+  for (let i = 0; i < remarksToRefresh.length; i++) {
+    const r = remarksToRefresh[i];
+
+    toast.fire({
+      icon: 'info',
+      title: `Refreshing (${i + 1}/${remarksToRefresh.length})`,
+      html: `<div class="text-xs">Success: ${stats.success} | Errors: ${stats.error} | Skipped: ${stats.skipped}</div>`
+    });
+
+    const videoId = extractVideoId(r.video_link);
+    if (!videoId) {
+      stats.skipped++;
+      continue;
+    }
+
+    try {
+      await fetchVideoData(videoId, pageCode); // ✅ pass correct page
+
+      if (!fbVideoData.value?.views) {
+        stats.error++;
+        continue;
+      }
+
+      const newViews = fbVideoData.value.views.toString();
+      if (newViews !== r.view) {
+        await useApi(`/items/remark_link/${r.id}`, {
+          method: 'PATCH',
+          data: { view: newViews }
+        });
+        stats.success++;
+      } else {
+        stats.skipped++;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 500)); // throttle
+    } catch (err) {
+      console.error(err);
+      stats.error++;
+    }
+  }
+
+  await fetchCreators();
+  const updatedCreator = creators.value.find(c => c.id === creator.id);
+  if (updatedCreator) handleRemarkClick(updatedCreator);
+
+  Swal.fire({
+    title: 'Refresh Done',
+    icon: 'success',
+    html: `
+      <p>Processed ${remarksToRefresh.length} videos</p>
+      <p class="text-green-600">Success: ${stats.success}</p>
+      <p class="text-yellow-600">Skipped: ${stats.skipped}</p>
+      <p class="text-red-600">Errors: ${stats.error}</p>
+    `
+  });
+};
+
+
+window.refreshViewCount = async (remarkId: string) => {
+  const remark = creator.remarks?.find(r => r.id.toString() === remarkId);
+  if (!remark) return;
+
+  const videoId = extractVideoId(remark.video_link);
+  if (!videoId) {
+    showError('Invalid video URL');
+    return;
+  }
+
+  const pageCode = getPageCodeFromCreator(creator); // ✅ use correct page
+
+  try {
+    Swal.fire({
+      title: 'Refreshing...',
+      html: 'Fetching latest view count...',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    await fetchVideoData(videoId, pageCode); // ✅ pass correct page
+
+    if (fbError.value || !fbVideoData.value?.views) {
+      showError('Could not fetch updated view count');
+      return;
+    }
+
+    const updatedViews = fbVideoData.value.views.toString();
+
+    if (updatedViews !== remark.view) {
+      await useApi(`/items/remark_link/${remarkId}`, {
+        method: 'PATCH',
+        data: { view: updatedViews }
+      });
+    }
+
+    await fetchCreators();
+
+    const updatedCreator = creators.value.find(c => c.id === creator.id);
+    if (updatedCreator) {
+      handleRemarkClick(updatedCreator);
+    }
+
+    showSuccess('View count refreshed successfully');
+  } catch (err) {
+    console.error(err);
+    showError('Failed to refresh view count');
+  }
+};
+
+ 
+
 };
 
 // ==============================================================================

@@ -12,17 +12,20 @@ export interface IRemark {
 }
 
 export interface ICreator {
+  department: any;
   id: number;
   status: string;
   staff: string;
   target: string;
   remarks: IRemark[]; 
   user_created: {
+    department_id: any;
     id: string;
     first_name: string;
     last_name: string;
     department: 
     {
+      id: any;
       title: string;
     };
     title: string | null;
