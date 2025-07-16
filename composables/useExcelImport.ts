@@ -121,9 +121,9 @@ export const useExcelImport = () => {
             });
 
             // Validate required fields
-            if (!client.business_name || !client.industry) {
-                throw new Error(`Row ${rowIndex + 2}: Business name and industry are required`);
-            }
+            // if (!client.business_name || !client.industry) {
+            //     throw new Error(`Row ${rowIndex + 2}: Business name and industry are required`);
+            // }
 
             return client as BmClientData;
         }).filter(client => client.business_name); // Filter out empty rows
