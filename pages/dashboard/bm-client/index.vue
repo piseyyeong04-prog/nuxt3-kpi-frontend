@@ -1015,7 +1015,7 @@ watch([searchQuery, selectedUser, perPage], () => {
 // Load clients function remains the same
 const loadClients = async () => {
     try {
-        const res = await useApi<IResponse<Client[]>>('/items/bm_client?filter[status]=published&fields=*,user_created.first_name,user_created.last_name,user_created.avatar,user_created.id', {
+        const res = await useApi<IResponse<Client[]>>('/items/bm_client?limit=2000000&filter[status]=published&fields=*,user_created.first_name,user_created.last_name,user_created.avatar,user_created.id', {
             method: 'GET'
         });
         clients.value = res.data || [];
