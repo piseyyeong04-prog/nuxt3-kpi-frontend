@@ -919,7 +919,7 @@ const handleManualBooking = async () => {
       `<b>ចាប់ពីម៉ោង</b> ${formatTime12Hour(booking.date, booking.start)} ដល់ ${formatTime12Hour(booking.date, booking.end)}\n` +
       `<b>ស្ថានភាព:</b> ${booking.status}` +
       `\n\n` +
-      `<b>📌 មើលកាលវិភាគកក់:</b> <a href="https://baksey.vercel.app/dashboard/booking-room">ចូលមើលនៅទីនេះ</a>`
+      `<b>📌 មើលកាលវិភាគកក់:</b> <a href="https://baksey.vercel.app/dashboard/booking-room/rooms">ចូលមើលនៅទីនេះ</a>`
     );
 
   } catch (error) {
