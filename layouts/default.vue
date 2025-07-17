@@ -7,7 +7,7 @@
         <button @click="toggleSidebar" class="focus:outline-none md:hidden" aria-label="Toggle Sidebar">
           <Icon :icon="isSidebarOpen ? 'mdi:close' : 'mdi:menu'" class="text-2xl" />
         </button>
-        <h1 class="text-xl font-bold md:hidden">BAKSEY Tech Solution</h1>
+        <h1 class="text-md sm:text-xl font-bold md:hidden">BAKSEY  </h1>
       </div>
       <div class="flex items-center space-x-4">
         <!-- Theme toggle -->
@@ -75,7 +75,7 @@
         <!-- Language Selector -->
         <div class="relative" ref="dropdownContainer">
           <button @click="toggleDropdown"
-            class="flex items-center px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors focus:outline-none">
+            class="flex items-center px-1  sm:px-3 px-1  sm:py-1.5 rounded-full border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors focus:outline-none">
             <span class="mr-1">{{ locale === 'en' ? 'English' : 'Khmer' }}</span>
             <Icon icon="mdi:chevron-down" class="w-4 h-4" />
           </button>
@@ -536,11 +536,22 @@ const menuItems: MenuItem[] = [
     icon: 'mdi:account-search',
     label: { en: 'Interview Tracking', km: 'ការតាមដានសម្ភាសន៍' }
   },
-  // ai booking room
+  // Booking Book and camera as submenu
   {
-    to: '/dashboard/booking-room',
+    to: '#',
     icon: 'mdi:calendar-clock',
-    label: { en: 'AI Booking Room', km: 'ការកក់បន្ទប់ប្រើ AI' }
+    label: { en: 'Booking', km: 'ការកក់' },
+    hasSubmenu: true,
+    submenu: [
+      {
+        to: '/dashboard/booking-room/rooms',
+        label: { en: 'Room Bookings', km: 'ការកក់បន្ទប់' }
+      },
+      {
+        to: '/dashboard/booking-room/equipment-request',
+        label: { en: 'Equipment Booking', km: 'កក់ឧបករណ៍' }
+      }
+    ]
   },
   // Track Performance Staff
   {
@@ -610,12 +621,12 @@ const getIconColor = (icon: string): 'blue' | 'red' | 'green' => {
   }
 
   // Red for business/sales features
-  if (['hugeicons:advertisement', 'mdi:account-multiple', 'mdi:cash', 'mdi:currency-usd'].includes(icon)) {
+  if (['hugeicons:advertisement', 'mdi:account-multiple', 'mdi:cash', 'mdi:currency-usd','mdi:calendar-clock'].includes(icon)) {
     return 'red';
   }
 
   // Green for staff/HR features
-  if (['mdi:account-search', 'mdi:calendar-clock', 'mdi:account-check'].includes(icon)) {
+  if (['mdi:account-search', 'mdi:account-check'].includes(icon)) {
     return 'green';
   }
 
