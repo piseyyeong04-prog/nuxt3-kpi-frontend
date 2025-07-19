@@ -159,6 +159,115 @@
         </div>
       </div>
 
+      <!-- Performance Summary Cards -->
+      <!-- Performance Summary Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Total Creators -->
+        <div
+          class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl hover:scale-105 border border-gray-100 dark:border-gray-700">
+          <div class="flex items-center justify-between">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-2">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Total Creators</h3>
+                <div class="bg-indigo-100 dark:bg-indigo-900/30 px-2 py-1 rounded-full">
+                  <span class="text-xs font-medium text-indigo-600 dark:text-indigo-400">All</span>
+                </div>
+              </div>
+              <p class="text-3xl font-bold text-indigo-600 dark:text-indigo-400 mb-1">
+                {{ creatorsList.length }}
+              </p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Content creators</p>
+            </div>
+            <div
+              class="bg-gradient-to-br from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30 p-4 rounded-2xl">
+              <Icon icon="mdi:account-group" class="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Big Video Views (Filtered by KPI Month) -->
+        <div
+          class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl hover:scale-105 border border-gray-100 dark:border-gray-700">
+          <div class="flex items-center justify-between">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-2">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Big Video Views</h3>
+                <div class="bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded-full">
+                  <span class="text-xs font-medium text-red-600 dark:text-red-400">Big Videos</span>
+                </div>
+              </div>
+              <p class="text-3xl font-bold text-red-600 dark:text-red-400 mb-1">
+                {{
+                  formatTotalViews(
+                    creatorsList.reduce(
+                      (sum, c) =>
+                        sum + parseInt(getBigVideoViews(filterRemarksByKpiMonth(c.remarks || [])) || '0'),
+                      0
+                    ).toString()
+                  )
+                }}
+              </p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ dateRangeHeader }}</p>
+            </div>
+            <!-- <div
+              class="bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30 p-4 rounded-2xl">
+              <Icon icon="mdi:video-high-definition" class="h-8 w-8 text-red-600 dark:text-red-400" />
+            </div> -->
+          </div>
+        </div>
+        <!-- Total Videos (Filtered by KPI Month) -->
+        <div
+          class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl hover:scale-105 border border-gray-100 dark:border-gray-700">
+          <div class="flex items-center justify-between">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-2">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Total Videos</h3>
+                <div class="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded-full">
+                  <span class="text-xs font-medium text-blue-600 dark:text-blue-400">FB</span>
+                </div>
+              </div>
+              <p class="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-1">
+                {{creatorsList.reduce((sum, c) => sum + filterRemarksByKpiMonth(c.remarks || []).length, 0)}}
+              </p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ dateRangeHeader }}</p>
+            </div>
+            <div
+              class="bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 p-4 rounded-2xl">
+              <Icon icon="mdi:video-outline" class="h-8 w-8 text-blue-600 dark:text-blue-400" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Views (Filtered by KPI Month) -->
+        <div
+          class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl hover:scale-105 border border-gray-100 dark:border-gray-700">
+          <div class="flex items-center justify-between">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-2">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Total Views</h3>
+                <div class="bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded-full">
+                  <span class="text-xs font-medium text-purple-600 dark:text-purple-400">Views</span>
+                </div>
+              </div>
+              <p class="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-1">
+                {{formatTotalViews(
+                  creatorsList.reduce(
+                    (sum, c) => sum + parseInt(getTotalViews(filterRemarksByKpiMonth(c.remarks || [])) || '0'),
+                    0
+                  ).toString()
+                )}}
+              </p>
+
+
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ dateRangeHeader }}</p>
+            </div>
+            <div
+              class="bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30 p-4 rounded-2xl">
+              <Icon icon="mdi:eye-outline" class="h-8 w-8 text-purple-600 dark:text-purple-400" />
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- Performance Table -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
         <div class="p-4 border-b flex justify-between items-center">
@@ -209,8 +318,8 @@
             <thead class="bg-gray-50 dark:bg-gray-700">
               <tr>
                 <th class="px-4 py-3 text-left">Name</th>
-                <th class="px-4 py-3 text-left">Position</th>
-                <th class="px-4 py-3 text-left">Department</th>
+                <!-- <th class="px-4 py-3 text-left">Position</th>
+                <th class="px-4 py-3 text-left">Department</th> -->
                 <th class="px-4 py-3 text-left">Target</th>
                 <th class="px-4 py-3 text-left">Status</th>
                 <th class="px-4 py-3 text-left">{{ dateRangeHeader }}</th>
@@ -227,12 +336,26 @@
               <tr v-for="creator in creatorsList" :key="creator.id"
                 class="border-b hover:bg-gray-50 dark:hover:bg-gray-700">
 
-                <td class="px-4 py-3 font-medium">
-                  {{ getUserName(creator.staff) || (auth.user?.first_name + ' ' + auth.user?.last_name) }}
+                <td class="px-4 py-3 -medium">
+                  <p class="font-medium">
+                    {{ getUserName(creator.staff) || (auth.user?.first_name + ' ' + auth.user?.last_name) }}
+
+                  </p>
+                  <span class="text-xs text-gray-500 dark:text-gray-400">
+                    {{ creator.user_created?.title || 'N/A' }}
+                  </span> <br>
+                  <span class="text-xs" :class="{
+                    'text-blue-600': creator.user_created?.department?.id === 1,
+                    'text-red-600': creator.user_created?.department?.id === 2,
+                    'text-green-600': creator.user_created?.department?.id === 3,
+                    'text-gray-500 dark:text-gray-400': ![1, 2, 3].includes(creator.user_created?.department?.id)
+                  }">
+                    {{ creator.user_created?.department?.title || 'N/A' }}
+                  </span>
                 </td>
 
-                <td class="px-4 py-3">{{ creator.user_created?.title || 'N/A' }}</td>
-                <td class="px-4 py-3">{{ creator.user_created?.department?.title || 'N/A' }}</td>
+                <!-- <td class="px-4 py-3">{{ creator.user_created?.title || 'N/A' }}</td>
+                <td class="px-4 py-3">{{ creator.user_created?.department?.title || 'N/A' }}</td> -->
                 <td class="px-4 py-3">{{ formatNumber(creator.target) }}</td>
 
                 <td class="px-4 py-3">
@@ -980,10 +1103,10 @@ const createRemarksHtml = (remarks: any[], creatorName: string) => {
             </p>
             <p class="mt-1">
               ${r.big_video === 'yes'
-                ? `<span class="inline-block bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">
+      ? `<span class="inline-block bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">
                     Big Video
                    </span>`
-                : ''}
+      : ''}
             </p>
             <p class="text-xs mt-1 text-gray-600 dark:text-gray-400">
               <b>Status:</b> 
@@ -1040,135 +1163,135 @@ const setupGlobalHandlers = (creator: ICreator, creatorName: string) => {
     }
   };
 
-window.refreshAllViewsForCreator = async () => {
-  if (!creator.remarks?.length) return;
+  window.refreshAllViewsForCreator = async () => {
+    if (!creator.remarks?.length) return;
 
-  const remarksToRefresh = [...creator.remarks]; // Avoid mutation
-  const stats = { success: 0, error: 0, skipped: 0 };
+    const remarksToRefresh = [...creator.remarks]; // Avoid mutation
+    const stats = { success: 0, error: 0, skipped: 0 };
 
-  const toast = Swal.mixin({
-    toast: true,
-    position: 'top-end',
-    showConfirmButton: false,
-    timer: 0,
-    timerProgressBar: true,
-    didOpen: (toast) => {
-      toast.addEventListener('mouseenter', Swal.stopTimer);
-      toast.addEventListener('mouseleave', Swal.resumeTimer);
-    }
-  });
-
-  const pageCode = getPageCodeFromCreator(creator); // ✅ use correct page per creator
-
-  for (let i = 0; i < remarksToRefresh.length; i++) {
-    const r = remarksToRefresh[i];
-
-    toast.fire({
-      icon: 'info',
-      title: `Refreshing (${i + 1}/${remarksToRefresh.length})`,
-      html: `<div class="text-xs">Success: ${stats.success} | Errors: ${stats.error} | Skipped: ${stats.skipped}</div>`
+    const toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 0,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer);
+        toast.addEventListener('mouseleave', Swal.resumeTimer);
+      }
     });
 
-    const videoId = extractVideoId(r.video_link);
-    if (!videoId) {
-      stats.skipped++;
-      continue;
-    }
+    const pageCode = getPageCodeFromCreator(creator); // ✅ use correct page per creator
 
-    try {
-      await fetchVideoData(videoId, pageCode); // ✅ pass correct page
+    for (let i = 0; i < remarksToRefresh.length; i++) {
+      const r = remarksToRefresh[i];
 
-      if (!fbVideoData.value?.views) {
-        stats.error++;
+      toast.fire({
+        icon: 'info',
+        title: `Refreshing (${i + 1}/${remarksToRefresh.length})`,
+        html: `<div class="text-xs">Success: ${stats.success} | Errors: ${stats.error} | Skipped: ${stats.skipped}</div>`
+      });
+
+      const videoId = extractVideoId(r.video_link);
+      if (!videoId) {
+        stats.skipped++;
         continue;
       }
 
-      const newViews = fbVideoData.value.views.toString();
-      if (newViews !== r.view) {
-        await useApi(`/items/remark_link/${r.id}`, {
-          method: 'PATCH',
-          data: { view: newViews }
-        });
-        stats.success++;
-      } else {
-        stats.skipped++;
+      try {
+        await fetchVideoData(videoId, pageCode); // ✅ pass correct page
+
+        if (!fbVideoData.value?.views) {
+          stats.error++;
+          continue;
+        }
+
+        const newViews = fbVideoData.value.views.toString();
+        if (newViews !== r.view) {
+          await useApi(`/items/remark_link/${r.id}`, {
+            method: 'PATCH',
+            data: { view: newViews }
+          });
+          stats.success++;
+        } else {
+          stats.skipped++;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 500)); // throttle
+      } catch (err) {
+        console.error(err);
+        stats.error++;
       }
-
-      await new Promise(resolve => setTimeout(resolve, 500)); // throttle
-    } catch (err) {
-      console.error(err);
-      stats.error++;
     }
-  }
 
-  await fetchCreators();
-  const updatedCreator = creators.value.find(c => c.id === creator.id);
-  if (updatedCreator) handleRemarkClick(updatedCreator);
+    await fetchCreators();
+    const updatedCreator = creators.value.find(c => c.id === creator.id);
+    if (updatedCreator) handleRemarkClick(updatedCreator);
 
-  Swal.fire({
-    title: 'Refresh Done',
-    icon: 'success',
-    html: `
+    Swal.fire({
+      title: 'Refresh Done',
+      icon: 'success',
+      html: `
       <p>Processed ${remarksToRefresh.length} videos</p>
       <p class="text-green-600">Success: ${stats.success}</p>
       <p class="text-yellow-600">Skipped: ${stats.skipped}</p>
       <p class="text-red-600">Errors: ${stats.error}</p>
     `
-  });
-};
-
-
-window.refreshViewCount = async (remarkId: string) => {
-  const remark = creator.remarks?.find(r => r.id.toString() === remarkId);
-  if (!remark) return;
-
-  const videoId = extractVideoId(remark.video_link);
-  if (!videoId) {
-    showError('Invalid video URL');
-    return;
-  }
-
-  const pageCode = getPageCodeFromCreator(creator); // ✅ use correct page
-
-  try {
-    Swal.fire({
-      title: 'Refreshing...',
-      html: 'Fetching latest view count...',
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading()
     });
+  };
 
-    await fetchVideoData(videoId, pageCode); // ✅ pass correct page
 
-    if (fbError.value || !fbVideoData.value?.views) {
-      showError('Could not fetch updated view count');
+  window.refreshViewCount = async (remarkId: string) => {
+    const remark = creator.remarks?.find(r => r.id.toString() === remarkId);
+    if (!remark) return;
+
+    const videoId = extractVideoId(remark.video_link);
+    if (!videoId) {
+      showError('Invalid video URL');
       return;
     }
 
-    const updatedViews = fbVideoData.value.views.toString();
+    const pageCode = getPageCodeFromCreator(creator); // ✅ use correct page
 
-    if (updatedViews !== remark.view) {
-      await useApi(`/items/remark_link/${remarkId}`, {
-        method: 'PATCH',
-        data: { view: updatedViews }
+    try {
+      Swal.fire({
+        title: 'Refreshing...',
+        html: 'Fetching latest view count...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
       });
+
+      await fetchVideoData(videoId, pageCode); // ✅ pass correct page
+
+      if (fbError.value || !fbVideoData.value?.views) {
+        showError('Could not fetch updated view count');
+        return;
+      }
+
+      const updatedViews = fbVideoData.value.views.toString();
+
+      if (updatedViews !== remark.view) {
+        await useApi(`/items/remark_link/${remarkId}`, {
+          method: 'PATCH',
+          data: { view: updatedViews }
+        });
+      }
+
+      await fetchCreators();
+
+      const updatedCreator = creators.value.find(c => c.id === creator.id);
+      if (updatedCreator) {
+        handleRemarkClick(updatedCreator);
+      }
+
+      showSuccess('View count refreshed successfully');
+    } catch (err) {
+      console.error(err);
+      showError('Failed to refresh view count');
     }
+  };
 
-    await fetchCreators();
 
-    const updatedCreator = creators.value.find(c => c.id === creator.id);
-    if (updatedCreator) {
-      handleRemarkClick(updatedCreator);
-    }
-
-    showSuccess('View count refreshed successfully');
-  } catch (err) {
-    console.error(err);
-    showError('Failed to refresh view count');
-  }
-};
-
- 
 
 };
 
