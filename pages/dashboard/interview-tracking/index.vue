@@ -58,29 +58,9 @@
                             Industry
                         </th>
                         <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
-                            Main Incharge
-                        </th>
-                        <!-- <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
                             Confirm Date
-                        </th> -->
-                        <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
-                            Meeting Date
                         </th>
-                        <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
-                            Price Status
-                        </th>
-                        <!-- <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
-                            <div class="flex items-center">
-                                <input id="checkbox-all" type="checkbox"
-                                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                                    @change="toggleAllCheckboxes" v-model="selectAll">
-                                <label for="checkbox-all" class="sr-only">checkbox</label>
-                                <span class="ml-2">Checked</span>
-                            </div>
-                        </th> -->
-                        <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
-                            Interview By
-                        </th>
+
                         <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
                             Contact Links
                         </th>
@@ -112,37 +92,9 @@
                             </span>
                         </td>
                         <td class="px-6 py-4">
-                            {{ business.main_incharge }}
-                        </td>
-                        <!-- <td class="px-6 py-4">
                             {{ business.confirm_date }}
-                        </td> -->
-                        <td class="px-6 py-4">
-                            {{ business.meeting_date || 'Not set' }}
                         </td>
-                        <td class="px-6 py-4">
-                            <span v-if="business.price_status" :class="[
-                                'px-2 py-1 text-xs font-semibold rounded-full',
-                                business.price_status === 'free' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                            ]">
-                                {{ business.price_status }}
-                            </span>
-                        </td>
-                        <!-- <td class="px-6 py-4">
-                            <div class="flex items-center">
-                                <input :id="`checkbox-${index}`" type="checkbox"
-                                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                                    :checked="business.checked && business.checked[0] === 'yes'"
-                                    @change="updateCheckbox(business, $event)">
-                                <label :for="`checkbox-${index}`" class="sr-only">checkbox</label>
-                            </div>
-                        </td> -->
-                        <td class="px-6 py-4">
-                            <span v-if="business.interview_by && typeof business.interview_by === 'object'">
-                                {{ business.interview_by.first_name || '' }} {{ business.interview_by.last_name || '' }}
-                            </span>
-                            <span v-else class="text-gray-400 italic">Not set</span>
-                        </td>
+
                         <td class="px-6 py-4">
                             <div class="space-y-1">
                                 <a v-if="business.contact_link" :href="business.contact_link"
@@ -232,6 +184,7 @@
         </div>
 
         <!-- Create/Edit Modal -->
+        <!-- Updated form section with correct data binding -->
         <div v-if="showModal" class="fixed inset-0 z-50 overflow-y-auto">
             <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                 <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="closeModal"></div>
@@ -268,11 +221,6 @@
                                     <input v-model="formData.industry" type="text"
                                         class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Main Incharge</label>
-                                    <input v-model="formData.main_incharge" type="text"
-                                        class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
-                                </div>
 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Date *</label>
@@ -281,38 +229,11 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Meeting Date</label>
-                                    <input v-model="formData.meeting_date" type="date"
-                                        class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Price Status</label>
-                                    <select v-model="formData.price_status"
-                                        class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
-                                        <option value="">Select Status</option>
-                                        <option value="free">Free</option>
-                                        <option value="paid">Paid</option>
-                                    </select>
-                                </div>
-
-                                <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Checked</label>
-                                    <select v-model="formData.is_checked"
+                                    <select v-model="formData.checked[0]"
                                         class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
-                                        <option :value="true">Yes</option>
-                                        <option :value="false">No</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Interviewed By</label>
-                                    <select v-model="formData.interview_by" required
-                                        class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
-                                        <option disabled value="">Select User</option>
-                                        <option v-for="user in users" :key="user.id" :value="user.id">
-                                            {{ user.first_name }} {{ user.last_name }} ({{ user.title }})
-                                        </option>
+                                        <option value="yes">Yes</option>
+                                        <option value="no">No</option>
                                     </select>
                                 </div>
 
@@ -354,6 +275,7 @@
                                         </button>
                                     </div>
                                 </div>
+
                                 <div class="md:col-span-2">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Contact Tasks</label>
                                     <div class="space-y-2">
@@ -372,7 +294,6 @@
                                         </button>
                                     </div>
                                 </div>
-
 
                                 <div class="md:col-span-2">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Remark</label>
@@ -428,15 +349,12 @@ interface InterviewTracking {
     owner_name: string
     location: string
     confirm_date: string
-    main_incharge: string
     checked: string[]
     contact_link: string
-    meeting_date?: string | null
     remark?: string | null
     task?: string | null
     industry?: string | null
     reference?: string | null
-    price_status?: string | null
     contact_links?: ContactLink[]
     contact_task?: ContactTask[]
     interview_by?: {
@@ -466,6 +384,7 @@ const searchQuery = ref('')
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
 
+
 const formData = ref<InterviewTracking>({
     business_name: '',
     owner_name: '',
@@ -474,17 +393,12 @@ const formData = ref<InterviewTracking>({
     contact_link: '',
     checked: ['no'],
     contact_task: [],
-    interview_by: '', // ✅ PASTE THIS LINE HERE
-    meeting_date: null,
-    main_incharge: '',
     remark: null,
     task: null,
     industry: null,
     reference: null,
-    price_status: null,
     contact_links: []
 })
-
 
 const currentEditId = ref<number | null>(null)
 
@@ -605,13 +519,20 @@ const fetchBusinesses = async () => {
 
 const createBusiness = async (data: InterviewTracking) => {
     try {
-        await useApi('/items/interview_tracking', {
+        console.log('Creating business with data:', data);
+        
+        const response = await useApi('/items/interview_tracking', {
             method: 'POST',
             data: data
         })
+        
+        console.log('Create response:', response);
         await fetchBusinesses()
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error creating business:', error)
+        if (error.response) {
+            console.error('Backend error details:', error.response.data)
+        }
         throw error
     }
 }
@@ -650,16 +571,14 @@ const openCreateModal = () => {
         location: '',
         confirm_date: '',
         contact_link: '',
-        checked: ['no'],
+        checked: ['no'], // Initialize as array with default value
         interview_by: '',
-        meeting_date: null,
-        main_incharge: '',
         remark: null,
         task: null,
         industry: null,
         reference: null,
-        price_status: null,
-        contact_links: []
+        contact_links: [],
+        contact_task: [] // Initialize empty array
     }
     showModal.value = true
 }
@@ -669,32 +588,71 @@ const openEditModal = (business: InterviewTracking) => {
 
     formData.value = {
         ...business,
+        checked: business.checked || ['no'], // Ensure checked is always an array
+        contact_links: business.contact_links || [],
+        contact_task: business.contact_task || [],
         interview_by: typeof business.interview_by === 'object' && business.interview_by?.id
             ? business.interview_by.id
             : business.interview_by || ''
     };
     showModal.value = true;
 };
-
 const closeModal = () => {
     showModal.value = false
     currentEditId.value = null
 }
+// Alternative clean submit function that ensures proper data structure
 const submitForm = async () => {
     submitting.value = true
     try {
+        // Prepare the data for submission
+        const dataToSubmit = {
+            business_name: formData.value.business_name,
+            owner_name: formData.value.owner_name,
+            location: formData.value.location,
+            confirm_date: formData.value.confirm_date,
+            contact_link: formData.value.contact_link,
+            checked: formData.value.checked || ['no'],
+            industry: formData.value.industry || null,
+            reference: formData.value.reference || null,
+            task: formData.value.task || null,
+            remark: formData.value.remark || null,
+            // Only include these if they have data
+            ...(formData.value.contact_links && formData.value.contact_links.length > 0 && {
+                contact_links: formData.value.contact_links.filter(link => link.name && link.name.trim() !== '')
+            }),
+            ...(formData.value.contact_task && formData.value.contact_task.length > 0 && {
+                contact_task: formData.value.contact_task.filter(task => task.name && task.name.trim() !== '')
+            }),
+            // Handle interview_by separately
+            ...(formData.value.interview_by && {
+                interview_by: formData.value.interview_by
+            })
+        };
+
+        // Debug log to see what we're sending
+        console.log('Data being submitted:', JSON.stringify(dataToSubmit, null, 2));
+
         if (isEdit.value && currentEditId.value) {
-            await updateBusiness(currentEditId.value, formData.value)
+            await updateBusiness(currentEditId.value, dataToSubmit)
         } else {
-            await createBusiness(formData.value)
+            await createBusiness(dataToSubmit)
         }
         closeModal()
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error submitting form:', error)
+        
+        // More detailed error logging
+        if (error.response) {
+            console.error('Error response data:', error.response.data)
+            console.error('Error response status:', error.response.status)
+            console.error('Error response headers:', error.response.headers)
+        }
+        
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'There was an error saving the business. Please try again.'
+            text: error.response?.data?.errors?.[0]?.message || 'There was an error saving the business. Please try again.'
         })
     } finally {
         submitting.value = false
@@ -734,14 +692,14 @@ const toggleAllCheckboxes = () => {
     })
 }// Initialize
 const addContactTask = () => {
-  formData.value.contact_task = formData.value.contact_task || []
-  formData.value.contact_task.push({ name: '' })
+    formData.value.contact_task = formData.value.contact_task || []
+    formData.value.contact_task.push({ name: '' })
 }
 
 const removeContactTask = (index: number) => {
-  if (formData.value.contact_task) {
-    formData.value.contact_task.splice(index, 1)
-  }
+    if (formData.value.contact_task) {
+        formData.value.contact_task.splice(index, 1)
+    }
 }
 
 onMounted(() => {
