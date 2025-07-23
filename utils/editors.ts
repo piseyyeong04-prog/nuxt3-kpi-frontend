@@ -24,6 +24,17 @@ export interface IEditor {
     } | null;
     title: string | null;
   };
+   content_creator?: {
+    staff?: {
+      first_name?: string;
+      last_name?: string;
+    };
+    target?: string;
+    remarks?: {
+      view?: string;
+      video_link?: string;
+    }[];
+  };
   note?: string;
 }
 
@@ -175,8 +186,8 @@ export const filterRemarksByKpiMonth = (
   let year = ref.getFullYear()
   let month = ref.getMonth()
 
-  // if before 23rd → adjust to previous month
-  if (day < 23) {
+  // ✅ Now includes the 23rd in the current month instead of previous
+  if (day <= 23) {
     month -= 1
     if (month < 0) {
       month = 11
@@ -184,11 +195,13 @@ export const filterRemarksByKpiMonth = (
     }
   }
 
-  const start = new Date(Date.UTC(year, month, 23))             // 23 this or last month
-  const end = new Date(Date.UTC(year, month + 1, 23, 23, 59, 59)) // up to 23 next month
+  const start = new Date(Date.UTC(year, month, 23))             // Start from the 23rd
+  const end = new Date(Date.UTC(year, month + 1, 23, 23, 59, 59)) // Until next 23rd at 23:59:59
 
   return remarks.filter(r => {
     const created = new Date(r.date_created)
     return created >= start && created <= end
   });
 };
+
+
