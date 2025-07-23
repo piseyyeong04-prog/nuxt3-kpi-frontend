@@ -206,7 +206,7 @@
             </p>
           </div>
           <!-- Refresh Articles Button -->
-          <div class="flex justify-end px-6 mb-4 mt-2">
+          <!-- <div class="flex justify-end px-6 mb-4 mt-2">
             <button @click="refreshAllArticles"
               class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-3 rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg"
               :disabled="globalRefreshLoading">
@@ -225,7 +225,7 @@
                 Reload views
               </span>
             </button>
-          </div>
+          </div> -->
 
           <div class="overflow-x-auto">
             <table class="w-full text-sm text-left">
@@ -348,6 +348,9 @@
                 </button>
 
               </div>
+            
+
+
               <div class="py-2">
                 <select v-model="selectedMonth" @change="filterArticlesByKpiPeriod"
                   class="rounded-md text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
@@ -369,6 +372,20 @@
                   </span>
                 </p>
               </div>
+             <div>
+                 <button @click="refreshVisibleArticles"
+                class=" text-sm px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md shadow-sm disabled:opacity-50"
+                :disabled="globalRefreshLoading">
+                <span v-if="globalRefreshLoading" class="flex items-center gap-2">
+                  <Icon icon="line-md:loading-twotone-loop" class="h-4 w-4" />
+                  Refreshing...
+                </span>
+                <span v-else class="flex items-center gap-2">
+                  <Icon icon="ion:refresh-circle" class="h-4 w-4" />
+                  Reload Visible Articles
+                </span>
+              </button>
+             </div>
 
               <!-- Articles table -->
               <div class="overflow-x-auto">
@@ -956,6 +973,134 @@ const closeArticlesModal = () => {
 };
 
 // Add a function to refresh a specific article's view count
+const refreshVisibleArticles = async () => {
+  try {
+    globalRefreshLoading.value = true;
+
+    const toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 0,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer);
+        toast.addEventListener('mouseleave', Swal.resumeTimer);
+      }
+    });
+
+    toast.fire({
+      icon: 'info',
+      title: 'Refreshing visible article view counts...'
+    });
+
+    if (writerArticles.value.length === 0) {
+      Swal.fire({
+        title: 'No Articles',
+        text: 'No visible articles to refresh',
+        icon: 'info'
+      });
+      return;
+    }
+
+    let successCount = 0;
+    let errorCount = 0;
+    let skippedCount = 0;
+    const totalCount = writerArticles.value.length;
+
+    const updatePromises = writerArticles.value.map(async (article) => {
+      try {
+        if (!article.article_link) {
+          skippedCount++;
+          return;
+        }
+
+        let slug = '';
+        let selectedApi;
+        let apiPath = '';
+
+        try {
+          const url = new URL(article.article_link);
+          const pathParts = url.pathname.split('/');
+          slug = pathParts[pathParts.length - 1];
+
+          if (url.hostname.includes('tech-cambodia.com')) {
+            selectedApi = techCambodiaApi;
+            apiPath = '/items/articles';
+          } else if (url.hostname.includes('business-cambodia.com')) {
+            selectedApi = businessCambodiaApi;
+            apiPath = '/items/articles';
+          } else if (url.hostname.includes('healthy-cambodia.com')) {
+            selectedApi = healthyCambodiaApi;
+            apiPath = '/items/article';
+          } else {
+            skippedCount++;
+            return;
+          }
+        } catch (error) {
+          console.error('Invalid URL:', article.article_link);
+          skippedCount++;
+          return;
+        }
+
+        if (!slug || !selectedApi) {
+          skippedCount++;
+          return;
+        }
+
+        const response = await selectedApi.get(apiPath, {
+          params: {
+            filter: JSON.stringify({ slug: { _eq: slug } })
+          }
+        });
+
+        const articleData = response.data.data?.[0];
+        const viewCount = articleData?.views ?? 0;
+
+        await useApi(`/items/remark_link_writer/${article.id}`, {
+          method: 'PATCH',
+          data: { view: viewCount }
+        });
+
+        const index = writerArticles.value.findIndex((a) => a.id === article.id);
+        if (index !== -1) {
+          writerArticles.value[index].view = viewCount;
+        }
+
+        successCount++;
+      } catch (error) {
+        console.error(`Failed to update article ${article.id}:`, error);
+        errorCount++;
+      }
+    });
+
+    await Promise.allSettled(updatePromises);
+
+    Swal.fire({
+      title: 'Refresh Complete',
+      html: `<div class="space-y-2">
+              <p>Processed ${totalCount} articles:</p>
+              <div class="flex justify-between px-4">
+                <span class="text-green-600">Updated: ${successCount}</span>
+                <span class="text-yellow-600">Skipped: ${skippedCount}</span>
+                <span class="text-red-600">Errors: ${errorCount}</span>
+              </div>
+            </div>`,
+      icon: 'success'
+    });
+
+  } catch (error: any) {
+    console.error('Error refreshing articles:', error);
+    Swal.fire({
+      title: 'Error',
+      text: error?.data?.message || 'Failed to refresh articles',
+      icon: 'error'
+    });
+  } finally {
+    globalRefreshLoading.value = false;
+  }
+};
+
 
 const refreshArticleViews = async (articleId: number) => {
   try {
