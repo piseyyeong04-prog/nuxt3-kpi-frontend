@@ -1,5 +1,5 @@
 <template>
-  <div >
+  <div>
     <!-- Header with search and add button -->
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold">Client Management</h1>
@@ -38,7 +38,7 @@
       </button>
     </div>
 
-    <div v-else class="overflow-x-auto" >
+    <div v-else class="overflow-x-auto">
       <table class="w-full border-collapse">
         <thead>
           <tr class="bg-gray-100 dark:bg-gray-800">
@@ -97,29 +97,75 @@
         </tbody>
       </table>
 
-      <!-- Pagination -->
+      <!-- Fixed Pagination -->
       <div class="flex justify-between items-center mt-6">
         <p class="text-sm text-gray-500">
-          Showing {{ clients.length }} of {{ totalClients }} clients
+          Showing {{ startIndex }} to {{ endIndex }} of {{ totalClients }} clients
         </p>
-        <div class="flex gap-2">
-          <button @click="page > 1 && loadClients(page - 1)" :disabled="page === 1"
+        <div class="flex items-center gap-2">
+          <!-- Page info -->
+          <span class="text-sm text-gray-500 mr-4">
+            Page {{ page }} of {{ totalPages }}
+          </span>
+          
+          <!-- First page button -->
+          <button 
+            @click="goToPage(1)" 
+            :disabled="page === 1"
             :class="{ 'opacity-50 cursor-not-allowed': page === 1 }"
-            class="bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded">
-            <Icon icon="mdi:chevron-left" />
+            class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-3 py-1 rounded text-sm">
+            <Icon icon="mdi:chevron-double-left" />
           </button>
-          <button @click="hasMorePages && loadClients(page + 1)" :disabled="!hasMorePages"
-            :class="{ 'opacity-50 cursor-not-allowed': !hasMorePages }"
-            class="bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded">
-            <Icon icon="mdi:chevron-right" />
+
+          <!-- Previous page button -->
+          <button 
+            @click="goToPage(page - 1)" 
+            :disabled="page === 1"
+            :class="{ 'opacity-50 cursor-not-allowed': page === 1 }"
+            class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-3 py-1 rounded text-sm">
+            Previous
+          </button>
+
+          <!-- Page numbers -->
+          <div class="flex gap-1">
+            <button
+              v-for="pageNum in visiblePages"
+              :key="pageNum"
+              @click="goToPage(pageNum)"
+              :class="{
+                'bg-green-500 text-white': pageNum === page,
+                'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600': pageNum !== page
+              }"
+              class="px-3 py-1 rounded text-sm min-w-[2rem]">
+              {{ pageNum }}
+            </button>
+          </div>
+
+          <!-- Next page button -->
+          <button 
+            @click="goToPage(page + 1)" 
+            :disabled="page >= totalPages"
+            :class="{ 'opacity-50 cursor-not-allowed': page >= totalPages }"
+            class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-3 py-1 rounded text-sm">
+            Next
+          </button>
+
+          <!-- Last page button -->
+          <button 
+            @click="goToPage(totalPages)" 
+            :disabled="page >= totalPages"
+            :class="{ 'opacity-50 cursor-not-allowed': page >= totalPages }"
+            class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-3 py-1 rounded text-sm">
+            <Icon icon="mdi:chevron-double-right" />
           </button>
         </div>
       </div>
     </div>
 
     <!-- Create/Edit Modal -->
-    <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[51] "  >
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl" data-aos="fade-down" data-aos-duration="500">
+    <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[51] ">
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl" data-aos="fade-down"
+        data-aos-duration="500">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-bold">{{ isEditing ? 'Edit Client' : 'Add New Client' }}</h2>
           <button @click="closeModal" class="text-gray-500 hover:text-gray-700">
@@ -167,7 +213,6 @@
                   {{ option.text }}
                 </option>
               </select>
-
             </div>
 
             <div>
@@ -205,7 +250,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '~/store/useAuthStore'
@@ -217,8 +262,6 @@ import { useFormatters } from '~/composables/useFormatters';
 
 const { formatStatus } = useFormatters();
 
-// Get unique departments for filter tabs
-
 // Access permissions and auth
 const users = ref<IClient[]>([]);
 const { t } = useI18n()
@@ -229,6 +272,7 @@ const uniqueClient = computed(() => {
   const allDepts = users.value.flatMap(user => formatStatus(user.status));
   return [...new Set(allDepts)];
 });
+
 // Define page meta for authentication
 definePageMeta({
   middleware: 'auth',
@@ -237,10 +281,10 @@ definePageMeta({
 // State for clients
 const clients = ref<IClient[]>([])
 const categories = ref<ICategory[]>([])
-const contacts = ref<any[]>([]) // Contact person list
+const contacts = ref<any[]>([])
 const loading = ref(false)
 const page = ref(1)
-const limit = ref(10)
+const limit = ref(50)
 const totalClients = ref(0)
 const searchQuery = ref('')
 const searchTimeout = ref<NodeJS.Timeout | null>(null)
@@ -258,10 +302,61 @@ const form = ref({
   contact_person: ''
 })
 
-// Computed value for pagination
-const hasMorePages = computed(() => {
-  return clients.value.length < totalClients.value
+// Fixed pagination computed values
+const totalPages = computed(() => {
+  return Math.ceil(totalClients.value / limit.value)
 })
+
+const startIndex = computed(() => {
+  return totalClients.value === 0 ? 0 : (page.value - 1) * limit.value + 1
+})
+
+const endIndex = computed(() => {
+  return Math.min(page.value * limit.value, totalClients.value)
+})
+
+// Generate visible page numbers for pagination
+const visiblePages = computed(() => {
+  const total = totalPages.value
+  const current = page.value
+  const pages: number[] = []
+  
+  if (total <= 7) {
+    // Show all pages if total is 7 or less
+    for (let i = 1; i <= total; i++) {
+      pages.push(i)
+    }
+  } else {
+    // Always show first page
+    pages.push(1)
+    
+    if (current <= 4) {
+      // Show pages 2, 3, 4, 5, ..., total
+      for (let i = 2; i <= 5; i++) {
+        pages.push(i)
+      }
+      if (total > 6) pages.push(-1) // Ellipsis
+      pages.push(total)
+    } else if (current >= total - 3) {
+      // Show 1, ..., total-4, total-3, total-2, total-1, total
+      if (total > 6) pages.push(-1) // Ellipsis
+      for (let i = total - 4; i <= total; i++) {
+        pages.push(i)
+      }
+    } else {
+      // Show 1, ..., current-1, current, current+1, ..., total
+      pages.push(-1) // Ellipsis
+      for (let i = current - 1; i <= current + 1; i++) {
+        pages.push(i)
+      }
+      pages.push(-1) // Ellipsis
+      pages.push(total)
+    }
+  }
+  
+  return pages.filter(p => p !== -1) // Remove ellipsis for now, can be added later
+})
+
 const formatStatusText = (status: string) => {
   if (!status) return ''
   return status
@@ -270,17 +365,28 @@ const formatStatusText = (status: string) => {
     .join(' ')
 }
 
-// Load clients from API
-const loadClients = async (pageNum = 1) => {
+// Fixed pagination function
+const goToPage = async (pageNum: number) => {
+  if (pageNum < 1 || pageNum > totalPages.value || pageNum === page.value || loading.value) {
+    return
+  }
+  
+  page.value = pageNum
+  await loadClients()
+}
+
+// Load clients from API - Fixed to handle pagination properly
+const loadClients = async () => {
   try {
     loading.value = true
-    page.value = pageNum
 
-    // Build API query
-    let query = `/items/clients?sort=-date_created&page=${page.value}&limit=${limit.value}`
+    // Build API query with proper offset calculation
+    const offset = (page.value - 1) * limit.value
+    let query = `/items/clients?sort=-date_created&limit=${limit.value}&offset=${offset}`
     query += '&fields=id,status,user_created,date_created,name,phone_number,facebook_link'
     query += ',contact_person.id,contact_person.first_name,contact_person.last_name,contact_person.email,contact_person.avatar'
     query += ',category.id,category.status,category.name'
+    query += '&meta=total_count' // Important: request total count for pagination
 
     if (searchQuery.value) {
       query += `&filter[name][_contains]=${encodeURIComponent(searchQuery.value)}`
@@ -313,7 +419,7 @@ const loadCategories = async () => {
       method: 'GET',
     })
 
-    if ((response as { data: IClient[] }).data) {
+    if (response?.data) {
       categories.value = response.data
     }
   } catch (error) {
@@ -328,7 +434,7 @@ const loadContacts = async () => {
       method: 'GET',
     })
 
-    if (response.data) {
+    if (response?.data) {
       contacts.value = response.data
     }
   } catch (error) {
@@ -350,15 +456,14 @@ const loadStatusOptions = async () => {
   }
 }
 
-
-// Handle search with debounce
+// Handle search with debounce - Fixed to reset pagination
 const handleSearch = () => {
   if (searchTimeout.value) {
     clearTimeout(searchTimeout.value)
   }
 
   searchTimeout.value = setTimeout(() => {
-    page.value = 1
+    page.value = 1 // Reset to first page when searching
     loadClients()
   }, 300)
 }
@@ -408,7 +513,7 @@ const closeModal = () => {
   showModal.value = false
 }
 
-// Submit form
+// Submit form - Fixed to stay on current page after operations
 const submitForm = async () => {
   try {
     loading.value = true
@@ -437,7 +542,7 @@ const submitForm = async () => {
         showConfirmButton: false
       })
     } else {
-      // Create
+      // Create - go to first page to see new item
       await useApi('/items/clients', {
         method: 'POST',
         data: payload
@@ -450,10 +555,12 @@ const submitForm = async () => {
         timer: 2000,
         showConfirmButton: false
       })
+      
+      page.value = 1 // Go to first page to see new item
     }
 
     closeModal()
-    loadClients(page.value)
+    await loadClients()
   } catch (error) {
     console.error('Error saving client:', error)
     Swal.fire({
@@ -466,7 +573,7 @@ const submitForm = async () => {
   }
 }
 
-// Confirm and delete client
+// Confirm and delete client - Fixed to handle pagination after deletion
 const confirmDelete = (client: IClient) => {
   Swal.fire({
     title: 'Are you sure?',
@@ -491,7 +598,15 @@ const confirmDelete = (client: IClient) => {
           showConfirmButton: false
         })
 
-        loadClients(page.value)
+        // Check if we need to go to previous page after deletion
+        const remainingItems = totalClients.value - 1
+        const maxPage = Math.ceil(remainingItems / limit.value) || 1
+        
+        if (page.value > maxPage) {
+          page.value = maxPage
+        }
+
+        await loadClients()
       } catch (error) {
         console.error('Error deleting client:', error)
         Swal.fire({
@@ -504,13 +619,14 @@ const confirmDelete = (client: IClient) => {
   })
 }
 
-
 // On component mount
-onMounted(() => {
-    loadClients()
-    loadCategories()
-    loadContacts()
-    loadStatusOptions() // ✅ fetch statuses
+onMounted(async () => {
+  await Promise.all([
+    loadClients(),
+    loadCategories(),
+    loadContacts(),
+    loadStatusOptions()
+  ])
 })
 </script>
 
