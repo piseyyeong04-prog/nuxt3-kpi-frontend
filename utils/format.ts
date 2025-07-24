@@ -50,27 +50,39 @@ export const formatTotalViews = (views: string): string => {
  * Get KPI date headers for the current period
  * @returns Object containing dateRangeHeader and totalViewsHeader
  */
+/**
+ * Get KPI date headers for the current period using 24th as the cut-off.
+ * @returns Object containing dateRangeHeader, totalViewsHeader, monthLabel
+ */
 export const getKpiDateHeaders = () => {
   const now = new Date();
-  const currentMonth = now.getMonth();
-  const currentYear = now.getFullYear();
+  let year = now.getFullYear();
+  let month = now.getMonth();
+  const day = now.getDate();
 
-  // Previous month (for the range start)
-  const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-  const prevMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+  // Use 24th as cutoff: if day < 24, we consider previous month's KPI
+  if (day < 24) {
+    month -= 1;
+    if (month < 0) {
+      month = 11;
+      year -= 1;
+    }
+  }
 
-  // Format month names
-  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'];
+  const from = new Date(year, month, 24);
+  const to = new Date(year, month + 1, 23);
 
-  // For the date range header: 23rd of previous month to 11th of current month
-  const dateRangeHeader = `23(${monthNames[prevMonth].substring(0, 3)})-11th(${monthNames[currentMonth].substring(0, 3)})`;
+  const formatDate = (d: Date) =>
+    d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 
-  // For the total views header: "Total Amount Views on 23 Current Month"
-  const totalViewsHeader = `Total Amount Views on 23 ${monthNames[currentMonth]}`;
+  const dateRangeHeader = `${formatDate(from)} - ${formatDate(to)}`;
+  const totalViewsHeader = `Total Views between ${formatDate(from)} and ${formatDate(to)}`;
+  const monthLabel = from.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }); // e.g., "July 2025"
 
-  return { dateRangeHeader, totalViewsHeader };
+  return { dateRangeHeader, totalViewsHeader, monthLabel };
 };
+
+
 /**
  * Generate KPI date headers and range for any given month/year
  * @param month Index from 0 (Jan) to 11 (Dec)
@@ -80,11 +92,12 @@ export const getMonthlyKpiRange = (month: number, year: number) => {
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'];
 
-  const dateRangeHeader = `23(${monthNames[month].substring(0, 3)})-11th(${monthNames[(month + 1) % 12].substring(0, 3)})`;
-  const totalViewsHeader = `Total Views on 23 ${monthNames[(month + 1) % 12]}`;
-
   const start = new Date(year, month, 23);
-  const end = new Date(year, (month + 1) % 12, 11, 23, 59, 59);
+  const end = new Date(year, month + 1, 23, 23, 59, 59);
+
+  const dateRangeHeader = `${start.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} - ${end.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`;
+  const totalViewsHeader = `Total Views between ${dateRangeHeader}`;
 
   return { dateRangeHeader, totalViewsHeader, start, end };
 };
+
