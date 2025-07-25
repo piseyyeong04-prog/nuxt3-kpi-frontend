@@ -26,14 +26,40 @@
                     Website URL
                   </label>
                   <div class="flex gap-3">
-                    <div class="relative flex-1">
-                      <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                        <Icon icon="iconoir:www" class="h-5 w-5 text-indigo-400" />
+                    <div>
+                      <div class="relative flex-1">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                          <Icon icon="iconoir:www" class="h-5 w-5 text-indigo-400" />
+                        </div>
+                        <input v-model="article_link" type="url"
+                          class="w-full h-14 pl-12 pr-4 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-2xl text-gray-900 dark:text-white placeholder-gray-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all duration-200"
+                          placeholder="https://www.tech-cambodia.com/example-slug" required />
                       </div>
-                      <input v-model="article_link" type="url"
-                        class="w-full h-14 pl-12 pr-4 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-2xl text-gray-900 dark:text-white placeholder-gray-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all duration-200"
-                        placeholder="https://www.tech-cambodia.com/example-slug" required />
+                      <div class="space-y-2">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Video Type</label>
+                        <div class="flex gap-4">
+                          <label class="flex items-center cursor-pointer">
+                            <input v-model="isImpactArticle" type="radio" value="no" class="sr-only" required />
+                            <div
+                              class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
+                              :class="isImpactArticle === 'no' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
+                              <Icon icon="mdi:video" class="h-5 w-5" />
+                              <span class="font-medium">Simple Article</span>
+                            </div>
+                          </label>
+                          <label class="flex items-center cursor-pointer">
+                            <input v-model="isImpactArticle" type="radio" value="yes" class="sr-only" />
+                            <div
+                              class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
+                              :class="isImpactArticle === 'yes' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
+                              <Icon icon="mdi:video-high-definition" class="h-5 w-5" />
+                              <span class="font-medium">Impact Article</span>
+                            </div>
+                          </label>
+                        </div>
+                      </div>
                     </div>
+
                     <button type="button" @click="fetchArticleData"
                       class="h-14 px-6 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-2xl transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none"
                       :disabled="loading || !article_link">
@@ -233,12 +259,14 @@
                 class="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-xs tracking-wider">
                 <tr>
                   <th scope="col" class="py-4 px-6">Name</th>
-                  <th scope="col" class="py-4 px-6">Position</th>
-                  <th scope="col" class="py-4 px-6">Department</th>
                   <th scope="col" class="py-4 px-6">View Target</th>
                   <th scope="col" class="py-4 px-6">Status</th>
                   <th scope="col" class="py-4 px-6">{{ dateRangeHeader }}</th>
                   <th scope="col" class="py-4 px-6">Articles</th>
+                  <!-- impact article -->
+                  <th scope="col" class="py-4 px-6 text-center">Impact Articles</th>
+
+
                   <th scope="col" class="py-4 px-6">{{ totalViewsHeader }}</th>
                   <th scope="col" class="py-4 px-6">Progress</th>
                 </tr>
@@ -250,18 +278,16 @@
                   <!-- Staff Name -->
                   <td class="py-4 px-6 font-medium text-gray-800 dark:text-white">
                     {{ getUserName(creator.staff) || (auth.user?.first_name + ' ' + auth.user?.last_name) }}
-                  </td>
+                    <p class="text-gray-400 text-xs dark:text-gray-300">
 
-                  <!-- Position -->
-                  <td class="py-4 px-6 text-gray-600 dark:text-gray-300">
-                    {{ creator.user_created?.title || 'N/A' }}
-                  </td>
+                      {{ creator.user_created?.title || 'N/A' }}
 
-                  <!-- Department -->
-                  <td class="py-4 px-6 text-gray-600 dark:text-gray-300">
-                    {{ creator.user_created?.department?.title || 'N/A' }}
-                  </td>
+                    </p>
+                    <p class="text-gray-400 text-xs dark:text-gray-300">
+                      {{ creator.user_created?.department?.title || 'N/A' }}
 
+                    </p>
+                  </td>
                   <!-- View Target -->
                   <td class="py-4 px-6 font-medium dark:text-white">
                     {{ formatNumber(creator.target) }}
@@ -278,7 +304,6 @@
                       In Progress
                     </span>
                   </td>
-
                   <!-- Views in KPI Period -->
                   <td class="py-4 px-6 font-medium"
                     :class="index % 2 === 0 ? 'text-indigo-600 dark:text-indigo-400' : 'text-rose-600 dark:text-rose-400'">
@@ -293,7 +318,7 @@
                       <Icon icon="game-icons:click" width="24" height="24" />
                     </button>
                   </td>
-
+                  <!-- Show Impact articles count and total views -->
                   <!-- Formatted Views (KPI period) -->
                   <td class="py-4 px-6 font-medium dark:text-white">
                     {{ formatTotalViews(getTotalViews(getRemarksInCurrentPeriod(creator))) }}
@@ -316,8 +341,6 @@
                   </td>
                 </tr>
               </tbody>
-
-
             </table>
           </div>
         </div>
@@ -348,9 +371,6 @@
                 </button>
 
               </div>
-            
-
-
               <div class="py-2">
                 <select v-model="selectedMonth" @change="filterArticlesByKpiPeriod"
                   class="rounded-md text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
@@ -372,43 +392,47 @@
                   </span>
                 </p>
               </div>
-             <div>
-                 <button @click="refreshVisibleArticles"
-                class=" text-sm px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md shadow-sm disabled:opacity-50"
-                :disabled="globalRefreshLoading">
-                <span v-if="globalRefreshLoading" class="flex items-center gap-2">
-                  <Icon icon="line-md:loading-twotone-loop" class="h-4 w-4" />
-                  Refreshing...
-                </span>
-                <span v-else class="flex items-center gap-2">
-                  <Icon icon="ion:refresh-circle" class="h-4 w-4" />
-                  Reload Visible Articles
-                </span>
-              </button>
-             </div>
+              <div>
+                <button @click="refreshVisibleArticles"
+                  class=" text-sm px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md shadow-sm disabled:opacity-50"
+                  :disabled="globalRefreshLoading">
+                  <span v-if="globalRefreshLoading" class="flex items-center gap-2">
+                    <Icon icon="line-md:loading-twotone-loop" class="h-4 w-4" />
+                    Refreshing...
+                  </span>
+                  <span v-else class="flex items-center gap-2">
+                    <Icon icon="ion:refresh-circle" class="h-4 w-4" />
+                    Reload Visible Articles
+                  </span>
+                </button>
+              </div>
 
               <!-- Articles table -->
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                   <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                      <th scope="col"
+                      <th
                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Date Created
                       </th>
-                      <th scope="col"
+                      <th
                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Title
                       </th>
-                      <th scope="col"
+                      <!-- <th
                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         URL
-                      </th>
-                      <th scope="col"
+                      </th> -->
+                      <th
                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Views
                       </th>
-                      <th scope="col"
+                      <th
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Type
+                      </th>
+                      <th
                         class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Actions
                       </th>
@@ -416,29 +440,39 @@
                   </thead>
                   <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     <tr v-if="writerArticles.length === 0">
-                      <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                      <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                         No articles found for this writer.
                       </td>
                     </tr>
                     <tr v-for="article in writerArticles" :key="article.id"
                       class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                      <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
                         {{ formatDate(article.date_created) || 'Untitled Date' }}
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                      <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
                         {{ article.title || 'Untitled Article' }}
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                         <a :href="article.article_link" target="_blank"
                           class="text-blue-600 dark:text-blue-400 hover:underline truncate block max-w-xs">
                           {{ article.article_link }}
                         </a>
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm  text-gray-500 dark:text-gray-400">
+                      <!-- <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                       
+                      </td> -->
+                      <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                         {{ formatNumber(article.view || 0) }}
                       </td>
+                      <!-- New column: Impact Article -->
+                      <td class="px-6 py-4 text-sm">
+                        <span :class="article.impact_article === 'yes'
+                          ? 'text-indigo-600 font-semibold'
+                          : 'text-gray-400 dark:text-gray-500'">
+                          {{ article.impact_article === 'yes' ? 'Impact' : 'Simple' }}
+                        </span>
+                      </td>
+                      <!-- Actions -->
                       <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button @click="refreshArticleViews(article.id)"
+                        <!-- <button @click="refreshArticleViews(article.id)"
                           class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
                           :disabled="article.isRefreshing">
                           <span v-if="article.isRefreshing" class="flex items-center">
@@ -449,7 +483,7 @@
                             <Icon icon="ion:refresh-circle" class="h-4 w-4 mr-1" />
                             Refresh Views
                           </span>
-                        </button>
+                        </button> -->
                         <button @click="editArticle(article)"
                           class="text-amber-600 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-300 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors">
                           <span class="flex items-center">
@@ -467,6 +501,7 @@
                       </td>
                     </tr>
                   </tbody>
+
                 </table>
               </div>
             </div>
@@ -530,7 +565,6 @@
                       placeholder="https://www.tech-cambodia.com/example-slug" required />
                   </div>
                 </div>
-
                 <div>
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Article Views
@@ -539,6 +573,35 @@
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3"
                     placeholder="0" required />
                 </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Article Type
+                  </label>
+                  <div class="flex gap-4">
+                    <!-- Simple -->
+                    <label :class="[
+                      'cursor-pointer px-4 py-2 rounded-lg border transition-all',
+                      editForm.impact_article === 'no'
+                        ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-200 border-indigo-500'
+                        : 'bg-white text-gray-700 dark:bg-gray-800 dark:text-gray-300 border-gray-300'
+                    ]">
+                      <input type="radio" class="hidden" value="no" v-model="editForm.impact_article" />
+                      Simple
+                    </label>
+
+                    <!-- Impact -->
+                    <label :class="[
+                      'cursor-pointer px-4 py-2 rounded-lg border transition-all',
+                      editForm.impact_article === 'yes'
+                        ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-200 border-indigo-500'
+                        : 'bg-white text-gray-700 dark:bg-gray-800 dark:text-gray-300 border-gray-300'
+                    ]">
+                      <input type="radio" class="hidden" value="yes" v-model="editForm.impact_article" />
+                      Impact
+                    </label>
+                  </div>
+                </div>
+
               </form>
             </div>
           </div>
@@ -601,7 +664,7 @@ const article_date = ref('');
 // Writers and staff data
 const creators = ref<IWriter[]>([]);
 const staffMembers = ref<Record<string, string>>({});
-
+const isImpactArticle = ref('no');
 
 // Computed value to show formatted date but keep ISO internally
 const formattedArticleDate = computed({
@@ -816,7 +879,8 @@ const addArticleData = async () => {
       view: article_view.value,
       date_created: article_date.value,
       status: 'active',
-      creators: selectedCreator.value
+      creators: selectedCreator.value,
+      impact_article: isImpactArticle.value
     };
 
     // Save the remark
@@ -1404,6 +1468,7 @@ const editForm = ref({
   title: '',
   article_link: '',
   view: 0,
+  impact_article: 'no'
 });
 // Function to open edit modal with article data
 const editArticle = (article: any) => {
@@ -1412,6 +1477,7 @@ const editArticle = (article: any) => {
     title: article.title || '',
     article_link: article.article_link || '',
     view: article.view || 0,
+    impact_article: article.impact_article || 'no'
   };
   showEditModal.value = true;
 };
@@ -1424,6 +1490,7 @@ const closeEditModal = () => {
     title: '',
     article_link: '',
     view: 0,
+    impact_article: 'no'
   };
 };
 
@@ -1447,7 +1514,8 @@ const updateArticle = async () => {
       data: {
         title: editForm.value.title,
         article_link: editForm.value.article_link,
-        view: editForm.value.view
+        view: editForm.value.view,
+        impact_article: editForm.value.impact_article
       }
     });
 
@@ -1459,6 +1527,7 @@ const updateArticle = async () => {
         title: editForm.value.title,
         article_link: editForm.value.article_link,
         view: editForm.value.view
+
       };
     }
 

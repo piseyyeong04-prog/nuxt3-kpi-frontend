@@ -7,7 +7,9 @@ export interface IRemark {
   article_link: string;  // Changed from video_link to article_link
   view: string | null;
   creators: number;
-  date_created: Date ;
+  date_created: Date;
+  impact_article: string;
+
 }
 
 export interface IWriter {
@@ -125,7 +127,7 @@ export const getCompletedTargetsCount = (creators: IWriter[]): number => {
  */
 export const getTotalArticlesCount = (creators: IWriter[]): number => {
   if (!creators || creators.length === 0) return 0;
-  
+
   return creators.reduce((total, creator) => {
     return total + (creator.remarks?.length || 0);
   }, 0);
@@ -138,7 +140,7 @@ export const getTotalArticlesCount = (creators: IWriter[]): number => {
  */
 export const getTotalViewsAcrossAll = (creators: IWriter[]): string => {
   if (!creators || creators.length === 0) return '0';
-  
+
   let totalViews = 0;
   creators.forEach(creator => {
     totalViews += parseInt(getTotalViews(creator.remarks) || '0');
@@ -202,7 +204,7 @@ export const getKpiPeriodsFromArticles = (articles: { date_created: string }[]) 
     let periodYear = year;
     let periodMonth = month;
 
-    if (created.getDate() < 23) {
+    if (created.getDate() < 24) {
       periodMonth = month - 1;
       if (periodMonth < 0) {
         periodMonth = 11;
@@ -212,11 +214,11 @@ export const getKpiPeriodsFromArticles = (articles: { date_created: string }[]) 
 
     const periodKey = `${periodYear}-${String(periodMonth + 1).padStart(2, '0')}`;
 
-    const fromDate = new Date(periodYear, periodMonth, 23);
-    const toDate = new Date(periodYear, periodMonth + 1, 23);
+    const fromDate = new Date(periodYear, periodMonth, 24);
+    const toDate = new Date(periodYear, periodMonth + 1, 24);
 
     periodMap[periodKey] = {
-      label: `${monthNames[periodMonth]} ${periodYear} (23 ${monthNames[periodMonth].substring(0, 3)} - 23 ${monthNames[(periodMonth + 1) % 12].substring(0, 3)})`,
+      label: `${monthNames[periodMonth]} ${periodYear} (24 ${monthNames[periodMonth].substring(0, 3)} - 23 ${monthNames[(periodMonth + 1) % 12].substring(0, 3)})`,
       from: fromDate,
       to: toDate
     };

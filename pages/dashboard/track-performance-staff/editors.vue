@@ -607,7 +607,7 @@ const viewWriterArticles = (writerId: number) => {
     writerArticles.value = writer.remarks || [];
 
     // Build KPI period list from all remarks
-    kpiPeriods.value = getKpiPeriodsFromArticles(
+    kpiPeriods.value = getKpiPeriodsFromEditors(
       (writer.remarks || []).map((r: any) => ({
         ...r,
         date_created: typeof r.date_created === 'string'

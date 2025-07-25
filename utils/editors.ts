@@ -139,8 +139,8 @@ export const getTotalViewsAcrossAll = (editors: IEditor[]): string => {
   return totalViews.toString();
 };
 
-export const getKpiPeriodsFromArticles = (articles: { date_created: string }[]) => {
-  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+export const getKpiPeriodsFromEditors = (articles: { date_created: string }[]) => {
+ const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'];
 
   const periodMap: Record<string, { label: string, from: Date, to: Date }> = {};
@@ -163,11 +163,11 @@ export const getKpiPeriodsFromArticles = (articles: { date_created: string }[]) 
 
     const periodKey = `${periodYear}-${String(periodMonth + 1).padStart(2, '0')}`;
 
-    const fromDate = new Date(periodYear, periodMonth, 23);
-    const toDate = new Date(periodYear, periodMonth + 1, 23);
+    const fromDate = new Date(periodYear, periodMonth, 24);
+    const toDate = new Date(periodYear, periodMonth + 1, 24);
 
     periodMap[periodKey] = {
-      label: `${monthNames[periodMonth]} ${periodYear} (23 ${monthNames[periodMonth].substring(0, 3)} - 23 ${monthNames[(periodMonth + 1) % 12].substring(0, 3)})`,
+      label: `${monthNames[periodMonth]} ${periodYear} (24 ${monthNames[periodMonth].substring(0, 3)} - 23 ${monthNames[(periodMonth + 1) % 12].substring(0, 3)})`,
       from: fromDate,
       to: toDate
     };
