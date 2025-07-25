@@ -187,7 +187,7 @@ export const filterRemarksByKpiMonth = (
   let month = ref.getMonth()
 
   // ✅ Now includes the 23rd in the current month instead of previous
-  if (day <= 23) {
+  if (day < 24) {
     month -= 1
     if (month < 0) {
       month = 11
@@ -195,8 +195,8 @@ export const filterRemarksByKpiMonth = (
     }
   }
 
-  const start = new Date(Date.UTC(year, month, 23))             // Start from the 23rd
-  const end = new Date(Date.UTC(year, month + 1, 23, 23, 59, 59)) // Until next 23rd at 23:59:59
+  const start = new Date(Date.UTC(year, month, 24))             // Start from the 24th
+  const end = new Date(Date.UTC(year, month + 1, 23, 23, 59, 59)) // Until next 24th at 23:59:59
 
   return remarks.filter(r => {
     const created = new Date(r.date_created)
