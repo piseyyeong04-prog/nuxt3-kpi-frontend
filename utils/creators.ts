@@ -180,7 +180,7 @@ export const creatorsList = computed(() => {
   return creators.value;
 });
 
-export const getKpiPeriodsFromArticles = (items: { date_created: string }[]) => {
+export const getKpiPeriodsFromCreators = (items: { date_created: string }[]) => {
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
   const map: Record<string, { label: string; from: Date; to: Date }> = {}
 
@@ -188,23 +188,36 @@ export const getKpiPeriodsFromArticles = (items: { date_created: string }[]) => 
     const date = new Date(date_created)
     let y = date.getFullYear()
     let m = date.getMonth()
-    if (date.getDate() < 23) {
+
+    // Adjust to previous month if the day is before 24
+    if (date.getDate() < 24) {
       m -= 1
       if (m < 0) {
         m = 11
         y -= 1
       }
     }
+
     const key = `${y}-${String(m + 1).padStart(2, '0')}`
     if (!map[key]) {
-      const from = new Date(y, m, 23)
-      const to = new Date(y, m + 1, 23)
-      map[key] = { label: `${monthNames[m]} ${y}`, from, to }
+      const from = new Date(y, m, 24)                   // 24th of current month
+      const to = new Date(y, m + 1, 24)                 // 24th of next month (not inclusive)
+      const label = `${monthNames[m]} ${y} (24 ${monthNames[m]} - 23 ${monthNames[(m + 1) % 12]})`
+
+      map[key] = { label, from, to }
     }
   }
 
   return map
 }
+
+
+export const getSortedKpiPeriodsFromCreators = (items: { date_created: string }[]) => {
+  const periodMap = getKpiPeriodsFromCreators(items);
+  return Object.entries(periodMap)
+    .sort(([a], [b]) => a.localeCompare(b)) // sort by 'YYYY-MM'
+    .map(([key, value]) => ({ key, ...value }));
+};
 
 export const countBigVideos = (remarks: IRemark[] = []) => {
   return remarks.filter(r => r.big_video === 'yes').length;
@@ -227,7 +240,7 @@ export const filterRemarksByKpiMonth = (
   let month = ref.getMonth()
 
   // ✅ Now includes the 23rd in the current month instead of previous
-  if (day <= 23) {
+  if (day < 24) {
     month -= 1
     if (month < 0) {
       month = 11
@@ -235,8 +248,8 @@ export const filterRemarksByKpiMonth = (
     }
   }
 
-  const start = new Date(Date.UTC(year, month, 23))             // Start from the 23rd
-  const end = new Date(Date.UTC(year, month + 1, 23, 23, 59, 59)) // Until next 23rd at 23:59:59
+  const start = new Date(Date.UTC(year, month, 24))             // Start from the 24th
+  const end = new Date(Date.UTC(year, month + 1, 23, 23, 59, 59)) // Until next 24th at 23:59:59
 
   return remarks.filter(r => {
     const created = new Date(r.date_created)

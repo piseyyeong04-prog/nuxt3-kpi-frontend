@@ -786,7 +786,7 @@ const viewCreatorVideos = (creator: any) => {
   allVideos.sort((a: { date_created: string | number | Date; }, b: { date_created: string | number | Date; }) => new Date(b.date_created).getTime() - new Date(a.date_created).getTime())
   creatorVideos.value = allVideos
 
-  kpiPeriods.value = getKpiPeriodsFromArticles(allVideos)
+  kpiPeriods.value = getKpiPeriodsFromCreators(allVideos)
 
   const sortedKeys = Object.keys(kpiPeriods.value).sort((a, b) =>
     new Date(kpiPeriods.value[b].from).getTime() - new Date(kpiPeriods.value[a].from).getTime()
@@ -799,28 +799,16 @@ const viewCreatorVideos = (creator: any) => {
 
 
 const filterVideosByKpiPeriod = () => {
-  if (!kpiPeriods.value[selectedMonth.value]) return
+  if (!kpiPeriods.value[selectedMonth.value]) return;
 
-  const { from } = kpiPeriods.value[selectedMonth.value]
-  const all = creators.value.find(
-    c => c.id === Number(selectedCreatorId.value)
-  )?.remarks || [];
+  const { from, to } = kpiPeriods.value[selectedMonth.value];
+  const all = creators.value.find(c => c.id === Number(selectedCreatorId.value))?.remarks || [];
 
-
-  creatorVideos.value = all.filter(video => {
-    const created = new Date(video.date_created)
-
-    // 🧠 Apply 23rd-cutoff logic:
-    const adjusted = new Date(created)
-    if (adjusted.getDate() < 23) {
-      adjusted.setMonth(adjusted.getMonth() - 1)
-    }
-    adjusted.setDate(23)
-    adjusted.setHours(0, 0, 0, 0)
-
-    return adjusted.getTime() === from.getTime()
-  })
-}
+creatorVideos.value = all.filter(video => {
+  const created = new Date(video.date_created);
+  return created >= from && created < to;
+});
+};
 
 
 // ==============================================================================
@@ -1100,6 +1088,9 @@ const createRemarksHtml = (remarks: any[], creatorName: string) => {
             </p>
             <p class="mt-2 text-sm text-gray-800 dark:text-gray-300">
               <b>Views:</b> ${formatNumber(r.view)}
+            </p>
+            <p class="mt-1 text-sm text-gray-800 dark:text-gray-300">
+              <b>Created:</b> ${formatDate(r.date_created)}
             </p>
             <p class="mt-1">
               ${r.big_video === 'yes'
