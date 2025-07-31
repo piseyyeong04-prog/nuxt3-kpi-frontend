@@ -108,7 +108,11 @@ export const getProgressBarColor = (percent: number): string => {
  */
 export const getCompletedTargetsCount = (editors: IEditor[]): number => {
   if (!editors || editors.length === 0) return 0;
-  return editors.filter(isCompleted).length;
+  return editors.filter(creator => {
+    const kpiRemarks = filterRemarksByKpiMonth(creator.remarks || []);
+    const target = parseInt(creator.target || '0');
+    return kpiRemarks.length >= target;
+  }).length;
 };
 
 /**
@@ -118,12 +122,11 @@ export const getCompletedTargetsCount = (editors: IEditor[]): number => {
  */
 export const getTotalArticlesCount = (editors: IEditor[]): number => {
   if (!editors || editors.length === 0) return 0;
-  
   return editors.reduce((total, creator) => {
-    return total + (creator.remarks?.length || 0);
+    const kpiRemarks = filterRemarksByKpiMonth(creator.remarks || []);
+    return total + kpiRemarks.length;
   }, 0);
 };
-
 /**
  * Calculate the total views across all editors
  * @param editors List of editors

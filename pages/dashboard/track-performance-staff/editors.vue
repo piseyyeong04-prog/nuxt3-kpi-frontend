@@ -81,7 +81,7 @@
             <div class="flex items-center mt-2">
               <Icon icon="fluent:document-16-filled" class="h-8 w-8 text-indigo-500 mr-3" />
               <span class="text-2xl font-bold text-gray-800 dark:text-white">{{ getTotalArticlesCount(editors)
-              }}</span>
+                }}</span>
             </div>
           </div>
 
@@ -91,7 +91,7 @@
             <div class="flex items-center mt-2">
               <Icon icon="fluent-mdl2:completed" class="h-8 w-8 text-rose-500 mr-3" />
               <span class="text-2xl font-bold text-gray-800 dark:text-white">{{ getCompletedTargetsCount(editors)
-              }}</span>
+                }}</span>
             </div>
           </div>
         </div>
@@ -191,7 +191,7 @@
             <div class="w-full">
               <div class="flex justify-between items-center mb-5">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
-                  Articles by {{ selectedWriterName }}
+                  Videos by {{ selectedWriterName }}
                 </h3>
                 <button @click="closeArticlesModal" class="text-gray-400 hover:text-gray-500 focus:outline-none">
                   <Icon icon="heroicons:x-mark" class="h-6 w-6" />
@@ -200,7 +200,7 @@
               <!-- KPI Month Dropdown -->
               <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Filter by KPI Month
+                  Filter Month
                 </label>
                 <select v-model="selectedKpiMonth" @change="filterWriterArticlesByKpi"
                   class="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-sm rounded-lg p-2">
@@ -209,6 +209,14 @@
                   </option>
                 </select>
               </div>
+              <!-- Target -->
+              <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
+                <p class="text-sm text-gray-500 dark:text-gray-400">Target</p>
+                <p class="text-lg font-bold text-gray-800 dark:text-white">
+                  {{formatNumber(editors.find(c => c.id === selectedWriterId)?.target || '0')}}
+                </p>
+              </div>
+
               <!-- summry report -->
               <div class="mb-4">
                 <h4 class="text-md font-semibold text-gray-800 dark:text-white mb-2">Summary Report</h4>
@@ -221,13 +229,18 @@
                   </div>
 
                   <!-- Status -->
+                  <!-- Status -->
+                  <!-- Status -->
                   <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
                     <p class="text-sm text-gray-500 dark:text-gray-400">Status</p>
                     <div>
-                      <span
-                        v-if="editors.find(c => c.id === selectedWriterId) && isCompleted(editors.find(c => c.id === selectedWriterId)!)"
+                      <span v-if="isWriterCompleted"
                         class="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full text-xs font-medium">
                         Completed
+                      </span>
+                      <span v-else-if="isPastKpiMonth"
+                        class="px-2 py-1 bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200 rounded-full text-xs font-medium">
+                        Not Completed
                       </span>
                       <span v-else
                         class="px-2 py-1 bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 rounded-full text-xs font-medium">
@@ -235,6 +248,8 @@
                       </span>
                     </div>
                   </div>
+
+
 
                   <!-- Progress % -->
                   <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
@@ -637,6 +652,22 @@ const filterWriterArticlesByKpi = () => {
     return created >= from && created <= to;
   });
 };
+const isWriterCompleted = computed(() => {
+  const creator = editors.value.find(c => c.id === selectedWriterId.value);
+  if (!creator) return false;
+
+  const target = parseInt(creator.target || '0');
+  return writerArticles.value.length >= target;
+});
+const isPastKpiMonth = computed(() => {
+  const key = selectedKpiMonth.value;
+  if (!key || !kpiPeriods.value[key]) return false;
+
+  const { to } = kpiPeriods.value[key];
+  const now = new Date();
+  return to < now;
+});
+
 
 // Add a function to close the modal
 const closeArticlesModal = () => {
