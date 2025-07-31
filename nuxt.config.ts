@@ -70,5 +70,38 @@ runtimeConfig: {
 
 
   plugins: ['~/plugins/iconify.js'],
-  modules: ['@pinia/nuxt']
+  modules: ['@pinia/nuxt','@vite-pwa/nuxt'],
+
+  pwa: {
+    registerType: 'autoUpdate',
+    manifest: {
+      name: 'Baksey',
+      short_name: 'Baksey',
+      description: 'Track and manage staff KPIs effectively.',
+      theme_color: '#10b981',
+      background_color: '#ffffff',
+      display: 'standalone',
+      orientation: 'portrait',
+      lang: 'en',
+      icons: [
+        {
+          src: '/icon-green-192.png',
+          sizes: '192x192',
+          type: 'image/png',
+        },
+        {
+          src: '/icon-green-512.png',
+          sizes: '512x512',
+          type: 'image/png',
+        },
+      ],
+    },
+    workbox: {
+      cleanupOutdatedCaches: true,
+      globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+    },
+    devOptions: {
+      enabled: true,
+    },
+  },
 });

@@ -1,4 +1,5 @@
 <template>
+  <VitePwaManifest />
   <NuxtLoadingIndicator  color="#089cf4" />
   <NuxtLayout>
     <NuxtPage />
