@@ -23,6 +23,7 @@ export interface IEditor {
       title: string;
     } | null;
     title: string | null;
+    avatar?: string; // Optional avatar URL
   };
    content_creator?: {
     staff?: {
