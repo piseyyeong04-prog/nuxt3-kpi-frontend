@@ -1098,24 +1098,212 @@ const averageEngagement = computed(() => {
 
 
 // =================
-// Fetch editors data
+// Fetch editors data with pagination support
+// Fetch editors data with pagination support for both editors and their remarks
 const fetcheditors = async () => {
   loading.value = true;
   try {
-    // Fetch writers data
-    const response = await useApi('/items/editors?fields=*,remarks.*,user_created.*,user_created.department.title', {
-      method: 'GET'
-    }) as IResponse<IEditor[]>;
+    let allEditors: IEditor[] = [];
+    let offset = 0;
+    const limit = 100;
+    let hasMore = true;
 
-    editors.value = response.data;
+    console.log('Starting to fetch editors with remarks...');
+
+    // Keep fetching until we get all records
+    while (hasMore) {
+      console.log(`Fetching editors batch: offset=${offset}, limit=${limit}`);
+      
+      // Use deep limit to ensure all remarks are fetched for each editor
+      const response = await useApi(`/items/editors?fields=*,remarks.*,user_created.*,user_created.department.title&limit=${limit}&offset=${offset}&deep[remarks][_limit]=-1`, {
+        method: 'GET'
+      }) as IResponse<IEditor[]>;
+
+      const fetchedData = response.data || [];
+      console.log(`Received ${fetchedData.length} editors in this batch`);
+      
+      // Log remarks count for debugging
+      fetchedData.forEach((editor, index) => {
+        const remarksCount = editor.remarks?.length || 0;
+        console.log(`Editor ${index + 1}: ${remarksCount} remarks`);
+      });
+      
+      allEditors = [...allEditors, ...fetchedData];
+
+      // Check if we need to fetch more
+      hasMore = fetchedData.length === limit;
+      offset += limit;
+
+      console.log(`Total editors so far: ${allEditors.length}, hasMore: ${hasMore}`);
+
+      // Optional: Add a small delay to prevent overwhelming the server
+      if (hasMore) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    }
+
+    console.log(`Finished fetching all ${allEditors.length} editors`);
+    
+    // Log total remarks across all editors
+    const totalRemarks = allEditors.reduce((sum, editor) => sum + (editor.remarks?.length || 0), 0);
+    console.log(`Total remarks across all editors: ${totalRemarks}`);
+    
+    editors.value = allEditors;
 
     // Get staff members info for display names
     try {
-      const staffResponse = await useApi('/users', { method: 'GET' });
-      const staffData = (staffResponse as IResponse<any>).data;
+      let allStaff: any[] = [];
+      let staffOffset = 0;
+      let hasMoreStaff = true;
 
-      staffData.forEach((staff: any) => {
-        staffMembers.value[staff.id] = `${staff.first_name} ${staff.last_name}`;
+      console.log('Starting to fetch staff members...');
+
+      // Also paginate staff data if needed
+      while (hasMoreStaff) {
+        console.log(`Fetching staff batch: offset=${staffOffset}, limit=${limit}`);
+        
+        const staffResponse = await useApi(`/users?limit=${limit}&offset=${staffOffset}`, { 
+          method: 'GET' 
+        });
+        const staffData = (staffResponse as IResponse<any>).data || [];
+        
+        console.log(`Received ${staffData.length} staff members in this batch`);
+        allStaff = [...allStaff, ...staffData];
+        
+        hasMoreStaff = staffData.length === limit;
+        staffOffset += limit;
+
+        console.log(`Total staff so far: ${allStaff.length}, hasMoreStaff: ${hasMoreStaff}`);
+
+        if (hasMoreStaff) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      }
+
+      console.log(`Finished fetching all ${allStaff.length} staff members`);
+
+      allStaff.forEach((staff: any) => {
+        if (staff.first_name && staff.last_name) {
+          staffMembers.value[staff.id] = `${staff.first_name} ${staff.last_name}`;
+        }
+      });
+
+      console.log(`Processed ${Object.keys(staffMembers.value).length} staff member names`);
+    } catch (err) {
+      console.warn('Could not fetch staff names:', err);
+    }
+
+  } catch (error) {
+    console.error('Failed to fetch writers:', error);
+    Swal.fire({
+      title: 'Error',
+      text: 'Failed to load writer data',
+      icon: 'error'
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Alternative approach: Fetch editors first, then fetch all remarks separately
+const fetcheditorsAlternative = async () => {
+  loading.value = true;
+  try {
+    // Step 1: Fetch all editors without remarks
+    let allEditors: IEditor[] = [];
+    let offset = 0;
+    const limit = 100;
+    let hasMore = true;
+
+    console.log('Step 1: Fetching all editors...');
+
+    while (hasMore) {
+      const response = await useApi(`/items/editors?fields=*,user_created.*,user_created.department.title&limit=${limit}&offset=${offset}`, {
+        method: 'GET'
+      }) as IResponse<IEditor[]>;
+
+      const fetchedData = response.data || [];
+      allEditors = [...allEditors, ...fetchedData];
+      hasMore = fetchedData.length === limit;
+      offset += limit;
+
+      if (hasMore) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    }
+
+    console.log(`Step 1 complete: Fetched ${allEditors.length} editors`);
+
+    // Step 2: Fetch ALL remarks and group by editor
+    let allRemarks: any[] = [];
+    let remarksOffset = 0;
+    let hasMoreRemarks = true;
+
+    console.log('Step 2: Fetching all remarks...');
+
+    while (hasMoreRemarks) {
+      const remarksResponse = await useApi(`/items/remark_link_editor?fields=*&limit=${limit}&offset=${remarksOffset}`, {
+        method: 'GET'
+      });
+
+      const fetchedRemarks = (remarksResponse as any).data || [];
+      allRemarks = [...allRemarks, ...fetchedRemarks];
+      hasMoreRemarks = fetchedRemarks.length === limit;
+      remarksOffset += limit;
+
+      console.log(`Fetched ${fetchedRemarks.length} remarks in this batch. Total: ${allRemarks.length}`);
+
+      if (hasMoreRemarks) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    }
+
+    console.log(`Step 2 complete: Fetched ${allRemarks.length} total remarks`);
+
+    // Step 3: Group remarks by editor and attach to editors
+    const remarksByEditor: Record<string, any[]> = {};
+    allRemarks.forEach(remark => {
+      if (remark.editors) {
+        if (!remarksByEditor[remark.editors]) {
+          remarksByEditor[remark.editors] = [];
+        }
+        remarksByEditor[remark.editors].push(remark);
+      }
+    });
+
+    // Attach remarks to editors
+    allEditors.forEach(editor => {
+      editor.remarks = remarksByEditor[editor.id] || [];
+      console.log(`Editor ${editor.id}: ${editor.remarks.length} remarks attached`);
+    });
+
+    editors.value = allEditors;
+
+    // Fetch staff members (same as before)
+    try {
+      let allStaff: any[] = [];
+      let staffOffset = 0;
+      let hasMoreStaff = true;
+
+      while (hasMoreStaff) {
+        const staffResponse = await useApi(`/users?limit=${limit}&offset=${staffOffset}`, { 
+          method: 'GET' 
+        });
+        const staffData = (staffResponse as IResponse<any>).data || [];
+        
+        allStaff = [...allStaff, ...staffData];
+        hasMoreStaff = staffData.length === limit;
+        staffOffset += limit;
+
+        if (hasMoreStaff) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      }
+
+      allStaff.forEach((staff: any) => {
+        if (staff.first_name && staff.last_name) {
+          staffMembers.value[staff.id] = `${staff.first_name} ${staff.last_name}`;
+        }
       });
     } catch (err) {
       console.warn('Could not fetch staff names:', err);
