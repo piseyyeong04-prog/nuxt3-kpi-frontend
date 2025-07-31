@@ -698,15 +698,58 @@ const validateVideoUrl = (): string | null => {
 // ==============================================================================
 // API FUNCTIONS
 // ==============================================================================
+// Fetch creators data with pagination support
 const fetchCreators = async () => {
   loading.value = true;
   try {
-    const response = await useApi('/items/creators?fields=*,remarks.*,user_created.*,user_created.department.title', {
-      method: 'GET'
-    }) as IResponse<ICreator[]>;
+    let allCreators: ICreator[] = [];
+    let offset = 0;
+    const limit = 100;
+    let hasMore = true;
 
-    creators.value = response.data;
+    console.log('Starting to fetch creators with remarks...');
+
+    // Keep fetching until we get all records
+    while (hasMore) {
+      console.log(`Fetching creators batch: offset=${offset}, limit=${limit}`);
+      
+      // Use deep limit to ensure all remarks are fetched for each creator
+      const response = await useApi(`/items/creators?fields=*,remarks.*,user_created.*,user_created.department.title&limit=${limit}&offset=${offset}&deep[remarks][_limit]=-1`, {
+        method: 'GET'
+      }) as IResponse<ICreator[]>;
+
+      const fetchedData = response.data || [];
+      console.log(`Received ${fetchedData.length} creators in this batch`);
+      
+      // Log remarks count for debugging
+      fetchedData.forEach((creator, index) => {
+        const remarksCount = creator.remarks?.length || 0;
+        console.log(`Creator ${index + 1}: ${remarksCount} remarks`);
+      });
+      
+      allCreators = [...allCreators, ...fetchedData];
+
+      // Check if we need to fetch more
+      hasMore = fetchedData.length === limit;
+      offset += limit;
+
+      console.log(`Total creators so far: ${allCreators.length}, hasMore: ${hasMore}`);
+
+      // Optional: Add a small delay to prevent overwhelming the server
+      if (hasMore) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    }
+
+    console.log(`Finished fetching all ${allCreators.length} creators`);
+    
+    // Log total remarks across all creators
+    const totalRemarks = allCreators.reduce((sum, creator) => sum + (creator.remarks?.length || 0), 0);
+    console.log(`Total remarks across all creators: ${totalRemarks}`);
+    
+    creators.value = allCreators;
     await fetchStaffMembers();
+
   } catch (error) {
     console.error('Failed to fetch creators:', error);
     showError('Failed to load creator data');
@@ -715,18 +758,147 @@ const fetchCreators = async () => {
   }
 };
 
+// Update fetchStaffMembers to also support pagination
 const fetchStaffMembers = async () => {
   try {
-    const staffResponse = await useApi('/users', { method: 'GET' });
-    const staffData = (staffResponse as IResponse<any>).data;
+    let allStaff: any[] = [];
+    let staffOffset = 0;
+    const limit = 100;
+    let hasMoreStaff = true;
 
-    staffData.forEach((staff: any) => {
-      staffMembers.value[staff.id] = `${staff.first_name} ${staff.last_name}`;
+    console.log('Starting to fetch staff members...');
+
+    // Also paginate staff data if needed
+    while (hasMoreStaff) {
+      console.log(`Fetching staff batch: offset=${staffOffset}, limit=${limit}`);
+      
+      const staffResponse = await useApi(`/users?limit=${limit}&offset=${staffOffset}`, { 
+        method: 'GET' 
+      });
+      const staffData = (staffResponse as IResponse<any>).data || [];
+      
+      console.log(`Received ${staffData.length} staff members in this batch`);
+      allStaff = [...allStaff, ...staffData];
+      
+      hasMoreStaff = staffData.length === limit;
+      staffOffset += limit;
+
+      console.log(`Total staff so far: ${allStaff.length}, hasMoreStaff: ${hasMoreStaff}`);
+
+      if (hasMoreStaff) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    }
+
+    console.log(`Finished fetching all ${allStaff.length} staff members`);
+
+    allStaff.forEach((staff: any) => {
+      if (staff.first_name && staff.last_name) {
+        staffMembers.value[staff.id] = `${staff.first_name} ${staff.last_name}`;
+      }
     });
+
+    console.log(`Processed ${Object.keys(staffMembers.value).length} staff member names`);
   } catch (err) {
     console.warn('Could not fetch staff names:', err);
   }
 };
+
+// Alternative approach: Fetch creators first, then fetch all remarks separately
+const fetchCreatorsAlternative = async () => {
+  loading.value = true;
+  try {
+    // Step 1: Fetch all creators without remarks
+    let allCreators: ICreator[] = [];
+    let offset = 0;
+    const limit = 100;
+    let hasMore = true;
+
+    console.log('Step 1: Fetching all creators...');
+
+    while (hasMore) {
+      const response = await useApi(`/items/creators?fields=*,user_created.*,user_created.department.title&limit=${limit}&offset=${offset}`, {
+        method: 'GET'
+      }) as IResponse<ICreator[]>;
+
+      const fetchedData = response.data || [];
+      allCreators = [...allCreators, ...fetchedData];
+      hasMore = fetchedData.length === limit;
+      offset += limit;
+
+      if (hasMore) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    }
+
+    console.log(`Step 1 complete: Fetched ${allCreators.length} creators`);
+
+    // Step 2: Fetch ALL remarks and group by creator
+    let allRemarks: any[] = [];
+    let remarksOffset = 0;
+    let hasMoreRemarks = true;
+
+    console.log('Step 2: Fetching all remarks...');
+
+    while (hasMoreRemarks) {
+      const remarksResponse = await useApi(`/items/remark_link?fields=*&limit=${limit}&offset=${remarksOffset}`, {
+        method: 'GET'
+      });
+
+      const fetchedRemarks = (remarksResponse as any).data || [];
+      allRemarks = [...allRemarks, ...fetchedRemarks];
+      hasMoreRemarks = fetchedRemarks.length === limit;
+      remarksOffset += limit;
+
+      console.log(`Fetched ${fetchedRemarks.length} remarks in this batch. Total: ${allRemarks.length}`);
+
+      if (hasMoreRemarks) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    }
+
+    console.log(`Step 2 complete: Fetched ${allRemarks.length} total remarks`);
+
+    // Step 3: Group remarks by creator and attach to creators
+    const remarksByCreator: Record<string, any[]> = {};
+    allRemarks.forEach(remark => {
+      if (remark.creators) {
+        if (!remarksByCreator[remark.creators]) {
+          remarksByCreator[remark.creators] = [];
+        }
+        remarksByCreator[remark.creators].push(remark);
+      }
+    });
+
+    // Attach remarks to creators
+    allCreators.forEach(creator => {
+      creator.remarks = remarksByCreator[creator.id] || [];
+      console.log(`Creator ${creator.id}: ${creator.remarks.length} remarks attached`);
+    });
+
+    creators.value = allCreators;
+    await fetchStaffMembers();
+
+  } catch (error) {
+    console.error('Failed to fetch creators:', error);
+    showError('Failed to load creator data');
+  } finally {
+    loading.value = false;
+  }
+};
+
+// const fetchStaffMembers = async () => {
+//   try {
+//     const staffResponse = await useApi('/users', { method: 'GET' });
+//     const staffData = (staffResponse as IResponse<any>).data;
+
+//     staffData.forEach((staff: any) => {
+//       staffMembers.value[staff.id] = `${staff.first_name} ${staff.last_name}`;
+//     });
+//   } catch (err) {
+//     console.warn('Could not fetch staff names:', err);
+//   }
+// };
 
 const checkVideoExists = async (videoId: string): Promise<boolean> => {
   const response = await useApi(`/items/remark_link?filter[video_link][_eq]=https://www.facebook.com/watch?v=${videoId}`, {
