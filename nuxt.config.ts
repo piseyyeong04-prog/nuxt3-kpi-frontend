@@ -41,36 +41,36 @@ export default defineNuxtConfig({
     },
   },
 
-runtimeConfig: {
-  facebook: {
-    TC: {
-      appId: process.env.FACEBOOK_APP_ID,
-      appSecret: process.env.FACEBOOK_APP_SECRET,
-      pageId: process.env.FACEBOOK_PAGE_ID,
-      accessToken: process.env.FACEBOOK_ACCESS_TOKEN,
+  runtimeConfig: {
+    facebook: {
+      TC: {
+        appId: process.env.FACEBOOK_APP_ID,
+        appSecret: process.env.FACEBOOK_APP_SECRET,
+        pageId: process.env.FACEBOOK_PAGE_ID,
+        accessToken: process.env.FACEBOOK_ACCESS_TOKEN,
+      },
+      BC: {
+        appId: process.env.FACEBOOK_APP_ID_BC,
+        appSecret: process.env.FACEBOOK_APP_SECRET_BC,
+        pageId: process.env.FACEBOOK_PAGE_ID_BC,
+        accessToken: process.env.FACEBOOK_ACCESS_TOKEN_BC,
+      },
+      HC: {
+        appId: process.env.FACEBOOK_APP_ID_HC,
+        appSecret: process.env.FACEBOOK_APP_SECRET_HC,
+        pageId: process.env.FACEBOOK_PAGE_ID_HC,
+        accessToken: process.env.FACEBOOK_ACCESS_TOKEN_HC,
+      },
     },
-    BC: {
-      appId: process.env.FACEBOOK_APP_ID_BC,
-      appSecret: process.env.FACEBOOK_APP_SECRET_BC,
-      pageId: process.env.FACEBOOK_PAGE_ID_BC,
-      accessToken: process.env.FACEBOOK_ACCESS_TOKEN_BC,
-    },
-    HC: {
-      appId: process.env.FACEBOOK_APP_ID_HC,
-      appSecret: process.env.FACEBOOK_APP_SECRET_HC,
-      pageId: process.env.FACEBOOK_PAGE_ID_HC,
-      accessToken: process.env.FACEBOOK_ACCESS_TOKEN_HC,
+    public: {
+      API_BASE_URL: process.env.API_BASE_URL,
+      GEMINI_API_KEY: process.env.GEMINI_API_KEY,
     },
   },
-  public: {
-    API_BASE_URL: process.env.API_BASE_URL,
-    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
-  },
-},
 
 
   plugins: ['~/plugins/iconify.js'],
-  modules: ['@pinia/nuxt','@vite-pwa/nuxt'],
+  modules: ['@pinia/nuxt', '@vite-pwa/nuxt'],
 
   pwa: {
     registerType: 'autoUpdate',
@@ -84,6 +84,21 @@ runtimeConfig: {
       orientation: 'portrait',
       lang: 'en',
       icons: [
+        {
+          src: '/icon-green-96.png',
+          sizes: '96x96',
+          type: 'image/png',
+        },
+        {
+          src: '/icon-green-128.png',
+          sizes: '128x128',
+          type: 'image/png',
+        },
+        {
+          src: '/icon-green-144.png',
+          sizes: '144x144',
+          type: 'image/png',
+        },
         {
           src: '/icon-green-192.png',
           sizes: '192x192',
