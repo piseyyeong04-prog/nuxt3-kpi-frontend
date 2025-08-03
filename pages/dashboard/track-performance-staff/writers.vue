@@ -6,7 +6,7 @@
         <div class="  dark:from-gray-900 dark:via-gray-800 dark:to-indigo-950 p-4 md:p-6">
           <div class=" mx-auto space-y-8">
             <div
-              class="backdrop-blur-sm bg-white/70 dark:bg-gray-800/70 rounded-3xl p-8 border border-white/20 dark:border-gray-700/30">
+              class="backdrop-blur-sm bg-white/70 dark:bg-gray-800/70 rounded-3xl md:p-8 border border-white/20 dark:border-gray-700/30">
               <div class="flex items-center gap-4 mb-8">
                 <div
                   class="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg">
@@ -19,31 +19,64 @@
                 </div>
               </div>
 
-              <form @submit.prevent="addArticleData" class="space-y-2">
+              <form @submit.prevent="handleFormSubmit" class="space-y-2">
                 <!-- URL Input Section -->
                 <div class="space-y-3">
-                  <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
-                    Website URL
-                  </label>
+                  <div class="flex items-center justify-between">
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                      {{ importMode === 'bulk' ? 'CMS API URL' : 'Website URL' }}
+                    </label>
+                    <!-- Mode Toggle -->
+                    <div class="flex items-center gap-2">
+                      <button type="button" @click="toggleImportMode"
+                        class="px-3 py-1 text-xs font-medium rounded-lg transition-all duration-200"
+                        :class="importMode === 'single'
+                          ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                          : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'">
+                        Single Article
+                      </button>
+                      <button type="button" @click="toggleImportMode"
+                        class="px-3 py-1 text-xs font-medium rounded-lg transition-all duration-200"
+                        :class="importMode === 'bulk'
+                          ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
+                          : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'">
+                        Bulk Import
+                      </button>
+                    </div>
+                  </div>
+
                   <div class="flex gap-3">
-                    <div>
-                      <div class="relative flex-1">
+                    <div class="flex-1">
+                      <div class="relative">
                         <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                          <Icon icon="iconoir:www" class="h-5 w-5 text-indigo-400" />
+                          <Icon :icon="importMode === 'bulk' ? 'mdi:api' : 'iconoir:www'"
+                            class="h-5 w-5 text-indigo-400" />
                         </div>
                         <input v-model="article_link" type="url"
                           class="w-full h-14 pl-12 pr-4 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-2xl text-gray-900 dark:text-white placeholder-gray-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all duration-200"
-                          placeholder="https://www.tech-cambodia.com/example-slug" required />
+                          :placeholder="importMode === 'bulk'
+                            ? 'https://tech-cambodia.com/cms/items/articles?filter[user_created][_eq]=USER_ID&limit=1000'
+                            : 'https://www.tech-cambodia.com/example-slug'" required />
                       </div>
-                      <div class="space-y-2">
-                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Video Type</label>
+
+                      <!-- Help text for bulk import -->
+                      <div v-if="importMode === 'bulk'" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                        <p class="mb-1">📋 <strong>Bulk Import:</strong> Import all articles from a CMS API endpoint</p>
+                        <p><strong>Example:</strong>
+                          https://tech-cambodia.com/cms/items/articles?filter[user_created][_eq]=1399c38b-8d65-4f87-8d55-ff4b084215e5&limit=1000
+                        </p>
+                      </div>
+
+                      <!-- Article type selection (only for single mode) -->
+                      <div v-if="importMode === 'single'" class="space-y-2 mt-3">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Article Type</label>
                         <div class="flex gap-4">
                           <label class="flex items-center cursor-pointer">
                             <input v-model="isImpactArticle" type="radio" value="no" class="sr-only" required />
                             <div
                               class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
                               :class="isImpactArticle === 'no' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
-                              <Icon icon="mdi:video" class="h-5 w-5" />
+                              <Icon icon="mdi:article" class="h-5 w-5" />
                               <span class="font-medium">Simple Article</span>
                             </div>
                           </label>
@@ -52,7 +85,7 @@
                             <div
                               class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
                               :class="isImpactArticle === 'yes' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
-                              <Icon icon="mdi:video-high-definition" class="h-5 w-5" />
+                              <Icon icon="mdi:star-circle" class="h-5 w-5" />
                               <span class="font-medium">Impact Article</span>
                             </div>
                           </label>
@@ -60,23 +93,29 @@
                       </div>
                     </div>
 
-                    <button type="button" @click="fetchArticleData"
-                      class="h-14 px-6 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-2xl transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none"
+                    <!-- Fetch/Import Button -->
+                    <button type="button" @click="importMode === 'bulk' ? importArticlesFromUrl() : fetchArticleData()"
+                      class="h-14 px-6 bg-gradient-to-r transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none rounded-2xl"
+                      :class="importMode === 'bulk'
+                        ? 'from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700'
+                        : 'from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700'"
                       :disabled="loading || !article_link">
                       <span v-if="loading" class="flex items-center gap-2">
                         <Icon icon="line-md:loading-twotone-loop" class="h-5 w-5" />
-                        <span class="hidden sm:inline">Fetching</span>
+                        <span class="hidden sm:inline">{{ importMode === 'bulk' ? 'Importing...' : 'Fetching...'
+                        }}</span>
                       </span>
                       <span v-else class="flex items-center gap-2">
-                        <Icon icon="material-symbols:search" class="h-5 w-5" />
-                        <span class="hidden sm:inline">Fetch</span>
+                        <Icon :icon="importMode === 'bulk' ? 'mdi:download-multiple' : 'material-symbols:search'"
+                          class="h-5 w-5" />
+                        <span class="hidden sm:inline">{{ importMode === 'bulk' ? 'Import All' : 'Fetch' }}</span>
                       </span>
                     </button>
                   </div>
                 </div>
 
-                <!-- Form Grid -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Form Grid (only show for single article mode) -->
+                <div v-if="importMode === 'single'" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   <!-- Left Column -->
                   <div class="space-y-2">
                     <!-- Writer Selection -->
@@ -93,9 +132,6 @@
                             {{ getUserName(creator.staff) || (auth.user?.first_name + ' ' + auth.user?.last_name) }}
                           </option>
                         </select>
-                        <!-- <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
-                          <Icon icon="material-symbols:keyboard-arrow-down" class="h-5 w-5 text-gray-400" />
-                        </div> -->
                       </div>
                     </div>
 
@@ -149,8 +185,48 @@
                   </div>
                 </div>
 
-                <!-- Submit Button -->
-                <div class="flex justify-center pt-4">
+                <!-- Writer Selection for Bulk Import -->
+                <div v-if="importMode === 'bulk'" class="space-y-3">
+                  <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                    Select Writer for Bulk Import
+                  </label>
+                  <div class="relative">
+                    <select v-model="selectedCreator"
+                      class="w-full h-14 pl-4 pr-10 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-2xl text-gray-900 dark:text-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all duration-200 appearance-none cursor-pointer"
+                      required>
+                      <option v-for="creator in creatorsList" :key="creator.id" :value="creator.id">
+                        {{ getUserName(creator.staff) || (auth.user?.first_name + ' ' + auth.user?.last_name) }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <!-- Article Type Selection for Bulk Import -->
+                  <div class="space-y-2">
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Default Article Type for
+                      Import</label>
+                    <div class="flex gap-4">
+                      <label class="flex items-center cursor-pointer">
+                        <input v-model="isImpactArticle" type="radio" value="no" class="sr-only" required />
+                        <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
+                          :class="isImpactArticle === 'no' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
+                          <Icon icon="mdi:article" class="h-5 w-5" />
+                          <span class="font-medium">Simple Articles</span>
+                        </div>
+                      </label>
+                      <label class="flex items-center cursor-pointer">
+                        <input v-model="isImpactArticle" type="radio" value="yes" class="sr-only" />
+                        <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
+                          :class="isImpactArticle === 'yes' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
+                          <Icon icon="mdi:star-circle" class="h-5 w-5" />
+                          <span class="font-medium">Impact Articles</span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Submit Button (only for single article mode) -->
+                <div v-if="importMode === 'single'" class="flex justify-center pt-4">
                   <button type="submit"
                     class="h-14 px-8 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-2xl transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none font-semibold text-lg min-w-[200px]"
                     :disabled="loading">
@@ -370,6 +446,18 @@
                   <Icon icon="heroicons:x-mark" class="h-6 w-6" />
                 </button>
 
+              </div>
+              <!-- Generate Report Button in Articles Modal -->
+              <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" @click="generateReport"
+                  class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 sm:ml-3 sm:w-auto sm:text-sm">
+                  <Icon icon="heroicons:document-text" class="h-5 w-5 mr-2" />
+                  Generate Report
+                </button>
+                <!-- <button type="button" @click="closeArticlesModal"
+                  class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                  Close
+                </button> -->
               </div>
               <div class="py-2">
                 <select v-model="selectedMonth" @change="filterArticlesByKpiPeriod"
@@ -624,6 +712,219 @@
       </div>
     </div>
   </div>
+  <!-- Report Modal -->
+  <div v-if="showReportModal" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <!-- Background overlay -->
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"
+        @click="closeReportModal"></div>
+
+      <!-- Center modal -->
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+      <!-- Modal panel -->
+      <div
+        class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-6xl sm:w-full">
+
+        <!-- Modal Header -->
+        <div class="bg-white dark:bg-gray-800 px-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex justify-between items-center">
+            <h3 class="text-xl leading-6 font-semibold text-gray-900 dark:text-white">
+              Performance Report - {{ selectedWriterName }}
+            </h3>
+            <div class="flex gap-3">
+              <button @click="exportToPDF"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                <Icon icon="heroicons:arrow-down-tray" class="h-4 w-4 mr-2" />
+                Export PDF
+              </button>
+              <button @click="closeReportModal" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+                <Icon icon="heroicons:x-mark" class="h-6 w-6" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Report Content -->
+        <div class="bg-white dark:bg-gray-800 px-6 py-6 max-h-[80vh] overflow-y-auto">
+          <div id="report-content" class="bg-white khmer-font">
+
+            <!-- A4 Report Layout -->
+            <div class="max-w-4xl mx-auto bg-white shadow-lg"
+              style="min-height: 297mm; width: 210mm; margin: 0 auto; padding: 20mm;">
+
+              <!-- Report Header -->
+              <div class="flex items-center justify-between mb-8 pb-6 border-b-2 border-gray-200">
+                <!-- Company Logo and Info -->
+                <div class="flex items-center space-x-4">
+                  <div
+                    class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <Icon icon="mdi:office-building" class="h-10 w-10 text-white" />
+                  </div>
+                  <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Tech Cambodia</h1>
+                    <p class="text-sm text-gray-600">Performance Analytics Report</p>
+                  </div>
+                </div>
+
+                <!-- Report Date -->
+                <div class="text-right">
+                  <p class="text-sm text-gray-600">Generated on</p>
+                  <p class="text-lg font-semibold text-gray-900">{{ formatDate(new Date().toISOString()) }}</p>
+                </div>
+              </div>
+
+              <!-- Writer Information -->
+              <div class="mb-8">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Writer Performance Summary</h2>
+                <div class="grid grid-cols-2 gap-6">
+                  <div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                      <h3 class="font-semibold text-gray-700 mb-2">Writer Details</h3>
+                      <p class="text-lg font-bold text-gray-900">{{ selectedWriterName }}</p>
+                      <p class="text-sm text-gray-600">{{ getWriterDepartment() }}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                      <h3 class="font-semibold text-gray-700 mb-2">Report Period</h3>
+                      <p class="text-lg font-bold text-gray-900">{{ getSelectedPeriodLabel() }}</p>
+                      <p class="text-sm text-gray-600">{{ writerArticles.length }} Articles</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Performance Metrics -->
+              <div class="mb-8">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Performance Metrics</h2>
+                <div class="grid grid-cols-4 gap-4">
+
+                  <!-- Total Views -->
+                  <div class="bg-blue-50 p-4 rounded-lg text-center">
+                    <div class="text-2xl font-bold text-blue-600">{{
+                      formatNumber(getPeriodViews(writerArticles).toString()) }}</div>
+                    <div class="text-sm text-blue-800 font-medium">Total Views</div>
+                  </div>
+
+                  <!-- Total Articles -->
+                  <div class="bg-green-50 p-4 rounded-lg text-center">
+                    <div class="text-2xl font-bold text-green-600">{{ writerArticles.length }}</div>
+                    <div class="text-sm text-green-800 font-medium">Total Articles</div>
+                  </div>
+
+                  <!-- Target Achievement -->
+                  <div class="bg-purple-50 p-4 rounded-lg text-center">
+                    <div class="text-2xl font-bold text-purple-600">{{ getTargetAchievementPercentage() }}%</div>
+                    <div class="text-sm text-purple-800 font-medium">Target Achievement</div>
+                  </div>
+
+                  <!-- Impact Articles -->
+                  <div class="bg-orange-50 p-4 rounded-lg text-center">
+                    <div class="text-2xl font-bold text-orange-600">{{ getImpactArticlesCount() }}</div>
+                    <div class="text-sm text-orange-800 font-medium">Impact Articles</div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Target vs Achievement Chart -->
+              <div class="mb-8">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Target vs Achievement</h2>
+                <div class="bg-gray-50 p-6 rounded-lg">
+                  <div class="flex items-center justify-between mb-4">
+                    <span class="text-sm font-medium text-gray-700">Target: {{
+                      formatNumber(selectedWriterTarget.toString()) }} views</span>
+                    <span class="text-sm font-medium text-gray-700">Achieved: {{
+                      formatNumber(getPeriodViews(writerArticles).toString()) }} views</span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-4">
+                    <div
+                      class="bg-gradient-to-r from-blue-500 to-purple-600 h-4 rounded-full transition-all duration-300"
+                      :style="`width: ${Math.min(getTargetAchievementPercentage(), 100)}%`">
+                    </div>
+                  </div>
+                  <div class="text-center mt-2">
+                    <span class="text-lg font-bold"
+                      :class="getTargetAchievementPercentage() >= 100 ? 'text-green-600' : 'text-orange-600'">
+                      {{ getTargetAchievementPercentage() >= 100 ? 'TARGET ACHIEVED' : 'IN PROGRESS' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Articles Table -->
+              <div class="mb-8 page-break-before">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Article Details</h2>
+                <div class="overflow-hidden border border-gray-200 rounded-lg">
+                  <table class=" divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type
+                        </th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Views</th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                      <tr v-for="(article, index) in writerArticles" :key="article.id" class="hover:bg-gray-50">
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ index + 1 }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500">{{ formatDate(article.date_created) }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-900">
+                          <div class="">{{ article.title || 'Untitled Article' }}</div>
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                          <span :class="article.impact_article === 'yes'
+                            ? 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800'
+                            : 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800'">
+                            {{ article.impact_article === 'yes' ? 'Impact' : 'Simple' }}
+                          </span>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-900 text-right font-medium">
+                          {{ formatNumber(article.view || 0) }}
+                        </td>
+                      </tr>
+                    </tbody>
+                    <tfoot class="bg-gray-50">
+                      <tr>
+                        <td colspan="4" class="px-4 py-3 text-sm font-bold text-gray-900 text-right">Total Views:</td>
+                        <td class="px-4 py-3 text-sm font-bold text-gray-900 text-right">
+                          {{ formatNumber(getPeriodViews(writerArticles).toString()) }}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Report Footer -->
+              <div class="border-t-2 border-gray-200 pt-6">
+                <div class="flex justify-between items-center">
+                  <div>
+                    <p class="text-sm text-gray-600">Report generated by Tech Cambodia Performance System</p>
+                    <p class="text-xs text-gray-500">© {{ new Date().getFullYear() }} Tech Cambodia. All rights
+                      reserved.</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-sm text-gray-600">Page 1 of 1</p>
+                    <p class="text-xs text-gray-500">{{ formatDate(new Date().toISOString()) }}</p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
 </template>
 
@@ -1295,7 +1596,7 @@ const fetchCreators = async () => {
     // Keep fetching until we get all records
     while (hasMore) {
       console.log(`Fetching creators batch: offset=${offset}, limit=${limit}`);
-      
+
       // Use deep limit to ensure all remarks are fetched for each creator
       const response = await useApi(`/items/writers?fields=*,remarks.*,user_created.*,user_created.department.title&limit=${limit}&offset=${offset}&deep[remarks][_limit]=-1`, {
         method: 'GET'
@@ -1303,13 +1604,13 @@ const fetchCreators = async () => {
 
       const fetchedData = response.data || [];
       console.log(`Received ${fetchedData.length} creators in this batch`);
-      
+
       // Log remarks count for debugging
       fetchedData.forEach((creator, index) => {
         const remarksCount = creator.remarks?.length || 0;
         console.log(`Creator ${index + 1}: ${remarksCount} remarks`);
       });
-      
+
       allCreators = [...allCreators, ...fetchedData];
 
       // Check if we need to fetch more
@@ -1325,11 +1626,11 @@ const fetchCreators = async () => {
     }
 
     console.log(`Finished fetching all ${allCreators.length} creators`);
-    
+
     // Log total remarks across all creators
     const totalRemarks = allCreators.reduce((sum, creator) => sum + (creator.remarks?.length || 0), 0);
     console.log(`Total remarks across all creators: ${totalRemarks}`);
-    
+
     creators.value = allCreators;
 
     // Get staff members info for display names
@@ -1343,15 +1644,15 @@ const fetchCreators = async () => {
       // Also paginate staff data if needed
       while (hasMoreStaff) {
         console.log(`Fetching staff batch: offset=${staffOffset}, limit=${limit}`);
-        
-        const staffResponse = await useApi(`/users?limit=${limit}&offset=${staffOffset}`, { 
-          method: 'GET' 
+
+        const staffResponse = await useApi(`/users?limit=${limit}&offset=${staffOffset}`, {
+          method: 'GET'
         });
         const staffData = (staffResponse as IResponse<any>).data || [];
-        
+
         console.log(`Received ${staffData.length} staff members in this batch`);
         allStaff = [...allStaff, ...staffData];
-        
+
         hasMoreStaff = staffData.length === limit;
         staffOffset += limit;
 
@@ -1468,11 +1769,11 @@ const fetchCreatorsAlternative = async () => {
       let hasMoreStaff = true;
 
       while (hasMoreStaff) {
-        const staffResponse = await useApi(`/users?limit=${limit}&offset=${staffOffset}`, { 
-          method: 'GET' 
+        const staffResponse = await useApi(`/users?limit=${limit}&offset=${staffOffset}`, {
+          method: 'GET'
         });
         const staffData = (staffResponse as IResponse<any>).data || [];
-        
+
         allStaff = [...allStaff, ...staffData];
         hasMoreStaff = staffData.length === limit;
         staffOffset += limit;
@@ -1702,7 +2003,7 @@ const updateArticle = async () => {
         title: editForm.value.title,
         article_link: editForm.value.article_link,
         view: editForm.value.view,
-        impact_article: editForm.value.impact_article
+        impact_article: editForm.value.impact_article,
       }
     });
 
@@ -1807,7 +2108,267 @@ const deleteArticle = async (articleId: number) => {
 };
 
 // ================== End delete article =================
+// ==================import
 
+// Add these reactive variables after your existing refs
+const importMode = ref('single'); // 'single' or 'bulk'
+
+// Add these functions to your script section
+
+// Toggle between single article and bulk import modes
+const toggleImportMode = () => {
+  importMode.value = importMode.value === 'single' ? 'bulk' : 'single';
+  // Clear the URL when switching modes
+  article_link.value = '';
+  // Reset form fields when switching to bulk mode
+  if (importMode.value === 'bulk') {
+    article_title.value = '';
+    article_view.value = 0;
+    article_date.value = '';
+  }
+};
+
+// Handle form submission based on mode
+const handleFormSubmit = () => {
+  if (importMode.value === 'single') {
+    addArticleData();
+  } else {
+    // Bulk import is handled by the Import All button, not form submission
+    // So we can either disable the form or show a message
+    Swal.fire({
+      title: 'Use Import All Button',
+      text: 'For bulk import, please use the "Import All" button next to the URL field.',
+      icon: 'info'
+    });
+  }
+};
+// Function to import all articles from CMS API URL
+// Function to import all articles from CMS API URL
+// Function to import all articles from CMS API URL
+const importArticlesFromUrl = async () => {
+  if (!article_link.value) {
+    Swal.fire({
+      title: 'Missing URL',
+      text: 'Please enter a CMS API URL to import articles from',
+      icon: 'warning'
+    });
+    return;
+  }
+
+  if (!selectedCreator.value) {
+    Swal.fire({
+      title: 'Missing Information',
+      text: 'Please select a writer before importing articles',
+      icon: 'warning'
+    });
+    return;
+  }
+
+  try {
+    loading.value = true;
+
+    let selectedApi;
+    let requestPath;
+
+    try {
+      const url = new URL(article_link.value);
+
+      // Determine API based on domain
+      if (url.hostname.includes('tech-cambodia.com')) {
+        selectedApi = techCambodiaApi;
+      } else if (url.hostname.includes('business-cambodia.com')) {
+        selectedApi = businessCambodiaApi;
+      } else if (url.hostname.includes('healthy-cambodia.com')) {
+        selectedApi = healthyCambodiaApi;
+      } else {
+        Swal.fire({
+          title: 'Unsupported Domain',
+          text: 'The API URL domain is not supported',
+          icon: 'warning'
+        });
+        return;
+      }
+
+      // ✅ FIX: Extract only the path after /cms/ and the query parameters
+      // Remove the base URL and /cms part to avoid duplication
+      const fullPath = url.pathname + url.search;
+
+      // Remove the /cms prefix if it exists to avoid duplication
+      if (fullPath.startsWith('/cms/')) {
+        requestPath = fullPath.substring(4); // Remove '/cms' (4 characters)
+      } else {
+        requestPath = fullPath;
+      }
+
+      console.log('Original URL:', article_link.value);
+      console.log('Extracted request path:', requestPath);
+
+    } catch (error) {
+      console.error('Invalid URL:', article_link.value);
+      Swal.fire({
+        title: 'Invalid URL',
+        text: 'Please enter a valid CMS API URL',
+        icon: 'warning'
+      });
+      return;
+    }
+
+    // Show loading toast
+    const toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 0,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer);
+        toast.addEventListener('mouseleave', Swal.resumeTimer);
+      }
+    });
+
+    toast.fire({
+      icon: 'info',
+      title: 'Importing articles from CMS...'
+    });
+
+    // ✅ FIX: Ensure slug is included in the fields parameter
+    let finalRequestPath = requestPath;
+
+    // Check if the URL already has fields parameter and ensure slug is included
+    if (requestPath.includes('fields=')) {
+      // If fields parameter exists but doesn't include slug, add it
+      if (!requestPath.includes('slug')) {
+        finalRequestPath = requestPath.replace(/fields=([^&]*)/, 'fields=$1,slug');
+      }
+    } else {
+      // If no fields parameter exists, add minimal required fields including slug
+      const separator = requestPath.includes('?') ? '&' : '?';
+      finalRequestPath = `${requestPath}${separator}fields=date_created,title,views,slug`;
+    }
+
+    console.log('Final request path with slug:', finalRequestPath);
+
+    // ✅ FIX: Use the path with slug included
+    const response = await selectedApi.get(finalRequestPath);
+
+    if (!response.data || !response.data.data || response.data.data.length === 0) {
+      Swal.fire({
+        title: 'No Articles Found',
+        text: 'No articles were found at the provided URL',
+        icon: 'warning'
+      });
+      return;
+    }
+
+    const articles = response.data.data;
+    let successCount = 0;
+    let errorCount = 0;
+    let duplicateCount = 0;
+
+    // Process each article
+    for (const articleData of articles) {
+      try {
+        // ✅ FIXED: Create article URL with proper path structure
+        let articleUrl = '';
+        const url = new URL(article_link.value);
+
+        if (url.hostname.includes('tech-cambodia.com')) {
+          articleUrl = `https://tech-cambodia.com/articles/${articleData.slug || ''}`;
+        } else if (url.hostname.includes('business-cambodia.com')) {
+          articleUrl = `https://business-cambodia.com/articles/${articleData.slug || ''}`;
+        } else if (url.hostname.includes('healthy-cambodia.com')) {
+          articleUrl = `https://healthy-cambodia.com/articles/${articleData.slug || ''}`;
+        }
+
+        // Skip if no slug or URL
+        if (!articleUrl || !articleData.slug) {
+          errorCount++;
+          continue;
+        }
+
+        // Check for duplicates
+        try {
+          const isDuplicate = await checkDuplicateArticleLink(articleUrl);
+          if (isDuplicate) {
+            duplicateCount++;
+            continue;
+          }
+        } catch (error) {
+          console.warn('Could not check for duplicate:', articleData.slug);
+        }
+
+        // Create remark data
+        const remarkData = {
+          title: articleData.title || 'Untitled Article',
+          article_link: articleUrl,
+          view: articleData.views || 0,
+          date_created: articleData.date_created || new Date().toISOString(),
+          status: 'active',
+          creators: selectedCreator.value,
+          impact_article: isImpactArticle.value
+        };
+
+        // Save the article
+        await useApi('/items/remark_link_writer', {
+          method: 'POST',
+          data: remarkData
+        });
+
+        successCount++;
+
+      } catch (error) {
+        console.error(`Failed to import article: ${articleData.title}`, error);
+        errorCount++;
+      }
+    }
+
+    // Show results
+    Swal.fire({
+      title: 'Import Complete',
+      html: `<div class="space-y-2">
+              <p>Processed ${articles.length} articles:</p>
+              <div class="flex justify-between px-4">
+                <span class="text-green-600">Imported: ${successCount}</span>
+                <span class="text-yellow-600">Duplicates: ${duplicateCount}</span>
+                <span class="text-red-600">Errors: ${errorCount}</span>
+              </div>
+            </div>`,
+      icon: successCount > 0 ? 'success' : 'warning'
+    });
+
+    // Reset form and refresh data if any imports were successful
+    if (successCount > 0) {
+      article_link.value = '';
+      await fetchCreators();
+    }
+
+  } catch (error) {
+    console.error('Failed to import articles:', error);
+    Swal.fire({
+      title: 'Import Error',
+      text: (error && typeof error === 'object' && 'response' in error && (error as any).response?.data?.message)
+        ? (error as any).response.data.message
+        : ((error && typeof error === 'object' && 'message' in error) ? (error as any).message : 'Failed to import articles from the CMS'),
+      icon: 'error'
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 
+// catch (error) {
+//     console.error('Failed to import articles:', error);
+//     Swal.fire({
+//       title: 'Import Error',
+//       text: (error && typeof error === 'object' && 'response' in error && (error as any).response?.data?.message)
+//         ? (error as any).response.data.message
+//         : ((error && typeof error === 'object' && 'message' in error) ? (error as any).message : 'Failed to import articles from the CMS'),
+//       icon: 'error'
+//     });
+//   } finally {
+//     loading.value = false;
+//   }
 
 // ================= avaible month history =================
 
@@ -1842,6 +2403,116 @@ const getRemarksInCurrentPeriod = (creator: IWriter) => {
     return date >= from && date < to;
   });
 };
+import html2pdf from 'html2pdf.js';
+
+const showReportModal = ref(false);
+
+const generateReport = () => {
+  showReportModal.value = true;
+};
+
+const closeReportModal = () => {
+  showReportModal.value = false;
+};
+
+const exportToPDF = async () => {
+  await nextTick(); // Ensure DOM is fully rendered
+  await document.fonts.ready; // Ensure fonts are ready
+
+  const reportElement = document.getElementById('report-content');
+  if (!reportElement) {
+    Swal.fire({
+      title: 'Error',
+      text: 'Report content not found',
+      icon: 'error'
+    });
+    return;
+  }
+
+  try {
+    // Show loading toast
+    const toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 0,
+      didOpen: () => Swal.showLoading()
+    });
+
+    toast.fire({ title: 'Generating PDF...' });
+
+    // Ensure Khmer font is applied
+    reportElement.classList.add('khmer-font');
+
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: `Performance_Report_${selectedWriterName.value.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`,
+      image: { type: 'jpeg', quality: 1 },
+      html2canvas: {
+        scale: 4, // High resolution for better rendering
+        useCORS: true,
+        letterRendering: true,
+        allowTaint: false
+      },
+      jsPDF: {
+        unit: 'mm',
+        format: 'a4',
+        orientation: 'portrait'
+      },
+      pagebreak: {
+        mode: ['avoid-all', 'css', 'legacy']
+      }
+    };
+
+    // Export PDF
+    await html2pdf().set(opt).from(reportElement).save();
+
+    // Close loading toast and show success message
+    Swal.close();
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'PDF exported successfully',
+      showConfirmButton: false,
+      timer: 3000
+    });
+
+  } catch (error) {
+    console.error('Failed to export PDF:', error);
+    Swal.fire({
+      title: 'Export Error',
+      text: 'Failed to generate PDF. Please try again.',
+      icon: 'error'
+    });
+  }
+};
+
+
+// Helper methods
+const getWriterDepartment = () => {
+  const writer = creators.value.find(c => c.id === selectedWriterId.value);
+  return writer?.user_created?.department?.title || writer?.user_created?.title || 'N/A';
+};
+
+const getSelectedPeriodLabel = () => {
+  if (selectedMonth.value === 'current') return 'All Time';
+  return kpiPeriods.value[selectedMonth.value]?.label || 'Selected Period';
+};
+
+const getTargetAchievementPercentage = () => {
+  const achieved = getPeriodViews(writerArticles.value);
+  const target = selectedWriterTarget.value;
+  if (target === 0) return 0;
+  return Math.round((achieved / target) * 100);
+};
+
+const getImpactArticlesCount = () => {
+  return writerArticles.value.filter(article => article.impact_article === 'yes').length;
+};
+
+
+// =================
 
 // Fetch data on component mount
 onMounted(async () => {
@@ -1868,3 +2539,78 @@ onMounted(async () => {
 });
 
 </script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer&display=swap');
+
+.khmer-font {
+  font-family: 'Noto Sans Khmer', sans-serif;
+}
+
+#report-content td, #report-content th {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-feature-settings: "kern", "liga", "clig", "calt";
+  line-height: 1.6;
+}
+
+/* Print styles */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #report-content,
+  #report-content * {
+    visibility: visible;
+  }
+
+  #report-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  /* A4 Print Layout */
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  /* Ensure proper page breaks */
+  .page-break-before {
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    page-break-after: always;
+  }
+
+  /* Improve table printing */
+  table {
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tfoot {
+    display: table-footer-group;
+  }
+}
+
+#print-container {
+  border: 1px solid red;
+}
+</style>

@@ -729,6 +729,12 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+/* Add Khmer font globally */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer&display=swap');
+
+html, body {
+  font-family: 'Noto Sans Khmer', sans-serif;
+}
 /* .router-link-active {
   @apply font-bold bg-gray-900 text-white dark:bg-red-500 dark:text-white;
 } */
