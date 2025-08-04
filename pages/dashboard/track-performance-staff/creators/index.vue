@@ -105,6 +105,38 @@
                 </span>
               </div>
             </div>
+            <!-- Impact Video Toggle -->
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Impact Video</label>
+              <div class="flex gap-4">
+                <!-- Regular Video -->
+                <label class="flex items-center cursor-pointer">
+                  <input v-model="isImpactVideo" type="radio" value="no" class="sr-only" required />
+                  <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200" :class="isImpactVideo === 'no'
+                    ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300'
+                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
+                    <Icon icon="mdi:video" class="h-5 w-5" />
+                    <span class="font-medium">No</span>
+                  </div>
+                </label>
+
+                <!-- Impact Video -->
+                <label class="flex items-center cursor-pointer">
+                  <input v-model="isImpactVideo" type="radio" value="yes" class="sr-only" />
+                  <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200" :class="isImpactVideo === 'yes'
+                    ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300'
+                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
+                    <Icon icon="mdi:star" class="h-5 w-5" />
+                    <span class="font-medium">Yes</span>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Impact Video Description -->
+              <div class="text-xs text-gray-500 dark:text-gray-400">
+                Impact videos are high-performing content that significantly contributes to engagement and reach.
+              </div>
+            </div>
 
             <!-- Action Buttons -->
             <div class="flex gap-3">
@@ -357,7 +389,8 @@
                 <!-- Big Video -->
                 <th class="px-4 py-3 text-left">Big Videos</th>
                 <th class="px-4 py-3 text-left">Big Video Views</th>
-
+                <th class="px-4 py-3 text-left">Impact Videos</th>
+                <th class="px-4 py-3 text-left">Impact Video Views</th>
                 <th class="px-4 py-3 text-left">{{ totalViewsHeader }}</th>
                 <th class="px-4 py-3 text-left">Progress</th>
               </tr>
@@ -388,7 +421,7 @@
                 <td class="px-4 py-3">{{ creator.user_created?.department?.title || 'N/A' }}</td> -->
                 <td class="px-4 py-3">
                   {{ formatNumber(creator.target) }} <br>
-                     <span class="px-2 py-1 rounded-full text-xs" :class="isCompleted({ ...creator, remarks: filterRemarksByKpiMonth(creator.remarks) })
+                  <span class="px-2 py-1 rounded-full text-xs" :class="isCompleted({ ...creator, remarks: filterRemarksByKpiMonth(creator.remarks) })
                     ? 'bg-green-100 text-green-800'
                     : 'bg-yellow-100 text-yellow-800'">
                     {{ isCompleted({ ...creator, remarks: filterRemarksByKpiMonth(creator.remarks) })
@@ -427,6 +460,13 @@
 
                 <td class="px-4 py-3 font-medium">
                   {{ formatTotalViews(getBigVideoViews(filterRemarksByKpiMonth(creator.remarks))) }}
+                </td>
+                <td class="px-4 py-3 font-medium">
+                  {{ countImpactVideos(filterRemarksByKpiMonth(creator.remarks)) }}
+                </td>
+
+                <td class="px-4 py-3 font-medium">
+                  {{ formatTotalViews(getImpactVideoViews(filterRemarksByKpiMonth(creator.remarks))) }}
                 </td>
 
                 <td class="px-4 py-3 font-medium">
@@ -660,7 +700,7 @@ import type { IResponse } from '~/types/api';
 import {
   getTotalViews, isCompleted, calculatePercent, getPercentClass,
   getProgressBarColor, getCompletedTargetsCount, getActiveCreatorsCount,
-  getTotalViewsAcrossAll, getTotalVideosCount, countBigVideos, getBigVideoViews
+  getTotalViewsAcrossAll, getTotalVideosCount, countBigVideos, getBigVideoViews, countImpactVideos, getImpactVideoViews
 } from '~/utils/creators';
 import { extractVideoId, isValidVideoInput, buildFacebookVideoUrl } from '~/utils/facebook';
 import { formatDate, formatNumber, formatTotalViews, getKpiDateHeaders } from '~/utils/format';
@@ -700,7 +740,7 @@ const videoUrl = ref('');
 const videoTitle = ref('');
 const selectedCreator = ref('');
 const isBigVideo = ref('no');
-
+const isImpactVideo = ref('no');
 
 
 // Data
@@ -971,6 +1011,7 @@ const saveVideoRemark = async (videoId: string) => {
     status: 'active',
     creators: parseInt(selectedCreator.value),
     big_video: isBigVideo.value,
+    impact_video: isImpactVideo.value,
     length_big_video: typeof fbVideoData.value?.length === 'number' ? fbVideoData.value.length : 0,
   };
 
@@ -1109,6 +1150,7 @@ const resetForm = () => {
   videoUrl.value = '';
   videoTitle.value = '';
   isBigVideo.value = 'no';
+  isImpactVideo.value = 'no'; // Add this line
   fbVideoData.value = null;
 };
 
@@ -1252,10 +1294,10 @@ const editVideo = async (remark: any) => {
           value="${remark.length_big_video || 0}" disabled>
         <div class="text-xs text-gray-500 mt-1">
           Current: ${Math.floor((remark.length_big_video || 0) / 60)}m ${Math.floor((remark.length_big_video || 0) % 60)}s
-          ${(remark.length_big_video || 0) < 1500 ? 
-            '<span class="text-red-500">(Less than 25 minutes)</span>' : 
-            '<span class="text-green-500">(25+ minutes - Big Video eligible)</span>'
-          }
+          ${(remark.length_big_video || 0) < 1500 ?
+        '<span class="text-red-500">(Less than 25 minutes)</span>' :
+        '<span class="text-green-500">(25+ minutes - Big Video eligible)</span>'
+      }
         </div>
       </div>
       <div class="mb-4">
@@ -1268,6 +1310,14 @@ const editVideo = async (remark: any) => {
           </option>
         </select>
       </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Impact Video?</label>
+        <select id="swal-impactvideo" class="w-full p-2 border rounded">
+          <option value="no" ${remark.impact_video === 'no' ? 'selected' : ''}>No</option>
+          <option value="yes" ${remark.impact_video === 'yes' ? 'selected' : ''}>Yes</option>
+        </select>
+      </div>
+
     `,
     focusConfirm: false,
     showCancelButton: true,
@@ -1275,11 +1325,11 @@ const editVideo = async (remark: any) => {
     didOpen: () => {
       const selectElement = document.getElementById('swal-bigvideo') as HTMLSelectElement;
       const videoLength = remark.length_big_video || 0;
-      
+
       // Listen for Big Video selection changes
       selectElement.addEventListener('change', (e) => {
         const target = e.target as HTMLSelectElement;
-        
+
         if (target.value === 'yes' && videoLength < 1500) {
           target.value = 'no';
           Swal.showValidationMessage('Videos shorter than 25 minutes cannot be marked as Big Video');
@@ -1291,20 +1341,22 @@ const editVideo = async (remark: any) => {
     },
     preConfirm: () => {
       const bigVideoValue = (document.getElementById('swal-bigvideo') as HTMLSelectElement).value;
+      const impactVideoValue = (document.getElementById('swal-impactvideo') as HTMLSelectElement).value; // Add this
       const videoLength = remark.length_big_video || 0;
-      
+
       // Final validation before submitting
       if (bigVideoValue === 'yes' && videoLength < 1500) {
         Swal.showValidationMessage('Videos shorter than 25 minutes cannot be marked as Big Video');
         return false;
       }
-      
+
       return {
         title: (document.getElementById('swal-title') as HTMLInputElement).value,
         video_link: (document.getElementById('swal-url') as HTMLInputElement).value,
         view: (document.getElementById('swal-views') as HTMLInputElement).value,
         date_created: new Date((document.getElementById('swal-date') as HTMLInputElement).value).toISOString(),
-        big_video: bigVideoValue
+        big_video: bigVideoValue,
+        impact_video: impactVideoValue // Add this line
       };
     }
   });
@@ -1344,7 +1396,6 @@ const handleRemarkClick = (creator: ICreator) => {
   });
 };
 
-
 const createRemarksHtml = (remarks: any[], creatorName: string) => {
   const sortedRemarks = [...remarks].sort((a, b) =>
     new Date(b.date_created).getTime() - new Date(a.date_created).getTime()
@@ -1376,14 +1427,22 @@ const createRemarksHtml = (remarks: any[], creatorName: string) => {
             <p class="mt-1 text-sm text-gray-800 dark:text-gray-300">
               <b>Created:</b> ${formatDate(r.date_created)}
             </p>
-            <p class="mt-1">
+            
+            <!-- Video Type Badges -->
+            <div class="mt-2 flex items-center justify-center gap-2">
               ${r.big_video === 'yes'
       ? `<span class="inline-block bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">
-                    Big Video
+                     Big Video
                    </span>`
       : ''}
-            </p>
-            <p class="text-xs mt-1 text-gray-600 dark:text-gray-400">
+              ${r.impact_video === 'yes'
+      ? `<span class="inline-block bg-orange-100 text-orange-800 text-xs font-medium px-2 py-1 rounded-full">
+                     Impact Video
+                   </span>`
+      : ''}
+            </div>
+            
+            <p class="text-xs mt-2 text-gray-600 dark:text-gray-400">
               <b>Status:</b> 
               <span class="${r.status === 'active' ? 'text-green-600' : 'text-red-600'}">
                 ${r.status}
@@ -1409,7 +1468,6 @@ const createRemarksHtml = (remarks: any[], creatorName: string) => {
     `).join('')}
   `;
 };
-
 
 const setupGlobalHandlers = (creator: ICreator, creatorName: string) => {
   window.editRemark = async (remarkId: string) => {

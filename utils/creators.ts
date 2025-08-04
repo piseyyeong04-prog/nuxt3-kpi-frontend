@@ -9,6 +9,7 @@ export interface IRemark {
   creators: number;
   date_created: string;
   big_video: string;
+  impact_video: string;
   length_big_video: number;
 }
 
@@ -257,7 +258,28 @@ export const filterRemarksByKpiMonth = (
     return created >= start && created <= end
   });
 };
+// Add these utility functions to your utils/creators.ts file
 
+/**
+ * Count impact videos from remarks
+ * @param remarks List of remarks
+ * @returns Number of impact videos
+ */
+export const countImpactVideos = (remarks: IRemark[] = []): number => {
+  return remarks.filter(r => r.impact_video === 'yes').length;
+};
+
+/**
+ * Get total views from impact videos only
+ * @param remarks List of remarks
+ * @returns Total views from impact videos as string
+ */
+export const getImpactVideoViews = (remarks: IRemark[] = []): string => {
+  return remarks
+    .filter(r => r.impact_video === 'yes' && r.view)
+    .reduce((sum, r) => sum + parseInt(r.view || '0'), 0)
+    .toString();
+};
 
 // =========================
 
