@@ -68,22 +68,41 @@
             <div class="space-y-2">
               <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Video Type</label>
               <div class="flex gap-4">
+                <!-- Regular Video -->
                 <label class="flex items-center cursor-pointer">
                   <input v-model="isBigVideo" type="radio" value="no" class="sr-only" required />
-                  <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
-                    :class="isBigVideo === 'no' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
+                  <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200" :class="isBigVideo === 'no'
+                    ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300'
+                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
                     <Icon icon="mdi:video" class="h-5 w-5" />
                     <span class="font-medium">Regular Video</span>
                   </div>
                 </label>
-                <label class="flex items-center cursor-pointer">
-                  <input v-model="isBigVideo" type="radio" value="yes" class="sr-only" />
-                  <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
-                    :class="isBigVideo === 'yes' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
+
+                <!-- Big Video -->
+                <label class="flex items-center cursor-pointer"
+                  :class="{ 'opacity-50 cursor-not-allowed': isBigVideoDisabled }">
+                  <input v-model="isBigVideo" type="radio" value="yes" class="sr-only" :disabled="isBigVideoDisabled" />
+                  <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200" :class="[
+                    isBigVideo === 'yes' && !isBigVideoDisabled
+                      ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300'
+                      : isBigVideoDisabled
+                        ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'
+                  ]">
                     <Icon icon="mdi:video-high-definition" class="h-5 w-5" />
                     <span class="font-medium">Big Video</span>
+                    <span v-if="isBigVideoDisabled" class="text-xs text-red-500 ml-1">(25min+ required)</span>
                   </div>
                 </label>
+              </div>
+
+              <!-- Show video length info if available -->
+              <div v-if="fbVideoData?.length" class="text-xs text-gray-500 dark:text-gray-400">
+                Current video length: {{ formatDuration(fbVideoData.length) }}
+                <span v-if="fbVideoData.length < 1500" class="text-red-500 ml-1">
+                  (Too short for Big Video - minimum 25 minutes required)
+                </span>
               </div>
             </div>
 
@@ -153,6 +172,17 @@
                   </div>
                   <p class="text-gray-900 dark:text-white font-mono text-sm">{{ fbVideoData.id }}</p>
                 </div>
+
+
+              </div>
+              <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
+                <div class="flex items-center gap-2 mb-1">
+                  <Icon icon="mdi:timer-outline" class="h-4 w-4 text-gray-500" />
+                  <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Video Length</span>
+                </div>
+                <p class="text-gray-900 dark:text-white font-medium">
+                  {{ fbVideoData.length ? formatDuration(fbVideoData.length) : 'N/A' }}
+                </p>
               </div>
             </div>
           </div>
@@ -635,6 +665,12 @@ declare global {
     refreshAllViewsForCreator: () => Promise<void>; // ✅ Add this line
   }
 }
+const formatDuration = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}m ${secs}s`;
+};
+
 
 // ==============================================================================
 // COMPOSABLES & STORES
@@ -657,9 +693,19 @@ const selectedCreator = ref('');
 const isBigVideo = ref('no');
 
 
+
 // Data
 const creators = ref<ICreator[]>([]);
 const staffMembers = ref<Record<string, string>>({});
+
+const handleBigVideoChange = () => {
+  const length = fbVideoData.value?.length || 0;
+
+  if (length < 1500) {
+    isBigVideo.value = 'no';
+    showWarning('Videos shorter than 25 minutes cannot be uploaded as Big Video');
+  }
+};
 
 // ==============================================================================
 // COMPUTED PROPERTIES
@@ -712,7 +758,7 @@ const fetchCreators = async () => {
     // Keep fetching until we get all records
     while (hasMore) {
       console.log(`Fetching creators batch: offset=${offset}, limit=${limit}`);
-      
+
       // Use deep limit to ensure all remarks are fetched for each creator
       const response = await useApi(`/items/creators?fields=*,remarks.*,user_created.*,user_created.department.title&limit=${limit}&offset=${offset}&deep[remarks][_limit]=-1`, {
         method: 'GET'
@@ -720,13 +766,13 @@ const fetchCreators = async () => {
 
       const fetchedData = response.data || [];
       console.log(`Received ${fetchedData.length} creators in this batch`);
-      
+
       // Log remarks count for debugging
       fetchedData.forEach((creator, index) => {
         const remarksCount = creator.remarks?.length || 0;
         console.log(`Creator ${index + 1}: ${remarksCount} remarks`);
       });
-      
+
       allCreators = [...allCreators, ...fetchedData];
 
       // Check if we need to fetch more
@@ -742,11 +788,11 @@ const fetchCreators = async () => {
     }
 
     console.log(`Finished fetching all ${allCreators.length} creators`);
-    
+
     // Log total remarks across all creators
     const totalRemarks = allCreators.reduce((sum, creator) => sum + (creator.remarks?.length || 0), 0);
     console.log(`Total remarks across all creators: ${totalRemarks}`);
-    
+
     creators.value = allCreators;
     await fetchStaffMembers();
 
@@ -771,15 +817,15 @@ const fetchStaffMembers = async () => {
     // Also paginate staff data if needed
     while (hasMoreStaff) {
       console.log(`Fetching staff batch: offset=${staffOffset}, limit=${limit}`);
-      
-      const staffResponse = await useApi(`/users?limit=${limit}&offset=${staffOffset}`, { 
-        method: 'GET' 
+
+      const staffResponse = await useApi(`/users?limit=${limit}&offset=${staffOffset}`, {
+        method: 'GET'
       });
       const staffData = (staffResponse as IResponse<any>).data || [];
-      
+
       console.log(`Received ${staffData.length} staff members in this batch`);
       allStaff = [...allStaff, ...staffData];
-      
+
       hasMoreStaff = staffData.length === limit;
       staffOffset += limit;
 
@@ -915,8 +961,8 @@ const saveVideoRemark = async (videoId: string) => {
     view: fbVideoData.value?.views?.toString() || '0',
     status: 'active',
     creators: parseInt(selectedCreator.value),
-    big_video: isBigVideo.value
-
+    big_video: isBigVideo.value,
+    length_big_video: typeof fbVideoData.value?.length === 'number' ? fbVideoData.value.length : 0,
   };
 
   await useApi('/items/remark_link', {
@@ -976,10 +1022,10 @@ const filterVideosByKpiPeriod = () => {
   const { from, to } = kpiPeriods.value[selectedMonth.value];
   const all = creators.value.find(c => c.id === Number(selectedCreatorId.value))?.remarks || [];
 
-creatorVideos.value = all.filter(video => {
-  const created = new Date(video.date_created);
-  return created >= from && created < to;
-});
+  creatorVideos.value = all.filter(video => {
+    const created = new Date(video.date_created);
+    return created >= from && created < to;
+  });
 };
 
 
@@ -1010,8 +1056,13 @@ const addVideoData = async () => {
 
   const videoId = validateVideoUrl();
   if (!videoId) return;
-
+  const length = fbVideoData.value?.length || 0;
+  if (isBigVideo.value === 'yes' && length < 1500) {
+    showWarning('Videos shorter than 25 minutes cannot be uploaded as Big Video');
+    return;
+  }
   loading.value = true;
+
 
   try {
     // Check for duplicates
@@ -1059,6 +1110,13 @@ const resetForm = () => {
 const selectedPage = ref<'TC' | 'BC' | 'HC'>('TC');
 // Automatically set selectedPage based on department ID
 watchEffect(() => {
+  const length = fbVideoData.value?.length || 0;
+
+  // Prevent "Big Video" selection if video is too short
+  if (isBigVideo.value === 'yes' && length > 0 && length < 1500) {
+    isBigVideo.value = 'no';
+    showWarning('Videos shorter than 25 minutes cannot be marked as Big Video');
+  }
   const departmentId = Number(auth.user?.department?.id);
 
   if (departmentId === 1) {
@@ -1069,7 +1127,11 @@ watchEffect(() => {
     selectedPage.value = 'HC';
   }
 });
-
+// Add a computed property to disable the Big Video option when video is too short:
+const isBigVideoDisabled = computed(() => {
+  const length = fbVideoData.value?.length || 0;
+  return length > 0 && length < 1500;
+});
 const getPageCodeFromCreator = (creator: ICreator): 'TC' | 'BC' | 'HC' => {
   const deptId =
     creator?.user_created?.department?.id ??
@@ -1153,7 +1215,6 @@ const deleteVideo = async (remarkId: string, creatorName: string, videoTitle: st
     loading.value = false;
   }
 };
-
 const editVideo = async (remark: any) => {
   const { value: formValues } = await Swal.fire({
     title: 'Edit Video Data',
@@ -1176,23 +1237,102 @@ const editVideo = async (remark: any) => {
           value="${remark.date_created ? new Date(remark.date_created).toISOString().slice(0, 16) : ''}">
       </div>
       <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Video Length (seconds)</label>
+        <input id="swal-length" type="number" min="0" class="w-full p-2 border rounded" 
+          value="${remark.length_big_video || 0}">
+        <div class="text-xs text-gray-500 mt-1">
+          Current: ${Math.floor((remark.length_big_video || 0) / 60)}m ${Math.floor((remark.length_big_video || 0) % 60)}s
+          ${(remark.length_big_video || 0) < 1500 ? 
+            '<span class="text-red-500">(Less than 25 minutes)</span>' : 
+            '<span class="text-green-500">(25+ minutes - Big Video eligible)</span>'
+          }
+        </div>
+      </div>
+      <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-1">Big Video?</label>
         <select id="swal-bigvideo" class="w-full p-2 border rounded">
           <option value="no" ${remark.big_video === 'no' ? 'selected' : ''}>No</option>
-          <option value="yes" ${remark.big_video === 'yes' ? 'selected' : ''}>Yes</option>
+          <option value="yes" ${remark.big_video === 'yes' ? 'selected' : ''} 
+            ${(remark.length_big_video || 0) < 1500 ? 'disabled' : ''}>
+            Yes ${(remark.length_big_video || 0) < 1500 ? '(Video too short - min 25 minutes)' : ''}
+          </option>
         </select>
       </div>
     `,
     focusConfirm: false,
     showCancelButton: true,
     confirmButtonText: 'Update',
-    preConfirm: () => ({
-      title: (document.getElementById('swal-title') as HTMLInputElement).value,
-      video_link: (document.getElementById('swal-url') as HTMLInputElement).value,
-      view: (document.getElementById('swal-views') as HTMLInputElement).value,
-      date_created: new Date((document.getElementById('swal-date') as HTMLInputElement).value).toISOString(),
-      big_video: (document.getElementById('swal-bigvideo') as HTMLSelectElement).value
-    })
+    didOpen: () => {
+      const selectElement = document.getElementById('swal-bigvideo') as HTMLSelectElement;
+      const lengthInput = document.getElementById('swal-length') as HTMLInputElement;
+      
+      // Function to update Big Video option based on length
+      const updateBigVideoOption = () => {
+        const length = parseInt(lengthInput.value) || 0;
+        const yesOption = selectElement.querySelector('option[value="yes"]') as HTMLOptionElement;
+        
+        if (length < 1500) {
+          yesOption.disabled = true;
+          yesOption.textContent = 'Yes (Video too short - min 25 minutes)';
+          if (selectElement.value === 'yes') {
+            selectElement.value = 'no';
+          }
+        } else {
+          yesOption.disabled = false;
+          yesOption.textContent = 'Yes';
+        }
+        
+        // Update length display
+        const lengthDisplay = lengthInput.parentElement?.querySelector('.text-xs');
+        if (lengthDisplay) {
+          const minutes = Math.floor(length / 60);
+          const seconds = Math.floor(length % 60);
+          lengthDisplay.innerHTML = `
+            Current: ${minutes}m ${seconds}s
+            ${length < 1500 ? 
+              '<span class="text-red-500">(Less than 25 minutes)</span>' : 
+              '<span class="text-green-500">(25+ minutes - Big Video eligible)</span>'
+            }
+          `;
+        }
+      };
+      
+      // Listen for length changes
+      lengthInput.addEventListener('input', updateBigVideoOption);
+      
+      // Listen for Big Video selection changes
+      selectElement.addEventListener('change', (e) => {
+        const target = e.target as HTMLSelectElement;
+        const videoLength = parseInt(lengthInput.value) || 0;
+        
+        if (target.value === 'yes' && videoLength < 1500) {
+          target.value = 'no';
+          Swal.showValidationMessage('Videos shorter than 25 minutes cannot be marked as Big Video');
+          setTimeout(() => {
+            Swal.resetValidationMessage();
+          }, 3000);
+        }
+      });
+    },
+    preConfirm: () => {
+      const bigVideoValue = (document.getElementById('swal-bigvideo') as HTMLSelectElement).value;
+      const videoLength = parseInt((document.getElementById('swal-length') as HTMLInputElement).value) || 0;
+      
+      // Final validation before submitting
+      if (bigVideoValue === 'yes' && videoLength < 1500) {
+        Swal.showValidationMessage('Videos shorter than 25 minutes cannot be marked as Big Video');
+        return false;
+      }
+      
+      return {
+        title: (document.getElementById('swal-title') as HTMLInputElement).value,
+        video_link: (document.getElementById('swal-url') as HTMLInputElement).value,
+        view: (document.getElementById('swal-views') as HTMLInputElement).value,
+        date_created: new Date((document.getElementById('swal-date') as HTMLInputElement).value).toISOString(),
+        big_video: bigVideoValue,
+        length_big_video: videoLength
+      };
+    }
   });
 
   if (formValues) {
@@ -1200,8 +1340,6 @@ const editVideo = async (remark: any) => {
   }
   return false;
 };
-
-
 // ==============================================================================
 // MODAL & UI FUNCTIONS
 // ==============================================================================

@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
   try {
     const response = await $fetch(`https://graph.facebook.com/v22.0/${videoId}`, {
       params: {
-        fields: 'id,title,views,post_views,created_time,post_id',
+        fields: 'id,title,views,post_views,created_time,post_id,length',
         access_token: pageConfig.accessToken
       }
     });

@@ -9,6 +9,7 @@ export interface IRemark {
   creators: number;
   date_created: string;
   big_video: string;
+  length_big_video: number;
 }
 
 export interface ICreator {

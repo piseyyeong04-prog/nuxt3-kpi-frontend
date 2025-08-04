@@ -9,4 +9,6 @@ export interface FacebookVideoData {
     thumbnailUrl: string;
     created_time: string;
     createdTime: string;
+    length?: number; // ✅ Add this line
+
   }
