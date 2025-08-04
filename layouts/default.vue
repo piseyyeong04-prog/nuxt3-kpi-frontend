@@ -532,9 +532,9 @@ const menuItems: MenuItem[] = [
   },
   // Interview tracking
   {
-    to: '/dashboard/interview-tracking',
+    to: '/dashboard/researcher-tracking',
     icon: 'mdi:account-search',
-    label: { en: 'Interview Tracking', km: 'ការតាមដានសម្ភាសន៍' }
+    label: { en: 'Researcher Tracking', km: 'ការតាមដានអ្នកស្រាវជ្រាវ' }
   },
   // Booking Book and camera as submenu
   {
