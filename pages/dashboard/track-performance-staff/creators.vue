@@ -1215,6 +1215,7 @@ const deleteVideo = async (remarkId: string, creatorName: string, videoTitle: st
     loading.value = false;
   }
 };
+
 const editVideo = async (remark: any) => {
   const { value: formValues } = await Swal.fire({
     title: 'Edit Video Data',
@@ -1239,7 +1240,7 @@ const editVideo = async (remark: any) => {
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-1">Video Length (seconds)</label>
         <input id="swal-length" type="number" min="0" class="w-full p-2 border rounded" 
-          value="${remark.length_big_video || 0}">
+          value="${remark.length_big_video || 0}" disabled>
         <div class="text-xs text-gray-500 mt-1">
           Current: ${Math.floor((remark.length_big_video || 0) / 60)}m ${Math.floor((remark.length_big_video || 0) % 60)}s
           ${(remark.length_big_video || 0) < 1500 ? 
@@ -1264,46 +1265,11 @@ const editVideo = async (remark: any) => {
     confirmButtonText: 'Update',
     didOpen: () => {
       const selectElement = document.getElementById('swal-bigvideo') as HTMLSelectElement;
-      const lengthInput = document.getElementById('swal-length') as HTMLInputElement;
-      
-      // Function to update Big Video option based on length
-      const updateBigVideoOption = () => {
-        const length = parseInt(lengthInput.value) || 0;
-        const yesOption = selectElement.querySelector('option[value="yes"]') as HTMLOptionElement;
-        
-        if (length < 1500) {
-          yesOption.disabled = true;
-          yesOption.textContent = 'Yes (Video too short - min 25 minutes)';
-          if (selectElement.value === 'yes') {
-            selectElement.value = 'no';
-          }
-        } else {
-          yesOption.disabled = false;
-          yesOption.textContent = 'Yes';
-        }
-        
-        // Update length display
-        const lengthDisplay = lengthInput.parentElement?.querySelector('.text-xs');
-        if (lengthDisplay) {
-          const minutes = Math.floor(length / 60);
-          const seconds = Math.floor(length % 60);
-          lengthDisplay.innerHTML = `
-            Current: ${minutes}m ${seconds}s
-            ${length < 1500 ? 
-              '<span class="text-red-500">(Less than 25 minutes)</span>' : 
-              '<span class="text-green-500">(25+ minutes - Big Video eligible)</span>'
-            }
-          `;
-        }
-      };
-      
-      // Listen for length changes
-      lengthInput.addEventListener('input', updateBigVideoOption);
+      const videoLength = remark.length_big_video || 0;
       
       // Listen for Big Video selection changes
       selectElement.addEventListener('change', (e) => {
         const target = e.target as HTMLSelectElement;
-        const videoLength = parseInt(lengthInput.value) || 0;
         
         if (target.value === 'yes' && videoLength < 1500) {
           target.value = 'no';
@@ -1316,7 +1282,7 @@ const editVideo = async (remark: any) => {
     },
     preConfirm: () => {
       const bigVideoValue = (document.getElementById('swal-bigvideo') as HTMLSelectElement).value;
-      const videoLength = parseInt((document.getElementById('swal-length') as HTMLInputElement).value) || 0;
+      const videoLength = remark.length_big_video || 0;
       
       // Final validation before submitting
       if (bigVideoValue === 'yes' && videoLength < 1500) {
@@ -1329,8 +1295,7 @@ const editVideo = async (remark: any) => {
         video_link: (document.getElementById('swal-url') as HTMLInputElement).value,
         view: (document.getElementById('swal-views') as HTMLInputElement).value,
         date_created: new Date((document.getElementById('swal-date') as HTMLInputElement).value).toISOString(),
-        big_video: bigVideoValue,
-        length_big_video: videoLength
+        big_video: bigVideoValue
       };
     }
   });
