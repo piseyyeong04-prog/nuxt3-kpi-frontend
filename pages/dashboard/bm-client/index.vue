@@ -1012,15 +1012,51 @@ watch([searchQuery, selectedUser, perPage], () => {
     currentPage.value = 1;
 });
 
-// Load clients function remains the same
+// Load clients function with proper pagination
+const loading = ref(false);
 const loadClients = async () => {
+    loading.value = true; // Add loading state if you have it
     try {
-        const res = await useApi<IResponse<Client[]>>('/items/bm_client?limit=2000000&filter[status]=published&fields=*,user_created.first_name,user_created.last_name,user_created.avatar,user_created.id', {
-            method: 'GET'
-        });
-        clients.value = res.data || [];
+        let allClients: Client[] = [];
+        let offset = 0;
+        const limit = 100;
+        let hasMore = true;
+
+        console.log('Starting to fetch clients...');
+
+        // Keep fetching until we get all records
+        while (hasMore) {
+            console.log(`Fetching clients batch: offset=${offset}, limit=${limit}`);
+            
+            const response = await useApi<IResponse<Client[]>>(`/items/bm_client?fields=*,user_created.first_name,user_created.last_name,user_created.avatar,user_created.id&filter[status]=published&limit=${limit}&offset=${offset}`, {
+                method: 'GET'
+            });
+
+            const fetchedData = response.data || [];
+            console.log(`Received ${fetchedData.length} clients in this batch`);
+            
+            allClients = [...allClients, ...fetchedData];
+
+            // Check if we need to fetch more
+            hasMore = fetchedData.length === limit;
+            offset += limit;
+
+            console.log(`Total clients so far: ${allClients.length}, hasMore: ${hasMore}`);
+
+            // Optional: Add a small delay to prevent overwhelming the server
+            if (hasMore) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+        }
+
+        console.log(`Finished fetching all ${allClients.length} clients`);
+        clients.value = allClients;
+
     } catch (err) {
         console.error('Failed to load clients:', err);
+        showNotification('Failed to load client data', 'error');
+    } finally {
+        loading.value = false; // Add loading state if you have it
     }
 };
 
