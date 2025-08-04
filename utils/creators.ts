@@ -257,3 +257,91 @@ export const filterRemarksByKpiMonth = (
     return created >= start && created <= end
   });
 };
+
+
+// =========================
+
+
+
+
+// Global state for KPI filtering
+const globalSelectedMonth = ref('current')
+const globalKpiPeriods = ref<Record<string, { label: string; from: Date; to: Date }>>({})
+
+/**
+ * Get KPI periods from a list of items with date_created
+ */
+/**
+ * Filter remarks by a specific KPI period key
+ */
+export const filterRemarksByKpiPeriod = (
+  remarks: IRemark[],
+  periodKey: string,
+  kpiPeriods: Record<string, { label: string; from: Date; to: Date }>
+): IRemark[] => {
+  if (!remarks || remarks.length === 0) return []
+  
+  const period = kpiPeriods[periodKey]
+  if (!period) return remarks // Return all if period not found
+
+  return remarks.filter(r => {
+    const created = new Date(r.date_created)
+    return created >= period.from && created < period.to
+  })
+}
+
+/**
+ * Initialize KPI periods from all creators' remarks
+ */
+export const initializeKpiPeriods = (creators: ICreator[]) => {
+  const allRemarks = creators.flatMap(creator => creator.remarks || [])
+  
+  if (allRemarks.length === 0) {
+    // Set default current period if no data
+    const now = new Date()
+    let year = now.getFullYear()
+    let month = now.getMonth()
+    
+    // Adjust to previous month if the day is before 24
+    if (now.getDate() < 24) {
+      month -= 1
+      if (month < 0) {
+        month = 11
+        year -= 1
+      }
+    }
+    
+    const from = new Date(year, month, 24, 0, 0, 0, 0)
+    const to = new Date(year, month + 1, 24, 0, 0, 0, 0)
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    const nextMonthIndex = (month + 1) % 12
+    const nextYear = month === 11 ? year + 1 : year
+    const label = `${monthNames[month]} ${year} (24 ${monthNames[month]} - 23 ${monthNames[nextMonthIndex]} ${nextYear})`
+    
+    return {
+      current: { label, from, to }
+    }
+  }
+  
+  return getKpiPeriodsFromCreators(allRemarks)
+}
+
+/**
+ * Get the current KPI period key
+ */
+export const getCurrentKpiPeriodKey = (): string => {
+  const now = new Date()
+  let year = now.getFullYear()
+  let month = now.getMonth()
+  
+  // Adjust to previous month if the day is before 24
+  if (now.getDate() < 24) {
+    month -= 1
+    if (month < 0) {
+      month = 11
+      year -= 1
+    }
+  }
+  
+  return `${year}-${String(month + 1).padStart(2, '0')}`
+}

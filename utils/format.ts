@@ -76,7 +76,7 @@ export const getKpiDateHeaders = () => {
     d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 
   const dateRangeHeader = `${formatDate(from)} - ${formatDate(to)}`;
-  const totalViewsHeader = `Total Views between ${formatDate(from)} and ${formatDate(to)}`;
+  const totalViewsHeader = ` ${formatDate(from)} - ${formatDate(to)}`;
   const monthLabel = from.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }); // e.g., "July 2025"
 
   return { dateRangeHeader, totalViewsHeader, monthLabel };
@@ -96,7 +96,7 @@ export const getMonthlyKpiRange = (month: number, year: number) => {
   const end = new Date(year, month + 1, 23, 23, 59, 59);
 
   const dateRangeHeader = `${start.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} - ${end.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`;
-  const totalViewsHeader = `Total Views between ${dateRangeHeader}`;
+  const totalViewsHeader = `Total Views: ${dateRangeHeader}`;
 
   return { dateRangeHeader, totalViewsHeader, start, end };
 };
