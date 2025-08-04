@@ -351,8 +351,8 @@
                 <!-- <th class="px-4 py-3 text-left">Position</th>
                 <th class="px-4 py-3 text-left">Department</th> -->
                 <th class="px-4 py-3 text-left">Target</th>
-                <th class="px-4 py-3 text-left">Status</th>
-                <th class="px-4 py-3 text-left">{{ dateRangeHeader }}</th>
+                <!-- <th class="px-4 py-3 text-left">Status</th> -->
+                <!-- <th class="px-4 py-3 text-left">{{ dateRangeHeader }}</th> -->
                 <th class="px-4 py-3 text-left">Videos</th>
                 <!-- Big Video -->
                 <th class="px-4 py-3 text-left">Big Videos</th>
@@ -386,10 +386,9 @@
 
                 <!-- <td class="px-4 py-3">{{ creator.user_created?.title || 'N/A' }}</td>
                 <td class="px-4 py-3">{{ creator.user_created?.department?.title || 'N/A' }}</td> -->
-                <td class="px-4 py-3">{{ formatNumber(creator.target) }}</td>
-
                 <td class="px-4 py-3">
-                  <span class="px-2 py-1 rounded-full text-xs" :class="isCompleted({ ...creator, remarks: filterRemarksByKpiMonth(creator.remarks) })
+                  {{ formatNumber(creator.target) }} <br>
+                     <span class="px-2 py-1 rounded-full text-xs" :class="isCompleted({ ...creator, remarks: filterRemarksByKpiMonth(creator.remarks) })
                     ? 'bg-green-100 text-green-800'
                     : 'bg-yellow-100 text-yellow-800'">
                     {{ isCompleted({ ...creator, remarks: filterRemarksByKpiMonth(creator.remarks) })
@@ -398,16 +397,26 @@
                   </span>
                 </td>
 
-                <td class="px-4 py-3 font-medium">
-                  {{ getTotalViews(filterRemarksByKpiMonth(creator.remarks)) }}
-                </td>
+                <!-- <td class="px-4 py-3">
+                  <span class="px-2 py-1 rounded-full text-xs" :class="isCompleted({ ...creator, remarks: filterRemarksByKpiMonth(creator.remarks) })
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-yellow-100 text-yellow-800'">
+                    {{ isCompleted({ ...creator, remarks: filterRemarksByKpiMonth(creator.remarks) })
+                      ? 'Completed'
+                      : 'In Progress' }}
+                  </span>
+                </td> -->
 
-                <td class="px-4 py-3">
+                <!-- <td class="px-4 py-3 font-medium">
+                  {{ getTotalViews(filterRemarksByKpiMonth(creator.remarks)) }}
+                </td> -->
+
+                <td class="px-4 space-y-1 py-3">
                   <button @click="handleRemarkClick(creator)"
-                    class="px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-xs">
+                    class="px-2 py-1 bg-orange-500 text-white rounded text-xs">
                     {{ filterRemarksByKpiMonth(creator.remarks).length }} Videos
-                  </button>
-                  <button @click="viewCreatorVideos(creator)" class="text-blue-600 hover:underline text-xs">
+                  </button> <br>
+                  <button @click="viewCreatorVideos(creator)" class="px-2 py-1 bg-green-500 text-white rounded text-xs">
                     View History
                   </button>
                 </td>
