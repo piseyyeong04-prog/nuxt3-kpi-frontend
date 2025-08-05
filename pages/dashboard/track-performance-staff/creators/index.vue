@@ -1266,7 +1266,6 @@ const deleteVideo = async (remarkId: string, creatorName: string, videoTitle: st
     loading.value = false;
   }
 };
-
 const editVideo = async (remark: any) => {
   const { value: formValues } = await Swal.fire({
     title: 'Edit Video Data',
@@ -1291,14 +1290,18 @@ const editVideo = async (remark: any) => {
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-1">Video Length (seconds)</label>
         <input id="swal-length" type="number" min="0" class="w-full p-2 border rounded" 
-          value="${remark.length_big_video || 0}" disabled>
-        <div class="text-xs text-gray-500 mt-1">
+          value="${remark.length_big_video || 0}" ${auth.user?.role?.name !== 'Administrator' ? 'readonly' : ''}>
+        <div id="length-display" class="text-xs text-gray-500 mt-1">
           Current: ${Math.floor((remark.length_big_video || 0) / 60)}m ${Math.floor((remark.length_big_video || 0) % 60)}s
           ${(remark.length_big_video || 0) < 1500 ?
-        '<span class="text-red-500">(Less than 25 minutes)</span>' :
-        '<span class="text-green-500">(25+ minutes - Big Video eligible)</span>'
-      }
+            '<span class="text-red-500">(Less than 25 minutes)</span>' :
+            '<span class="text-green-500">(25+ minutes - Big Video eligible)</span>'
+          }
         </div>
+        ${auth.user?.role?.name !== 'Administrator' ? 
+          '<div class="text-xs text-orange-600 mt-1">⚠️ Only administrators can update video length</div>' : 
+          '<div class="text-xs text-blue-600 mt-1">✓ You can update the video length as administrator</div>'
+        }
       </div>
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-1">Big Video?</label>
@@ -1306,7 +1309,7 @@ const editVideo = async (remark: any) => {
           <option value="no" ${remark.big_video === 'no' ? 'selected' : ''}>No</option>
           <option value="yes" ${remark.big_video === 'yes' ? 'selected' : ''} 
             ${(remark.length_big_video || 0) < 1500 ? 'disabled' : ''}>
-            Yes ${(remark.length_big_video || 0) < 1500 ? '(Video too short - min 25 minutes)' : ''}
+            Yes${(remark.length_big_video || 0) < 1500 ? ' (Video too short - min 25 minutes)' : ''}
           </option>
         </select>
       </div>
@@ -1317,35 +1320,66 @@ const editVideo = async (remark: any) => {
           <option value="yes" ${remark.impact_video === 'yes' ? 'selected' : ''}>Yes</option>
         </select>
       </div>
-
     `,
     focusConfirm: false,
     showCancelButton: true,
     confirmButtonText: 'Update',
     didOpen: () => {
-      const selectElement = document.getElementById('swal-bigvideo') as HTMLSelectElement;
-      const videoLength = remark.length_big_video || 0;
+      const lengthInput = document.getElementById('swal-length') as HTMLInputElement;
+      const bigVideoSelect = document.getElementById('swal-bigvideo') as HTMLSelectElement;
+      const lengthDisplay = document.getElementById('length-display') as HTMLDivElement;
 
-      // Listen for Big Video selection changes
-      selectElement.addEventListener('change', (e) => {
-        const target = e.target as HTMLSelectElement;
-
-        if (target.value === 'yes' && videoLength < 1500) {
-          target.value = 'no';
-          Swal.showValidationMessage('Videos shorter than 25 minutes cannot be marked as Big Video');
-          setTimeout(() => {
-            Swal.resetValidationMessage();
-          }, 3000);
+      // Function to update display and big video options
+      const updateVideoStatus = (length: number) => {
+        // Update length display
+        const minutes = Math.floor(length / 60);
+        const seconds = Math.floor(length % 60);
+        
+        const statusText = length < 1500 ? 
+          '<span class="text-red-500">(Less than 25 minutes)</span>' :
+          '<span class="text-green-500">(25+ minutes - Big Video eligible)</span>';
+          
+        lengthDisplay.innerHTML = `Current: ${minutes}m ${seconds}s ${statusText}`;
+        
+        // Update Big Video select options
+        const yesOption = bigVideoSelect.querySelector('option[value="yes"]') as HTMLOptionElement;
+        
+        if (length < 1500) {
+          // Disable "Yes" option and update text
+          yesOption.disabled = true;
+          yesOption.textContent = 'Yes (Video too short - min 25 minutes)';
+          
+          // Force selection to "No" if currently "Yes"
+          if (bigVideoSelect.value === 'yes') {
+            bigVideoSelect.value = 'no';
+          }
+        } else {
+          // Enable "Yes" option and clean text
+          yesOption.disabled = false;
+          yesOption.textContent = 'Yes';
         }
-      });
+      };
+
+      // Listen for length changes (only if admin)
+      if (auth.user?.role?.name === 'Administrator') {
+        lengthInput.addEventListener('input', (e) => {
+          const target = e.target as HTMLInputElement;
+          const length = parseInt(target.value) || 0;
+          updateVideoStatus(length);
+        });
+      }
+
+      // Initialize on modal open
+      const initialLength = parseInt(lengthInput.value) || 0;
+      updateVideoStatus(initialLength);
     },
     preConfirm: () => {
+      const lengthValue = parseInt((document.getElementById('swal-length') as HTMLInputElement).value) || 0;
       const bigVideoValue = (document.getElementById('swal-bigvideo') as HTMLSelectElement).value;
-      const impactVideoValue = (document.getElementById('swal-impactvideo') as HTMLSelectElement).value; // Add this
-      const videoLength = remark.length_big_video || 0;
+      const impactVideoValue = (document.getElementById('swal-impactvideo') as HTMLSelectElement).value;
 
-      // Final validation before submitting
-      if (bigVideoValue === 'yes' && videoLength < 1500) {
+      // Final validation
+      if (bigVideoValue === 'yes' && lengthValue < 1500) {
         Swal.showValidationMessage('Videos shorter than 25 minutes cannot be marked as Big Video');
         return false;
       }
@@ -1355,8 +1389,9 @@ const editVideo = async (remark: any) => {
         video_link: (document.getElementById('swal-url') as HTMLInputElement).value,
         view: (document.getElementById('swal-views') as HTMLInputElement).value,
         date_created: new Date((document.getElementById('swal-date') as HTMLInputElement).value).toISOString(),
+        length_big_video: auth.user?.role?.name === 'Administrator' ? lengthValue : remark.length_big_video, // Only update if admin
         big_video: bigVideoValue,
-        impact_video: impactVideoValue // Add this line
+        impact_video: impactVideoValue
       };
     }
   });
