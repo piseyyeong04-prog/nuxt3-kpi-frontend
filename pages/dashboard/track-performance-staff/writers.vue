@@ -340,10 +340,10 @@
                   <th scope="col" class="py-4 px-6">{{ dateRangeHeader }}</th>
                   <th scope="col" class="py-4 px-6">Articles</th>
                   <!-- impact article -->
-                  <th scope="col" class="py-4 px-6 text-center">Impact Articles</th>
+                  <!-- <th scope="col" class="py-4 px-6 text-center">Impact Articles</th> -->
 
 
-                  <th scope="col" class="py-4 px-6">{{ totalViewsHeader }}</th>
+                  <!-- <th scope="col" class="py-4 px-6">{{ totalViewsHeader }}</th> -->
                   <th scope="col" class="py-4 px-6">Progress</th>
                 </tr>
               </thead>
@@ -396,9 +396,9 @@
                   </td>
                   <!-- Show Impact articles count and total views -->
                   <!-- Formatted Views (KPI period) -->
-                  <td class="py-4 px-6 font-medium dark:text-white">
+                  <!-- <td class="py-4 px-6 font-medium dark:text-white">
                     {{ formatTotalViews(getTotalViews(getRemarksInCurrentPeriod(creator))) }}
-                  </td>
+                  </td> -->
 
                   <!-- Progress Bar -->
                   <td class="py-4 px-6 w-40 dark:text-white">
@@ -1598,7 +1598,7 @@ const fetchCreators = async () => {
       console.log(`Fetching creators batch: offset=${offset}, limit=${limit}`);
 
       // Use deep limit to ensure all remarks are fetched for each creator
-      const response = await useApi(`/items/writers?fields=*,remarks.*,user_created.*,user_created.department.title&limit=${limit}&offset=${offset}&deep[remarks][_limit]=-1`, {
+      const response = await useApi(`/items/writers?filter[status]=published&fields=*,remarks.*,user_created.*,user_created.department.title&limit=${limit}&offset=${offset}&deep[remarks][_limit]=-1`, {
         method: 'GET'
       }) as IResponse<IWriter[]>;
 
