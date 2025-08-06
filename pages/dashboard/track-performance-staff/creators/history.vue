@@ -280,16 +280,18 @@
                   {{ formatTotalViews(getBigVideoViews(creator.remarks || [])) }}
                 </td>
 
-                <td class="px-4 py-3 font-medium">
-                  {{ formatTotalViews(getTotalViews(creator.remarks || [])) }}
-                </td>
+               
                  <td class="px-4 py-3 font-medium">
                   {{ countImpactVideos(creator.remarks || []) }}
                 </td>
-
-                <td class="px-4 py-3 font-medium">
+                  <td class="px-4 py-3 font-medium">
                   {{ formatTotalViews(getImpactVideoViews(creator.remarks || [])) }}
                 </td>
+                 <td class="px-4 py-3 font-medium">
+                  {{ formatTotalViews(getTotalViews(creator.remarks || [])) }}
+                </td>
+
+             
 
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2">
