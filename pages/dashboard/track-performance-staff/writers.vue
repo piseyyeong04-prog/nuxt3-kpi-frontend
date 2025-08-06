@@ -339,6 +339,9 @@
                   <th scope="col" class="py-4 px-6">Status</th>
                   <th scope="col" class="py-4 px-6">{{ dateRangeHeader }}</th>
                   <th scope="col" class="py-4 px-6">Articles</th>
+                  <th scope="col" class="py-4 px-6 text-center">Impact Articles</th>
+                  <th scope="col" class="py-4 px-6 text-center">Impact Views</th>
+
                   <!-- impact article -->
                   <!-- <th scope="col" class="py-4 px-6 text-center">Impact Articles</th> -->
 
@@ -394,11 +397,29 @@
                       <Icon icon="game-icons:click" width="24" height="24" />
                     </button>
                   </td>
-                  <!-- Show Impact articles count and total views -->
-                  <!-- Formatted Views (KPI period) -->
-                  <!-- <td class="py-4 px-6 font-medium dark:text-white">
-                    {{ formatTotalViews(getTotalViews(getRemarksInCurrentPeriod(creator))) }}
-                  </td> -->
+
+                  <!-- Impact Articles Count -->
+                  <td class="py-4 px-6 text-center">
+                    <div class="flex flex-col items-center">
+                      <span class="text-lg font-bold text-purple-600 dark:text-purple-400">
+                        {{ getImpactArticlesCountInPeriod(getRemarksInCurrentPeriod(creator)) }}
+                      </span>
+                      <span class="text-xs text-gray-500 dark:text-gray-400">
+                        of {{ getRemarksInCurrentPeriod(creator).length }}
+                      </span>
+                    </div>
+                  </td>
+
+                  <!-- Impact Articles Views -->
+                  <td class="py-4 px-6 text-center">
+                    <div class="flex flex-col items-center">
+                      <span class="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                        {{ formatNumber(getImpactArticlesViewsInPeriod(getRemarksInCurrentPeriod(creator))) }}
+                      </span>
+                      <span class="text-xs text-gray-500 dark:text-gray-400">views</span>
+                    </div>
+                  </td>
+
 
                   <!-- Progress Bar -->
                   <td class="py-4 px-6 w-40 dark:text-white">
@@ -423,6 +444,7 @@
       </div>
     </div>
   </div>
+
   <div v-if="showArticlesModal" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
       <!-- Background overlay -->
@@ -445,53 +467,80 @@
                 <button @click="closeArticlesModal" class="text-gray-400 hover:text-gray-500 focus:outline-none">
                   <Icon icon="heroicons:x-mark" class="h-6 w-6" />
                 </button>
-
               </div>
+
               <!-- Generate Report Button in Articles Modal -->
-              <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+              <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse mb-4">
                 <button type="button" @click="generateReport"
                   class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 sm:ml-3 sm:w-auto sm:text-sm">
                   <Icon icon="heroicons:document-text" class="h-5 w-5 mr-2" />
                   Generate Report
                 </button>
-                <!-- <button type="button" @click="closeArticlesModal"
-                  class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                  Close
-                </button> -->
               </div>
-              <div class="py-2">
+
+              <!-- Period Selection -->
+              <div class="py-2 mb-4">
                 <select v-model="selectedMonth" @change="filterArticlesByKpiPeriod"
                   class="rounded-md text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
                   <option v-for="(period, key) in kpiPeriods" :key="key" :value="key">{{ period.label }}</option>
                 </select>
               </div>
-              <!-- KPI Monthly Summary -->
-              <div class="mb-4 mt-2 px-1 text-sm text-gray-700 dark:text-gray-300">
-                <p><strong>Total Views:</strong> {{ formatNumber(getPeriodViews(writerArticles).toString()) }}</p>
-                <p><strong>Total Articles:</strong> {{ writerArticles.length }}</p>
-                <p>
+
+              <!-- Enhanced KPI Summary with Impact Articles -->
+              <div class="mb-6 grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <!-- Total Views -->
+                <div class="text-center">
+                  <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                    {{ formatNumber(getPeriodViews(writerArticles).toString()) }}
+                  </div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">Total Views</div>
+                </div>
+
+                <!-- Total Articles -->
+                <div class="text-center">
+                  <div class="text-2xl font-bold text-green-600 dark:text-green-400">
+                    {{ writerArticles.length }}
+                  </div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">Total Articles</div>
+                </div>
+
+                <!-- Impact Articles Count -->
+                <div class="text-center">
+                  <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                    {{ getImpactArticlesCountInPeriod(writerArticles) }}
+                  </div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">Impact Articles</div>
+                </div>
+
+                <!-- Impact Articles Views -->
+                <div class="text-center">
+                  <div class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                    {{ formatNumber(getImpactArticlesViewsInPeriod(writerArticles)) }}
+                  </div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">Impact Views</div>
+                </div>
+              </div>
+
+              <!-- Status and Progress -->
+              <div class="mb-4 px-1 text-sm text-gray-700 dark:text-gray-300 flex justify-between items-center">
+                <div>
                   <strong>Status:</strong>
                   <span v-if="getPeriodViews(writerArticles) >= selectedWriterTarget"
-                    class="text-green-600 font-semibold">
-                    Completed
+                    class="text-green-600 font-semibold ml-1">
+                    ✅ Target Achieved
                   </span>
-                  <span v-else class="text-yellow-600 font-semibold">
-                    In Progress
+                  <span v-else class="text-yellow-600 font-semibold ml-1">
+                    ⏳ In Progress ({{ Math.round((getPeriodViews(writerArticles) / selectedWriterTarget) * 100) }}%)
                   </span>
-                </p>
-              </div>
-              <div>
+                </div>
+
+                <!-- Refresh Button -->
                 <button @click="refreshVisibleArticles"
-                  class=" text-sm px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md shadow-sm disabled:opacity-50"
+                  class="text-sm px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md shadow-sm disabled:opacity-50 flex items-center gap-2"
                   :disabled="globalRefreshLoading">
-                  <span v-if="globalRefreshLoading" class="flex items-center gap-2">
-                    <Icon icon="line-md:loading-twotone-loop" class="h-4 w-4" />
-                    Refreshing...
-                  </span>
-                  <span v-else class="flex items-center gap-2">
-                    <Icon icon="ion:refresh-circle" class="h-4 w-4" />
-                    Reload Visible Articles
-                  </span>
+                  <Icon v-if="globalRefreshLoading" icon="line-md:loading-twotone-loop" class="h-4 w-4" />
+                  <Icon v-else icon="ion:refresh-circle" class="h-4 w-4" />
+                  {{ globalRefreshLoading ? 'Refreshing...' : 'Reload Views' }}
                 </button>
               </div>
 
@@ -508,10 +557,6 @@
                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Title
                       </th>
-                      <!-- <th
-                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        URL
-                      </th> -->
                       <th
                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Views
@@ -528,68 +573,68 @@
                   </thead>
                   <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     <tr v-if="writerArticles.length === 0">
-                      <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                      <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                         No articles found for this writer.
                       </td>
                     </tr>
                     <tr v-for="article in writerArticles" :key="article.id"
-                      class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                      class="hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                      :class="article.impact_article === 'yes' ? 'bg-purple-50 dark:bg-purple-900/20' : ''">
+
                       <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
                         {{ formatDate(article.date_created) || 'Untitled Date' }}
                       </td>
+
                       <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
-                        {{ article.title || 'Untitled Article' }}
-                        <a :href="article.article_link" target="_blank"
-                          class="text-blue-600 dark:text-blue-400 hover:underline truncate block max-w-xs">
-                          {{ article.article_link }}
-                        </a>
+                        <div class="flex items-start gap-2">
+                          <!-- Impact Article Badge -->
+                          <Icon v-if="article.impact_article === 'yes'" icon="mdi:star-circle"
+                            class="h-5 w-5 text-purple-500 flex-shrink-0 mt-0.5" title="Impact Article" />
+                          <div class="flex-1">
+                            {{ article.title || 'Untitled Article' }}
+                            <a :href="article.article_link" target="_blank"
+                              class="text-blue-600 dark:text-blue-400 hover:underline truncate block max-w-xs text-xs mt-1">
+                              {{ article.article_link }}
+                            </a>
+                          </div>
+                        </div>
                       </td>
-                      <!-- <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                       
-                      </td> -->
-                      <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+
+                      <td class="px-6 py-4 text-sm font-semibold" :class="article.impact_article === 'yes'
+                        ? 'text-purple-600 dark:text-purple-400'
+                        : 'text-gray-500 dark:text-gray-400'">
                         {{ formatNumber(article.view || 0) }}
                       </td>
-                      <!-- New column: Impact Article -->
+
+                      <!-- Type Column with Enhanced Styling -->
                       <td class="px-6 py-4 text-sm">
-                        <span :class="article.impact_article === 'yes'
-                          ? 'text-indigo-600 font-semibold'
-                          : 'text-gray-400 dark:text-gray-500'">
-                          {{ article.impact_article === 'yes' ? 'Impact' : 'Simple' }}
+                        <span v-if="article.impact_article === 'yes'"
+                          class="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                          <Icon icon="mdi:star-circle" class="h-3 w-3" />
+                          Impact
+                        </span>
+                        <span v-else
+                          class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">
+                          <Icon icon="mdi:article" class="h-3 w-3" />
+                          Simple
                         </span>
                       </td>
+
                       <!-- Actions -->
                       <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <!-- <button @click="refreshArticleViews(article.id)"
-                          class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
-                          :disabled="article.isRefreshing">
-                          <span v-if="article.isRefreshing" class="flex items-center">
-                            <Icon icon="line-md:loading-twotone-loop" class="h-4 w-4 mr-1" />
-                            Refreshing...
-                          </span>
-                          <span v-else class="flex items-center">
-                            <Icon icon="ion:refresh-circle" class="h-4 w-4 mr-1" />
-                            Refresh Views
-                          </span>
-                        </button> -->
-                        <button @click="editArticle(article)"
-                          class="text-amber-600 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-300 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors">
-                          <span class="flex items-center">
-                            <Icon icon="heroicons:pencil-square" class="h-4 w-4 mr-1" />
-                            Edit
-                          </span>
-                        </button>
-                        <button @click="confirmDeleteArticle(article.id)"
-                          class="text-rose-600 dark:text-rose-400 hover:text-rose-900 dark:hover:text-rose-300 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-900/30 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors">
-                          <span class="flex items-center">
-                            <Icon icon="heroicons:trash" class="h-4 w-4 mr-1" />
-                            Delete
-                          </span>
-                        </button>
+                        <div class="flex gap-2 justify-end">
+                          <button @click="editArticle(article)"
+                            class="text-amber-600 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-300 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors">
+                            <Icon icon="heroicons:pencil-square" class="h-4 w-4" />
+                          </button>
+                          <button @click="confirmDeleteArticle(article.id)"
+                            class="text-rose-600 dark:text-rose-400 hover:text-rose-900 dark:hover:text-rose-300 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-900/30 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors">
+                            <Icon icon="heroicons:trash" class="h-4 w-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   </tbody>
-
                 </table>
               </div>
             </div>
@@ -712,6 +757,7 @@
       </div>
     </div>
   </div>
+
   <!-- Report Modal -->
   <div v-if="showReportModal" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
     <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -1945,7 +1991,22 @@ const refreshAllArticles = async () => {
     globalRefreshLoading.value = false;
   }
 };
+// ================== Impact Article =================
+const getImpactArticlesCountInPeriod = (remarks: IRemark[]): number => {
+  return remarks.filter(remark => remark.impact_article === 'yes').length;
+};
 
+// Helper function to get total views from impact articles in current period
+const getImpactArticlesViewsInPeriod = (remarks: IRemark[]): string => {
+  const impactRemarks = remarks.filter(remark => remark.impact_article === 'yes');
+  let total = 0;
+  impactRemarks.forEach(remark => {
+    if (remark.view) {
+      total += parseInt(remark.view);
+    }
+  });
+  return total.toString();
+};
 
 
 // ================= Edit article =================
@@ -2003,24 +2064,42 @@ const updateArticle = async () => {
         title: editForm.value.title,
         article_link: editForm.value.article_link,
         view: editForm.value.view,
-        impact_article: editForm.value.impact_article,
+        impact_article: editForm.value.impact_article, // ✅ Make sure this is included
       }
     });
 
-    // Update local state
+    // ✅ Update local state in writerArticles (modal data)
     const articleIndex = writerArticles.value.findIndex(a => a.id === editForm.value.id);
     if (articleIndex !== -1) {
       writerArticles.value[articleIndex] = {
         ...writerArticles.value[articleIndex],
         title: editForm.value.title,
         article_link: editForm.value.article_link,
-        view: editForm.value.view
-
+        view: String(editForm.value.view), // ✅ Convert to string
+        impact_article: editForm.value.impact_article
       };
     }
 
-    // Refresh creators to update counts/metrics
-    await fetchCreators();
+    // ✅ Update the creators data as well (main table data)
+    if (selectedWriterId.value !== null) {
+      const creatorIndex = creators.value.findIndex(c => c.id === selectedWriterId.value);
+      if (creatorIndex !== -1) {
+        const creator = creators.value[creatorIndex];
+        const remarkIndex = creator.remarks?.findIndex(r => r.id === editForm.value.id);
+        if (remarkIndex !== -1 && creator.remarks) {
+          creator.remarks[remarkIndex] = {
+            ...creator.remarks[remarkIndex],
+            title: editForm.value.title,
+            article_link: editForm.value.article_link,
+            view: String(editForm.value.view), // ✅ Convert to string
+            impact_article: editForm.value.impact_article
+          };
+        }
+      }
+    }
+
+    // ✅ Re-filter the articles based on current KPI period to ensure counts are updated
+    filterArticlesByKpiPeriod();
 
     // Show success notification
     Swal.fire({
@@ -2034,6 +2113,10 @@ const updateArticle = async () => {
 
     // Close the modal
     closeEditModal();
+
+    // ✅ Optional: Refresh creators data in background to ensure everything is in sync
+    // You can comment this out if the local updates work correctly
+    // await fetchCreators();
 
   } catch (error: any) {
     console.error('Failed to update article:', error);
@@ -2547,7 +2630,8 @@ onMounted(async () => {
   font-family: 'Noto Sans Khmer', sans-serif;
 }
 
-#report-content td, #report-content th {
+#report-content td,
+#report-content th {
   white-space: pre-wrap;
   word-break: break-word;
   font-feature-settings: "kern", "liga", "clig", "calt";
