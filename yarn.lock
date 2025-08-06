@@ -5718,6 +5718,11 @@ jspdf-autotable@^5.0.2:
   resolved "https://registry.yarnpkg.com/jspdf-autotable/-/jspdf-autotable-5.0.2.tgz#bcf7aa2ff9eb46a2db6aa8c0407ab86c0a6c7b96"
   integrity sha512-YNKeB7qmx3pxOLcNeoqAv3qTS7KuvVwkFe5AduCawpop3NOkBUtqDToxNc225MlNecxT4kP2Zy3z/y/yvGdXUQ==
 
+jspdf-font@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/jspdf-font/-/jspdf-font-1.0.7.tgz#11433c473a05a5538a87f1be951be0fbcda969cf"
+  integrity sha512-9EAiTHGuvmczxmuFg9f19+YEVVfkBmUXny1ZpcQy1HRVGaQocd363nD3WOktW18Dj//fth45jFLGc0gukIaxoQ==
+
 jspdf@^3.0.0, jspdf@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/jspdf/-/jspdf-3.0.1.tgz#d81e1964f354f60412516eb2449ea2cccd4d2a3b"
