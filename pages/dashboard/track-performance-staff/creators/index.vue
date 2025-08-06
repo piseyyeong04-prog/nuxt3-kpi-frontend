@@ -1,4 +1,4 @@
-<!-- pages/dashboard/track-performance-staff/creators.vue -->
+<!-- pages/dashboard/track-performance-staff/creators/index.vue -->
 <template>
   <div class="min-h-screen p-6">
     <div class="max-w-6xl mx-auto space-y-6">
