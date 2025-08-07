@@ -1,16 +1,14 @@
 <template>
   <VitePwaManifest />
   <NuxtLoadingIndicator color="#089cf4" />
-   <!-- Pull to Refresh Wrapper -->
-  <PullToRefresh 
-    :on-refresh="handleRefresh"
-    @refresh-start="onRefreshStart"
-    @refresh-end="onRefreshEnd"
-  >
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
-  </PullToRefresh>
+  <!-- Pull to Refresh Wrapper -->
+  <!-- <PullToRefresh :on-refresh="handleRefresh" @refresh-start="onRefreshStart" @refresh-end="onRefreshEnd">
+  </PullToRefresh>  -->
+
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
+
 </template>
 
 <script setup lang="ts">
@@ -24,14 +22,14 @@ const { isInstallPromptAvailable, promptInstall } = usePwaInstallPrompt()
 // Pull to refresh handler
 const handleRefresh = async () => {
   console.log('Refreshing app...')
-  
+
   // Option 1: Full page reload (simplest)
   window.location.reload()
-  
+
   // Option 2: Refresh current route data (more elegant)
   // await refreshCookie()
   // await navigateTo(useRoute().path, { replace: true })
-  
+
   // Option 3: Custom refresh logic based on current page
   // const route = useRoute()
   // if (route.name === 'dashboard') {
