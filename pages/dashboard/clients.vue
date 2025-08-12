@@ -80,6 +80,7 @@
           <tr class="bg-gray-100 dark:bg-gray-800">
             <th class="text-left p-4">Name</th>
             <th class="text-left p-4">Phone</th>
+            <th class="text-left p-4">Link Contact</th>
             <th class="text-left p-4">Category</th>
             <th class="text-left p-4">Contact Person</th>
             <th class="text-left p-4">Status</th>
@@ -98,29 +99,71 @@
               <span v-html="highlightSearchTerm(client.phone_number)"></span>
             </td>
             <td class="p-4">
+              <div v-if="client.facebook_link">
+                <a :href="safeLink(client.facebook_link)" target="_blank" rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 underline"
+                  :title="client.facebook_link">
+                  Click link
+                  <Icon icon="mdi:open-in-new" class="w-4 h-4" />
+                </a>
+              </div>
+              <span v-else class="text-gray-500">Not specified</span>
+            </td>
+
+            <td class="p-4">
               <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm"
                 v-html="highlightSearchTerm(client.category?.name || 'Uncategorized')">
               </span>
             </td>
             <td class="p-4">
-              <div v-if="client.contact_person" class="flex items-center gap-2">
-                <div v-if="client.contact_person.avatar" class="w-8 h-8 rounded-full overflow-hidden">
-                  <img :src="useImg(client.contact_person.avatar)" :alt="`${client.contact_person.first_name} avatar`"
-                    class="w-10 h-10 object-cover" />
+              <!-- Show either/both: contact person + sale -->
+              <div v-if="client.contact_person || client.sale" class="flex flex-col gap-3">
+                <!-- Contact person -->
+                <div v-if="client.contact_person" class="flex items-center gap-2">
+                  <div v-if="client.contact_person.avatar" class="w-8 h-8 rounded-full overflow-hidden">
+                    <img :src="useImg(client.contact_person.avatar)" :alt="`${client.contact_person.first_name} avatar`"
+                      class="w-10 h-10 object-cover" />
+                  </div>
+                  <div v-else
+                    class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    <Icon icon="mdi:account" class="text-gray-500" />
+                  </div>
+                  <div>
+                    <p class="font-medium">
+                      <span v-html="highlightSearchTerm(client.contact_person.first_name)"></span>
+                      <span v-html="highlightSearchTerm(client.contact_person.last_name)"></span>
+                    </p>
+                    <p class="text-sm text-gray-500" v-html="highlightSearchTerm(client.contact_person.email)"></p>
+                  </div>
                 </div>
-                <div v-else class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                  <Icon icon="mdi:account" class="text-gray-500" />
-                </div>
-                <div>
-                  <p>
-                    <span v-html="highlightSearchTerm(client.contact_person.first_name)"></span>
-                    <span v-html="highlightSearchTerm(client.contact_person.last_name)"></span>
-                  </p>
-                  <p class="text-sm text-gray-500" v-html="highlightSearchTerm(client.contact_person.email)"></p>
+
+                <!-- Sale (under contact person) -->
+                <div v-if="client.sale" class="flex items-center gap-2">
+                  <div v-if="client.sale.avatar" class="w-8 h-8 rounded-full overflow-hidden">
+                    <img :src="useImg(client.sale.avatar)" :alt="`${client.sale.first_name} avatar`"
+                      class="w-10 h-10 object-cover" />
+                  </div>
+                  <div v-else
+                    class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    <Icon icon="mdi:account-tie" class="text-gray-500" />
+                  </div>
+                  <div>
+                    <p class="text-sm">
+                      <span class="text-gray-500 mr-1">Sale:</span>
+                      <span class="font-medium space-x-1">
+                        <span v-html="highlightSearchTerm(client.sale.first_name)"></span>
+                        <span v-html="highlightSearchTerm(client.sale.last_name)"></span>
+                      </span>
+                    </p>
+                  </div>
                 </div>
               </div>
+
+              <!-- Neither contact nor sale -->
               <span v-else class="text-gray-500">Not specified</span>
             </td>
+
+
             <td class="p-4">
               <span>
                 {{ formatStatusText(client.status) }}
@@ -274,7 +317,8 @@
                   <div v-for="(category, index) in filteredCategories" :key="category.id" :class="{
                     'bg-blue-50': index === highlightedIndex,
                     'hover:bg-gray-50': index !== highlightedIndex
-                  }" class="px-3 py-2 cursor-pointer flex items-center justify-between border-b border-gray-100 last:border-b-0"
+                  }"
+                    class="px-3 py-2 cursor-pointer flex items-center justify-between border-b border-gray-100 last:border-b-0"
                     @click="selectCategory(category)">
                     <span>{{ category.name }}</span>
                     <Icon icon="mdi:check" class="w-4 h-4 text-green-500" v-if="form.category === category.id" />
@@ -284,7 +328,8 @@
                   <div v-if="categorySearch.trim() && !categoryExists && !creatingCategory" :class="{
                     'bg-blue-50': highlightedIndex === filteredCategories.length,
                     'hover:bg-gray-50': highlightedIndex !== filteredCategories.length
-                  }" class="px-3 py-2 cursor-pointer flex items-center gap-2 text-green-600 font-medium border-t border-gray-200"
+                  }"
+                    class="px-3 py-2 cursor-pointer flex items-center gap-2 text-green-600 font-medium border-t border-gray-200"
                     @click="createNewCategory">
                     <Icon icon="mdi:plus" class="w-4 h-4" />
                     <span>Add "{{ categorySearch.trim() }}" as new category</span>
@@ -326,6 +371,17 @@
                 </option>
               </select>
             </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Sale</label>
+              <select v-model="form.sale"
+                class="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                <option value="">Select sale person</option>
+                <option v-for="saleUser in sales" :key="saleUser.id" :value="saleUser.id">
+                  {{ saleUser.first_name }} {{ saleUser.last_name }}
+                </option>
+              </select>
+            </div>
+
           </div>
 
           <div class="flex justify-end gap-3">
@@ -387,7 +443,20 @@ const page = ref(1)
 const limit = ref(50)
 const totalClients = ref(0)
 const searchQuery = ref('')
+const sales = ref<any[]>([])
 const searchTimeout = ref<NodeJS.Timeout | null>(null)
+
+const safeLink = (url: string) => {
+  if (!url) return '#'
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`
+}
+const linkHost = (url: string) => {
+  try {
+    return new URL(safeLink(url)).hostname.replace(/^www\./, '')
+  } catch {
+    return 'Open link'
+  }
+}
 
 // Modal and form state - MOVED BEFORE category search state
 const showModal = ref(false)
@@ -399,7 +468,8 @@ const form = ref({
   facebook_link: '',
   status: 'active',
   category: '',
-  contact_person: ''
+  contact_person: '',
+  sale: ''
 })
 
 // Category search state - MOVED AFTER form initialization
@@ -413,7 +483,7 @@ const filteredCategories = computed(() => {
   if (!categorySearch.value.trim()) {
     return categories.value
   }
-  
+
   return categories.value.filter(category =>
     category.name.toLowerCase().includes(categorySearch.value.toLowerCase())
   )
@@ -540,7 +610,7 @@ const selectCategory = (category: ICategory) => {
 
 const navigateCategories = (direction: number) => {
   const maxIndex = filteredCategories.value.length + (categorySearch.value.trim() && !categoryExists.value ? 0 : -1)
-  
+
   if (direction === 1) {
     highlightedIndex.value = highlightedIndex.value < maxIndex ? highlightedIndex.value + 1 : 0
   } else {
@@ -558,30 +628,30 @@ const selectOrCreateCategory = () => {
 
 const createNewCategory = async () => {
   if (!categorySearch.value.trim() || creatingCategory.value) return
-  
+
   try {
     creatingCategory.value = true
-    
+
     const newCategoryData = {
       name: categorySearch.value.trim(),
       status: 'published'
     }
-    
+
     const response = await useApi<{ data: ICategory }>('/items/category', {
       method: 'POST',
       data: newCategoryData
     })
-    
+
     if (response?.data) {
       // Add new category to the list
       categories.value.push(response.data)
-      
+
       // Select the new category
       form.value.category = response.data.id
       categorySearch.value = response.data.name
       showCategoryDropdown.value = false
       highlightedIndex.value = -1
-      
+
       // Show success message
       Swal.fire({
         title: 'Success',
@@ -593,9 +663,9 @@ const createNewCategory = async () => {
     }
   } catch (error) {
     console.error('Error creating category:', error)
-    
+
     const errorMessage = error?.response?.data?.errors?.[0]?.message || 'Failed to create category. Please try again.'
-    
+
     Swal.fire({
       title: 'Error',
       text: errorMessage,
@@ -638,12 +708,33 @@ const loadClients = async () => {
     // Build API query with proper offset calculation
     const offset = (page.value - 1) * limit.value
     let query = `/items/clients?sort=-date_created&limit=${limit.value}&offset=${offset}`
-    query += '&fields=id,status,user_created,date_created,name,phone_number,facebook_link'
-    query += ',contact_person.id,contact_person.first_name,contact_person.last_name,contact_person.email,contact_person.avatar'
-    query += ',category.id,category.status,category.name'
+
+    // ✅ Build fields first (include sale.*), then add meta
+    const fields = [
+      'id',
+      'status',
+      'user_created',
+      'date_created',
+      'name',
+      'phone_number',
+      'facebook_link',
+      'contact_person.id',
+      'contact_person.first_name',
+      'contact_person.last_name',
+      'contact_person.email',
+      'contact_person.avatar',
+      'category.id',
+      'category.status',
+      'category.name',
+      'sale.id',
+      'sale.first_name',
+      'sale.last_name',
+      'sale.avatar',
+    ]
+    query += `&fields=${fields.join(',')}`
     query += '&meta=total_count' // Important: request total count for pagination
 
-    // Enhanced search - search Name, Phone, Category, Contact Person
+    // Enhanced search - search Name, Phone, Category, Contact Person, Sale
     if (searchQuery.value.trim()) {
       const searchTerm = encodeURIComponent(searchQuery.value.trim())
       query += `&filter[_or][0][name][_icontains]=${searchTerm}`
@@ -652,6 +743,8 @@ const loadClients = async () => {
       query += `&filter[_or][3][contact_person][first_name][_icontains]=${searchTerm}`
       query += `&filter[_or][4][contact_person][last_name][_icontains]=${searchTerm}`
       query += `&filter[_or][5][contact_person][email][_icontains]=${searchTerm}`
+      query += `&filter[_or][6][sale][first_name][_icontains]=${searchTerm}`
+      query += `&filter[_or][7][sale][last_name][_icontains]=${searchTerm}`
     }
 
     const response = await useApi<{ data: IClient[]; meta?: { total_count: number } }>(query, {
@@ -666,13 +759,12 @@ const loadClients = async () => {
       const maxPage = Math.ceil(totalClients.value / limit.value) || 1
       if (page.value > maxPage) {
         page.value = maxPage
-        // Don't reload here to avoid infinite loop, the pagination will be corrected
+        // Don't reload here to avoid infinite loop; pagination will correct on next render
       }
     }
   } catch (error) {
     console.error('Error loading clients:', error)
 
-    // More specific error handling
     const errorMessage = error?.response?.data?.errors?.[0]?.message || 'Failed to load clients. Please try again.'
 
     Swal.fire({
@@ -691,6 +783,7 @@ const loadClients = async () => {
     loading.value = false
   }
 }
+
 
 // Load other data functions
 const loadCategories = async () => {
@@ -722,6 +815,22 @@ const loadContacts = async () => {
     }
   } catch (error) {
     console.error('Error loading contacts:', error)
+  }
+}
+// load sale
+const loadSales = async () => {
+  try {
+    const saleRoleId = 'a7b9388a-9f74-4a0d-afd4-741f0f488ec2'
+
+    const response = await useApi<{ data: any[] }>(`/users?filter[status]=active&fields=id,first_name,last_name,role.name&sort=first_name&filter[_or][0][role][_eq]=${saleRoleId}`, {
+      method: 'GET',
+    })
+
+    if (response?.data) {
+      sales.value = response.data
+    }
+  } catch (error) {
+    console.error('Error loading sales:', error)
   }
 }
 
@@ -759,7 +868,8 @@ const openCreateModal = () => {
     facebook_link: '',
     status: 'active',
     category: '',
-    contact_person: ''
+    contact_person: '',
+    sale: '',
   }
   // Reset category search
   categorySearch.value = ''
@@ -777,7 +887,8 @@ const openEditModal = (client: IClient) => {
     facebook_link: client.facebook_link || '',
     status: client.status,
     category: client.category?.id || '',
-    contact_person: client.contact_person?.id || ''
+    contact_person: client.contact_person?.id || '',
+    sale: client.sale?.id || ''
   }
   // Set category search to selected category name
   if (client.category?.name) {
@@ -785,10 +896,10 @@ const openEditModal = (client: IClient) => {
   } else {
     categorySearch.value = ''
   }
-  
+
   showCategoryDropdown.value = false
   highlightedIndex.value = -1
-  
+
   showModal.value = true
 }
 
@@ -811,7 +922,8 @@ const submitForm = async () => {
       facebook_link: form.value.facebook_link?.trim() || null,
       status: form.value.status,
       category: form.value.category || null,
-      contact_person: form.value.contact_person || null
+      contact_person: form.value.contact_person || null,
+      sale: form.value.sale || null // ✅ send sale to API
     }
 
     if (isEditing.value) {
@@ -939,10 +1051,11 @@ watch(searchQuery, (newValue, oldValue) => {
 // Add event listener for click outside
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
-  
+
   // Load all data
   Promise.all([
     loadClients(),
+    loadSales(),
     loadCategories(),
     loadContacts(),
     loadStatusOptions()
@@ -951,7 +1064,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
-  
+
   if (searchTimeout.value) {
     clearTimeout(searchTimeout.value)
   }
