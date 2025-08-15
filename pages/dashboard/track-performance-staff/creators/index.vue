@@ -92,7 +92,7 @@
                   ]">
                     <Icon icon="mdi:video-high-definition" class="h-5 w-5" />
                     <span class="font-medium">Big Video</span>
-                    <span v-if="isBigVideoDisabled" class="text-xs text-red-500 ml-1">(25min+ required)</span>
+                    <span v-if="isBigVideoDisabled" class="text-xs text-red-500 ml-1">({{ Math.floor(minBigVideoLength / 60) }}min+ required)</span>
                   </div>
                 </label>
               </div>
@@ -100,8 +100,8 @@
               <!-- Show video length info if available -->
               <div v-if="fbVideoData?.length" class="text-xs text-gray-500 dark:text-gray-400">
                 Current video length: {{ formatDuration(fbVideoData.length) }}
-                <span v-if="fbVideoData.length < 1500" class="text-red-500 ml-1">
-                  (Too short for Big Video - minimum 25 minutes required)
+                <span v-if="fbVideoData.length < minBigVideoLength" class="text-red-500 ml-1">
+                  (Too short for Big Video - minimum {{ Math.floor(minBigVideoLength / 60) }} minutes required)
                 </span>
               </div>
             </div>
@@ -820,6 +820,25 @@ const isImpactVideo = ref('no');
 const creators = ref<ICreator[]>([]);
 const staffMembers = ref<Record<string, string>>({});
 
+// ==============================================================================
+// COMPUTED PROPERTIES - Add this new computed property
+// ==============================================================================
+const selectedCreatorData = computed(() => {
+  return creatorsList.value.find(c => c.id === parseInt(selectedCreator.value));
+});
+
+const minBigVideoLength = computed(() => {
+  return selectedCreatorData.value?.min_big_video_lenght || 1500; // fallback to 1500
+});
+
+// ==============================================================================
+// MODIFIED COMPUTED PROPERTY
+// ==============================================================================
+const isBigVideoDisabled = computed(() => {
+  const length = fbVideoData.value?.length || 0;
+  return length > 0 && length < minBigVideoLength.value;
+});
+
 const handleBigVideoChange = () => {
   const length = fbVideoData.value?.length || 0;
 
@@ -1179,9 +1198,9 @@ const addVideoData = async () => {
 
   const videoId = validateVideoUrl();
   if (!videoId) return;
-  const length = fbVideoData.value?.length || 0;
-  if (isBigVideo.value === 'yes' && length < 1500) {
-    showWarning('Videos shorter than 25 minutes cannot be uploaded as Big Video');
+   const length = fbVideoData.value?.length || 0;
+  if (isBigVideo.value === 'yes' && length < minBigVideoLength.value) {
+    showWarning(`Videos shorter than ${Math.floor(minBigVideoLength.value / 60)} minutes cannot be uploaded as Big Video`);
     return;
   }
   loading.value = true;
@@ -1236,11 +1255,11 @@ const selectedPage = ref<'TC' | 'BC' | 'HC'>('TC');
 watchEffect(() => {
   const length = fbVideoData.value?.length || 0;
 
-  // Prevent "Big Video" selection if video is too short
-  if (isBigVideo.value === 'yes' && length > 0 && length < 1500) {
-    isBigVideo.value = 'no';
-    showWarning('Videos shorter than 25 minutes cannot be marked as Big Video');
-  }
+  // // Prevent "Big Video" selection if video is too short
+  // if (isBigVideo.value === 'yes' && length > 0 && length < 1500) {
+  //   isBigVideo.value = 'no';
+  //   showWarning('Videos shorter than 25 minutes cannot be marked as Big Video');
+  // }
   const departmentId = Number(auth.user?.department?.id);
 
   if (departmentId === 1) {
@@ -1252,10 +1271,10 @@ watchEffect(() => {
   }
 });
 // Add a computed property to disable the Big Video option when video is too short:
-const isBigVideoDisabled = computed(() => {
-  const length = fbVideoData.value?.length || 0;
-  return length > 0 && length < 1500;
-});
+// const isBigVideoDisabled = computed(() => {
+//   const length = fbVideoData.value?.length || 0;
+//   return length > 0 && length < 1500;
+// });
 const getPageCodeFromCreator = (creator: ICreator): 'TC' | 'BC' | 'HC' => {
   const deptId =
     creator?.user_created?.department?.id ??
@@ -1340,6 +1359,12 @@ const deleteVideo = async (remarkId: string, creatorName: string, videoTitle: st
   }
 };
 const editVideo = async (remark: any) => {
+  // Get the creator for this remark to get their min_big_video_lenght
+  const remarkCreator = creatorsList.value.find(c => 
+    c.remarks?.some(r => r.id === remark.id)
+  );
+  const minLength = remarkCreator?.min_big_video_lenght || 1500;
+
   const { value: formValues } = await Swal.fire({
     title: 'Edit Video Data',
     html: `
@@ -1366,9 +1391,9 @@ const editVideo = async (remark: any) => {
           value="${remark.length_big_video || 0}" ${auth.user?.role?.name !== 'Administrator' ? 'readonly' : ''}>
         <div id="length-display" class="text-xs text-gray-500 mt-1">
           Current: ${Math.floor((remark.length_big_video || 0) / 60)}m ${Math.floor((remark.length_big_video || 0) % 60)}s
-          ${(remark.length_big_video || 0) < 1500 ?
-            '<span class="text-red-500">(Less than 25 minutes)</span>' :
-            '<span class="text-green-500">(25+ minutes - Big Video eligible)</span>'
+          ${(remark.length_big_video || 0) < minLength ?
+            `<span class="text-red-500">(Less than ${Math.floor(minLength / 60)} minutes)</span>` :
+            `<span class="text-green-500">(${Math.floor(minLength / 60)}+ minutes - Big Video eligible)</span>`
           }
         </div>
         ${auth.user?.role?.name !== 'Administrator' ? 
@@ -1381,8 +1406,8 @@ const editVideo = async (remark: any) => {
         <select id="swal-bigvideo" class="w-full p-2 border rounded">
           <option value="no" ${remark.big_video === 'no' ? 'selected' : ''}>No</option>
           <option value="yes" ${remark.big_video === 'yes' ? 'selected' : ''} 
-            ${(remark.length_big_video || 0) < 1500 ? 'disabled' : ''}>
-            Yes${(remark.length_big_video || 0) < 1500 ? ' (Video too short - min 25 minutes)' : ''}
+            ${(remark.length_big_video || 0) < minLength ? 'disabled' : ''}>
+            Yes${(remark.length_big_video || 0) < minLength ? ` (Video too short - min ${Math.floor(minLength / 60)} minutes)` : ''}
           </option>
         </select>
       </div>
@@ -1408,19 +1433,19 @@ const editVideo = async (remark: any) => {
         const minutes = Math.floor(length / 60);
         const seconds = Math.floor(length % 60);
         
-        const statusText = length < 1500 ? 
-          '<span class="text-red-500">(Less than 25 minutes)</span>' :
-          '<span class="text-green-500">(25+ minutes - Big Video eligible)</span>';
+        const statusText = length < minLength ? 
+          `<span class="text-red-500">(Less than ${Math.floor(minLength / 60)} minutes)</span>` :
+          `<span class="text-green-500">(${Math.floor(minLength / 60)}+ minutes - Big Video eligible)</span>`;
           
         lengthDisplay.innerHTML = `Current: ${minutes}m ${seconds}s ${statusText}`;
         
         // Update Big Video select options
         const yesOption = bigVideoSelect.querySelector('option[value="yes"]') as HTMLOptionElement;
         
-        if (length < 1500) {
+        if (length < minLength) {
           // Disable "Yes" option and update text
           yesOption.disabled = true;
-          yesOption.textContent = 'Yes (Video too short - min 25 minutes)';
+          yesOption.textContent = `Yes (Video too short - min ${Math.floor(minLength / 60)} minutes)`;
           
           // Force selection to "No" if currently "Yes"
           if (bigVideoSelect.value === 'yes') {
@@ -1452,8 +1477,8 @@ const editVideo = async (remark: any) => {
       const impactVideoValue = (document.getElementById('swal-impactvideo') as HTMLSelectElement).value;
 
       // Final validation
-      if (bigVideoValue === 'yes' && lengthValue < 1500) {
-        Swal.showValidationMessage('Videos shorter than 25 minutes cannot be marked as Big Video');
+      if (bigVideoValue === 'yes' && lengthValue < minLength) {
+        Swal.showValidationMessage(`Videos shorter than ${Math.floor(minLength / 60)} minutes cannot be marked as Big Video`);
         return false;
       }
 
@@ -1462,7 +1487,7 @@ const editVideo = async (remark: any) => {
         video_link: (document.getElementById('swal-url') as HTMLInputElement).value,
         view: (document.getElementById('swal-views') as HTMLInputElement).value,
         date_created: new Date((document.getElementById('swal-date') as HTMLInputElement).value).toISOString(),
-        length_big_video: auth.user?.role?.name === 'Administrator' ? lengthValue : remark.length_big_video, // Only update if admin
+        length_big_video: auth.user?.role?.name === 'Administrator' ? lengthValue : remark.length_big_video,
         big_video: bigVideoValue,
         impact_video: impactVideoValue
       };

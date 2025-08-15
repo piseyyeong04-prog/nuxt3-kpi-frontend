@@ -34,6 +34,7 @@ export interface ICreator {
     
   };
   note?: string;
+  min_big_video_lenght: number;
 }
 
 /**
