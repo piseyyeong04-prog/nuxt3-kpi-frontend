@@ -190,7 +190,7 @@ const fetchAdvertisements = async () => {
   try {
     const response = await $fetch<AdvertisementsResponse>(`${API_BASE_URL_BC}/items/advertisements`, {
       params: {
-        'filter[status][_eq]': 'published',
+        'filter[status]': 'published',
         fields: 'name,file,slug',
         // Add caching parameters if supported by the API
         // timestamp: Date.now() // Use only if API doesn't support proper cache headers

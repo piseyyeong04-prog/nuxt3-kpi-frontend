@@ -104,14 +104,14 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <div class="bg-white p-4 rounded-lg shadow border border-gray-100">
           <div class="text-sm text-gray-500 mb-1">Total Impressions</div>
-          <div class="text-2xl font-bold text-gray-800">{{ sumImpressions.toLocaleString() }}</div>
+          <div class="text-2xl font-bold text-gray-800">{{ sumImpressions }}</div>
           <div class="mt-2 h-1 w-full bg-gray-200">
             <div class="h-1 bg-green-500" style="width: 100%"></div>
           </div>
         </div>
         <div class="bg-white p-4 rounded-lg shadow border border-gray-100">
           <div class="text-sm text-gray-500 mb-1">Total Clicks</div>
-          <div class="text-2xl font-bold text-gray-800">{{ sumClicks.toLocaleString() }}</div>
+          <div class="text-2xl font-bold text-gray-800">{{ sumClicks }}</div>
           <div class="mt-2 h-1 w-full bg-gray-200">
             <div class="h-1 bg-blue-500" style="width: 100%"></div>
           </div>
@@ -158,17 +158,17 @@
             <tr v-for="record in advertisementViews" :key="record.date" class="hover:bg-gray-50">
               <td class="px-6 py-4 whitespace-nowrap">{{ formatDate(record.date) }}</td>
               <td class="px-6 py-4 whitespace-nowrap">
-                {{ record.impressions.toLocaleString() }}
+                {{ record.impressions }}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap">{{ record.ad_clicks.toLocaleString() }}</td>
+              <td class="px-6 py-4 whitespace-nowrap">{{ record.ad_clicks }}</td>
               <td class="px-6 py-4 whitespace-nowrap">
                 {{ ((record.ad_clicks / record.impressions) * 100).toFixed(2) }}%
               </td>
             </tr>
             <tr class="bg-gray-100 font-semibold">
               <td colspan="1" class="px-6 py-4 text-right">Total:</td>
-              <td class="px-6 py-4">{{ sumImpressions.toLocaleString() }}</td>
-              <td class="px-6 py-4">{{ sumClicks.toLocaleString() }}</td>
+              <td class="px-6 py-4">{{ sumImpressions }}</td>
+              <td class="px-6 py-4">{{ sumClicks }}</td>
               <td class="px-6 py-4">
                 {{ sumClicks && sumImpressions ? ((sumClicks / sumImpressions) * 100).toFixed(2) : '0.00' }}%
               </td>
