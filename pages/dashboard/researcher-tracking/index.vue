@@ -67,6 +67,12 @@
                         <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
                             Contact Tasks
                         </th>
+                        <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
+                            User Created
+                        </th>
+                         <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
+                            Interview Status
+                        </th>
 
                         <th scope="col" class="px-6 py-3 bg-green-600 text-white font-medium">
                             Actions
@@ -112,7 +118,7 @@
                                 </template>
                             </div>
                         </td>
-                        <td class="px-6 py-4">
+                        <!-- <td class="px-6 py-4">
                             <div class="space-y-1">
                                 <template v-if="business.contact_task && business.contact_task.length > 0">
                                     <span v-for="(task, index) in business.contact_task" :key="index"
@@ -122,6 +128,35 @@
                                 </template>
                                 <span v-else class="text-gray-400 italic text-xs">No tasks</span>
                             </div>
+                        </td> -->
+                        <td class="px-6 py-4">
+                            <div class="space-y-1">
+                                {{ business.task || "No Task" }}
+                            </div>
+                        </td>
+                        <!-- show user_created -->
+                        <td class="px-6 py-4  ">
+                            <div class="space-y-1 text-center text-xs">
+                                {{ business?.user_created?.first_name  }} {{ business?.user_created?.last_name }}
+                            </div>
+                            <div class="space-y-1 flex items-center justify-center">
+                                <img :src="useImg(business?.user_created?.avatar)" class="w-8 h-8 rounded-full" alt="">
+                            </div>
+                            
+                        </td>
+                       
+                        <td class="px-6 py-4">
+                            <span v-if="business.interview_status" 
+                                :class="{
+                                    'bg-yellow-100 text-yellow-800': business.interview_status === 'កំពុងទាក់ទង',
+                                    'bg-blue-100 text-blue-800': business.interview_status === 'បានទាក់ទងតែមិនទាន់បានសម្ភាសន៍',
+                                    'bg-red-100 text-red-800': business.interview_status === 'លុបចោលការសម្ភាសន៍',
+                                    'bg-green-100 text-green-800': business.interview_status === 'បានសម្ភាសន៍រួច'
+                                }"
+                                class="px-2 py-1 text-xs font-semibold rounded-full">
+                                {{ business.interview_status }}
+                            </span>
+                            <span v-else class="text-gray-400 italic text-xs">No status</span>
                         </td>
 
                         <td class="px-6 py-4">
@@ -208,6 +243,18 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Owner Name *</label>
                                     <input v-model="formData.owner_name" required type="text"
                                         class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Interview Status</label>
+                                    <select v-model="formData.interview_status"
+                                            class="w-full px-3 py-2 border rounded-md focus:ring-green-500 focus:border-green-500">
+                                        <option value="">Select Status</option>
+                                        <option v-for="option in interviewStatusOptions" 
+                                                :key="option.value" 
+                                                :value="option.value">
+                                            {{ option.label }}
+                                        </option>
+                                    </select>
                                 </div>
 
                                 <div>
@@ -355,6 +402,7 @@ interface InterviewTracking {
     task?: string | null
     industry?: string | null
     reference?: string | null
+    interview_status?: string | null
     contact_links?: ContactLink[]
     contact_task?: ContactTask[]
     interview_by?: {
@@ -402,6 +450,12 @@ const formData = ref<InterviewTracking>({
 
 const currentEditId = ref<number | null>(null)
 
+const interviewStatusOptions = [
+    { value: 'កំពុងទាក់ទង', label: 'កំពុងទាក់ទង' },
+    { value: 'បានទាក់ទងតែមិនទាន់បានសម្ភាសន៍', label: 'បានទាក់ទងតែមិនទាន់បានសម្ភាសន៍' },
+    { value: 'លុបចោលការសម្ភាសន៍', label: 'លុបចោលការសម្ភាសន៍' },
+    { value: 'បានសម្ភាសន៍រួច', label: 'បានសម្ភាសន៍រួច' }
+]
 // Computed properties for search and pagination
 const filteredBusinesses = computed(() => {
     if (!searchQuery.value.trim()) {
@@ -505,7 +559,7 @@ const fetchUsers = async () => {
 const fetchBusinesses = async () => {
     loading.value = true
     try {
-        const response = await useApi(`/items/interview_tracking?filter[status]=published&fields=*,contact_links.name,interview_by.id,interview_by.first_name,interview_by.last_name,interview_by.title,contact_task.name&sort=-date_created`, {
+        const response = await useApi(`/items/interview_tracking?filter[status]=published&fields=*,user_created.first_name,user_created.last_name,user_created.avatar,contact_links.name,interview_by.id,interview_by.first_name,interview_by.last_name,interview_by.title,contact_task.name&sort=-date_created`, {
             method: 'GET'
         }) as IResponse<any>
 
@@ -520,12 +574,12 @@ const fetchBusinesses = async () => {
 const createBusiness = async (data: InterviewTracking) => {
     try {
         console.log('Creating business with data:', data);
-        
+
         const response = await useApi('/items/interview_tracking', {
             method: 'POST',
             data: data
         })
-        
+
         console.log('Create response:', response);
         await fetchBusinesses()
     } catch (error: any) {
@@ -577,6 +631,7 @@ const openCreateModal = () => {
         task: null,
         industry: null,
         reference: null,
+        interview_status: null,
         contact_links: [],
         contact_task: [] // Initialize empty array
     }
@@ -591,6 +646,7 @@ const openEditModal = (business: InterviewTracking) => {
         checked: business.checked || ['no'], // Ensure checked is always an array
         contact_links: business.contact_links || [],
         contact_task: business.contact_task || [],
+        interview_status: business.interview_status || null,
         interview_by: typeof business.interview_by === 'object' && business.interview_by?.id
             ? business.interview_by.id
             : business.interview_by || ''
@@ -617,6 +673,7 @@ const submitForm = async () => {
             reference: formData.value.reference || null,
             task: formData.value.task || null,
             remark: formData.value.remark || null,
+            interview_status: formData.value.interview_status || null,
             // Only include these if they have data
             ...(formData.value.contact_links && formData.value.contact_links.length > 0 && {
                 contact_links: formData.value.contact_links.filter(link => link.name && link.name.trim() !== '')
@@ -641,14 +698,14 @@ const submitForm = async () => {
         closeModal()
     } catch (error: any) {
         console.error('Error submitting form:', error)
-        
+
         // More detailed error logging
         if (error.response) {
             console.error('Error response data:', error.response.data)
             console.error('Error response status:', error.response.status)
             console.error('Error response headers:', error.response.headers)
         }
-        
+
         Swal.fire({
             icon: 'error',
             title: 'Error',
