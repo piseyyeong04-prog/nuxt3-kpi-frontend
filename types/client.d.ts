@@ -5,7 +5,22 @@ export interface IClient {
   status: string;
   sort: number | null;
   date_created: string;
-  user_created: string;
+  user_updated: {
+    id: string;
+    first_name: string;
+    last_name: string;
+  };
+  user_created: {
+    id: string;
+    first_name: string;
+    last_name: string;
+  };
+  sale:{
+    id: string;
+    first_name: string;
+    last_name: string;
+    avatar: string;
+  }
   date_updated: string | null;
   name: string;
   phone_number: string;
@@ -19,8 +34,12 @@ export interface IClient {
     date_created: string,
     user_created: string,
     avatar: string ,
-
-
   }  // Ensure contact_person is an object with an id or null
+  researcher?:{
+    id: string ,
+    first_name: string,
+    last_name: string,
+    avatar: string ,
+  }
   category: ICategory;
 }
