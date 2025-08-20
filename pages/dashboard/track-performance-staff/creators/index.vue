@@ -377,7 +377,7 @@
 
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
-            <thead class="bg-gray-50 dark:bg-gray-700">
+            <thead class="bg-gray-50 dark:bg-gray-700 dark:text-light">
               <tr>
                 <th class="px-4 py-3 text-left">Name</th>
                 <!-- <th class="px-4 py-3 text-left">Position</th>
@@ -397,10 +397,10 @@
             </thead>
             <tbody>
               <tr v-for="creator in creatorsList" :key="creator.id"
-                class="border-b hover:bg-gray-50 dark:hover:bg-gray-700">
+                class="border-b hover:bg-gray-50 dark:hover:bg-dark dark:text-light">
 
                 <td class="px-4 py-3 -medium">
-                  <p class="font-medium">
+                  <p class="font-medium dark:text-gray-200">
                     {{ getUserName(creator.staff) || (auth.user?.first_name + ' ' + auth.user?.last_name) }}
 
                   </p>
@@ -419,7 +419,7 @@
 
                 <!-- <td class="px-4 py-3">{{ creator.user_created?.title || 'N/A' }}</td>
                 <td class="px-4 py-3">{{ creator.user_created?.department?.title || 'N/A' }}</td> -->
-                <td class="px-4 py-3">
+                <td class="px-4 py-3 dark:text-gray-200">
                   {{ formatNumber(creator.target) }} <br>
                   <span class="px-2 py-1 rounded-full text-xs" :class="isCompleted({ ...creator, remarks: filterRemarksByKpiMonth(creator.remarks) })
                     ? 'bg-green-100 text-green-800'
@@ -446,15 +446,15 @@
 
                 <td class="px-4 space-y-1 py-3">
                   <button @click="handleRemarkClick(creator)"
-                    class="px-2 py-1 bg-orange-500 text-white rounded text-xs">
+                    class="px-2 py-1 bg-orange-500 text-white dark:bg-orange-800 rounded text-xs">
                     {{ filterRemarksByKpiMonth(creator.remarks).length }} Videos
                   </button> <br>
-                  <button @click="viewCreatorVideos(creator)" class="px-2 py-1 bg-green-500 text-white rounded text-xs">
+                  <button @click="viewCreatorVideos(creator)" class="px-2 py-1 bg-green-500 dark:bg-green-800 text-white rounded text-xs">
                     View History
                   </button>
                 </td>
 
-                <td class="px-4 py-3 font-medium">
+                <td class="px-4 py-3 font-medium ">
                   {{ countBigVideos(filterRemarksByKpiMonth(creator.remarks)) }}
                 </td>
 

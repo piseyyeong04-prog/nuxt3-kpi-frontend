@@ -226,7 +226,7 @@
         </div>
 
         <div class="overflow-x-auto">
-          <table class="w-full text-sm">
+          <table class="w-full text-sm dark:text-light">
             <thead class="bg-gray-50 dark:bg-gray-700">
               <tr>
                 <th class="px-4 py-3 text-left">Name</th>
@@ -290,9 +290,6 @@
                  <td class="px-4 py-3 font-medium">
                   {{ formatTotalViews(getTotalViews(creator.remarks || [])) }}
                 </td>
-
-             
-
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2">
                     <div class="flex-1 bg-gray-200 rounded-full h-2">
@@ -704,7 +701,7 @@ const handleRemarkClick = (creator: ICreator) => {
   Swal.fire({
     title: `Videos for ${creatorName} - ${currentPeriodLabel.value}`,
     html: remarksList,
-    width: '900px',
+    width: '1500px',
     showConfirmButton: false,
     showCloseButton: true
   });
@@ -724,61 +721,101 @@ const createRemarksHtml = (remarks: any[], creatorName: string) => {
         🔄 Refresh All Views
       </button>
     </div>
-    ${sortedRemarks.map(r => `
-      <div class="mb-4 p-3 border-b border-gray-200 dark:border-gray-700">
-        <div class="md:flex justify-between items-start gap-4">
-          <div class="flex-1">
-            <p class="font-bold text-gray-900 dark:text-white">${r.title}</p>
-            <p class="text-sm break-words mt-1">
-              <a href="${r.video_link}" target="_blank" class="text-blue-600 hover:underline">
-                ${r.video_link}
-              </a>
-            </p>
-            <p class="mt-2 text-sm text-gray-800 dark:text-gray-300">
-              <b>Views:</b> ${formatNumber(r.view)}
-            </p>
-            <p class="mt-1 text-sm text-gray-800 dark:text-gray-300">
-              <b>Created:</b> ${formatDate(r.date_created)}
-            </p>
-            
-            <!-- Video Type Badges -->
-            <div class="mt-2 flex items-center justify-center gap-2">
-              ${r.big_video === 'yes'
-      ? `<span class="inline-block bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">
-                     Big Video
-                   </span>`
-      : ''}
-              ${r.impact_video === 'yes'
-      ? `<span class="inline-block bg-orange-100 text-orange-800 text-xs font-medium px-2 py-1 rounded-full">
-                     Impact Video
-                   </span>`
-      : ''}
-            </div>
-            
-            <p class="text-xs mt-2 text-gray-600 dark:text-gray-400">
-              <b>Status:</b> 
-              <span class="${r.status === 'active' ? 'text-green-600' : 'text-red-600'}">
-                ${r.status}
-              </span>
-            </p>
-          </div>
-          <div class="flex flex-col space-y-2 mt-4 md:mt-0">
-            <button onclick="window.editRemark('${r.id}')" 
-              class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm">
-              Edit
-            </button>
-            <button onclick="window.deleteRemark('${r.id}', '${creatorName}', '${r.title.replace(/'/g, "\\'")}')" 
-              class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm">
-              Delete
-            </button>
-            <button onclick="window.refreshViewCount('${r.id}')" 
-              class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm">
-              Refresh View
-            </button>
-          </div>
-        </div>
-      </div>
-    `).join('')}
+    
+    <div class="overflow-x-auto max-h-96 overflow-y-auto">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="bg-gray-50 dark:bg-gray-800 sticky top-0">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              No.
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Title
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Views
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Big Video
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Impact Video
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Length
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Created
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+          ${sortedRemarks.map((r, index) => `
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                ${index + 1}
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
+               
+                 <a href="${r.video_link}" target="_blank" 
+                   class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline max-w-xs block truncate"
+                   title="${r.video_link}">
+                 ${r.title || 'Untitled'}
+                </a>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                ${formatNumber(r.view)}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                ${r.big_video === 'yes' 
+                  ? '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">Yes</span>'
+                  : '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">No</span>'
+                }
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                ${r.impact_video === 'yes' 
+                  ? '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">Yes</span>'
+                  : '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">No</span>'
+                }
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                ${r.length_big_video 
+                  ? `${Math.floor(r.length_big_video / 60)}m ${Math.floor(r.length_big_video % 60)}s`
+                  : 'N/A'
+                }
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                ${formatDate(r.date_created)}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <div class="flex flex-col space-y-1">
+                  <button onclick="window.editRemark('${r.id}')" 
+                    class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-xs transition-colors">
+                    Edit
+                  </button>
+                  <button onclick="window.deleteRemark('${r.id}', '${creatorName}', '${r.title?.replace(/'/g, "\\'") || 'Untitled'}')" 
+                    class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs transition-colors">
+                    Delete
+                  </button>
+                  <button onclick="window.refreshViewCount('${r.id}')" 
+                    class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-xs transition-colors">
+                    Refresh
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+    
+    ${sortedRemarks.length === 0 
+      ? '<div class="text-center py-8 text-gray-500 dark:text-gray-400">No videos found for this creator.</div>'
+      : ''
+    }
   `;
 };
 const setupGlobalHandlers = (creator: ICreator, creatorName: string) => {
