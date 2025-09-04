@@ -16,7 +16,7 @@ export const useBooking = () => {
   const getBookings = async () => {
     try {
       const response = await useApi<{ data: Booking[] }>(
-        `/items/booking_room?fields=*,user_created.first_name,user_created.last_name,user_created.department.title,user_created.avatar`,
+        `/items/booking_room?limit=300&fields=*,user_created.first_name,user_created.last_name,user_created.department.title,user_created.avatar`,
         {
           method: 'GET'
         }
