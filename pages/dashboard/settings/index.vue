@@ -320,6 +320,9 @@ const nextPage = () => {
 watch(selectedFilter, () => {
   currentPage.value = 1;
 });
+definePageMeta({
+    middleware: 'auth',
+});
 </script>
 
 <style scoped>
