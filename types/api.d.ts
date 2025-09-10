@@ -6,5 +6,6 @@ export interface IAPIOption {
 }
 
 export interface IResponse<T> {
+  meta: any;
   data: T;
 }

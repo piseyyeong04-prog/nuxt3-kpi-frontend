@@ -1,3 +1,4 @@
+<!-- components/Background/AbstractPattern.vue -->
 <template>
     <div ref="container" class=" abstract-pattern-container"></div>
     <!-- box overlay blur -->

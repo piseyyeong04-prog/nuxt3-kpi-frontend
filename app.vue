@@ -16,6 +16,7 @@ import { useHead } from '#imports'; // Use Nuxt's built-in `useHead` composable
 import { onMounted } from 'vue'
 import { usePwaInstallPrompt } from '@/composables/usePwaInstallPrompt'
 import Swal from 'sweetalert2'
+import { useAuthStore } from './store/useAuthStore';
 
 const { isInstallPromptAvailable, promptInstall } = usePwaInstallPrompt()
 
@@ -92,5 +93,28 @@ useHead({
       type: 'text/javascript',
     },
   ],
+});
+
+// In your app.vue or layout
+onMounted(() => {
+  const authStore = useAuthStore();
+  
+  // Check auth status on app load
+  authStore.checkAuth();
+  
+  // Optional: Set up periodic token refresh check (every 30 minutes)
+  setInterval(() => {
+    if (authStore.shouldRefreshToken()) {
+      authStore.refresh();
+    }
+  }, 30 * 60 * 1000); // 30 minutes
+});
+
+onMounted(() => {
+  const expiryTimestamp = 1757575136119;
+  const expiryDate = new Date(expiryTimestamp);
+  const currentDate = new Date();
+  console.log("Current time:", currentDate.toLocaleString());
+  console.log("Token expires at:", expiryDate.toLocaleString());
 });
 </script>

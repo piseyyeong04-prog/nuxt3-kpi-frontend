@@ -179,180 +179,176 @@
         </div>
       </div>
     </div>
-
-
-
     <!-- Sidebar -->
-<!-- Sidebar -->
-<aside :class="[
-  'fixed top-0 left-0 h-full w-64 z-50 shadow-lg',
-  'bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100',
-  'md:translate-x-0 transition-all duration-300',
-  isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-]">
-  <!-- Make this section scrollable -->
-  <div class="h-full flex flex-col pt-16 md:pt-5">
-    <div class="flex-1 overflow-y-auto px-3 py-2">
-      <h2
-        class="text-2xl font-bold text-center mb-8 hidden md:block text-blue-500">
-        BAKSEY System
-      </h2>
+    <aside :class="[
+      'fixed top-0 left-0 h-full w-64 z-50 shadow-lg',
+      'bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100',
+      'md:translate-x-0 transition-all duration-300',
+      isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+    ]">
+      <!-- Make this section scrollable -->
+      <div class="h-full flex flex-col pt-16 md:pt-5">
+        <div class="flex-1 overflow-y-auto px-3 py-2">
+          <h2
+            class="text-2xl font-bold text-center mb-8 hidden md:block text-blue-500">
+            BAKSEY System
+          </h2>
 
-      <nav>
-        <ul class="space-y-2">
-          <li v-for="item in localizedMenuItems" :key="item.to" class="group">
-            <!-- Items with submenu -->
-            <div v-if="item.hasSubmenu" class="mb-2">
-              <button @click="toggleSubmenu(item.to)" class="flex items-center justify-between w-full p-3 rounded-xl font-medium transition-all duration-300 ease-in-out
-            relative overflow-hidden group/btn
-            text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50
-            hover:shadow-md transform hover:-translate-y-0.5" :class="{
-              'bg-gray-50 dark:bg-gray-800/50 shadow-md': openSubmenus[item.to],
-              'border-b-2 border-blue-500': openSubmenus[item.to] && getIconColor(item.icon) === 'blue',
-              'border-b-2 border-red-500': openSubmenus[item.to] && getIconColor(item.icon) === 'red',
-              'border-b-2 border-green-500': openSubmenus[item.to] && getIconColor(item.icon) === 'green'
-            }">
-                <div class="flex items-center">
-                  <Icon :icon="item.icon" class="mr-3 text-xl transition-all duration-300" :class="[
-                    getIconColorClass(item.icon),
-                    { 'scale-110': openSubmenus[item.to] }
-                  ]" />
-                  <span class="text-start">{{ item.label }}</span>
-                </div>
-                <Icon :icon="openSubmenus[item.to] ? 'mdi:chevron-up' : 'mdi:chevron-down'"
-                  class="text-sm transition-transform duration-300"
-                  :class="{ 'rotate-180': openSubmenus[item.to] }" />
-              </button>
+          <nav>
+            <ul class="space-y-2">
+              <li v-for="item in localizedMenuItems" :key="item.to" class="group">
+                <!-- Items with submenu -->
+                <div v-if="item.hasSubmenu" class="mb-2">
+                  <button @click="toggleSubmenu(item.to)" class="flex items-center justify-between w-full p-3 rounded-xl font-medium transition-all duration-300 ease-in-out
+                relative overflow-hidden group/btn
+                text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50
+                hover:shadow-md transform hover:-translate-y-0.5" :class="{
+                  'bg-gray-50 dark:bg-gray-800/50 shadow-md': openSubmenus[item.to],
+                  'border-b-2 border-blue-500': openSubmenus[item.to] && getIconColor(item.icon) === 'blue',
+                  'border-b-2 border-red-500': openSubmenus[item.to] && getIconColor(item.icon) === 'red',
+                  'border-b-2 border-green-500': openSubmenus[item.to] && getIconColor(item.icon) === 'green'
+                }">
+                    <div class="flex items-center">
+                      <Icon :icon="item.icon" class="mr-3 text-xl transition-all duration-300" :class="[
+                        getIconColorClass(item.icon),
+                        { 'scale-110': openSubmenus[item.to] }
+                      ]" />
+                      <span class="text-start">{{ item.label }}</span>
+                    </div>
+                    <Icon :icon="openSubmenus[item.to] ? 'mdi:chevron-up' : 'mdi:chevron-down'"
+                      class="text-sm transition-transform duration-300"
+                      :class="{ 'rotate-180': openSubmenus[item.to] }" />
+                  </button>
 
-              <!-- Submenu with smooth animation -->
-              <div v-show="openSubmenus[item.to]"
-                class="mt-2 ml-8 pl-4 border-l-2 overflow-hidden transition-all duration-300" :class="[
-                  getIconColor(item.icon) === 'blue' ? 'border-blue-200 dark:border-blue-800' : '',
-                  getIconColor(item.icon) === 'red' ? 'border-red-200 dark:border-red-800' : '',
-                  getIconColor(item.icon) === 'green' ? 'border-green-200 dark:border-green-800' : ''
-                ]">
-                <template v-for="sub in item.submenu" :key="sub.to">
-                  <!-- Submenu item with nested submenu -->
-                  <div v-if="sub.hasNestedSubmenu" class="mb-1">
-                    <button @click="toggleNestedSubmenu(sub.to)" 
-                      class="flex items-center justify-between w-full py-2.5 px-3 text-sm rounded-lg transition-all duration-300
-                      text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/30
-                      transform hover:translate-x-1 relative group/nested"
-                      :class="{
-                        'bg-gray-50 dark:bg-gray-800/50 font-medium': openNestedSubmenus[sub.to]
-                      }">
-                      <div class="flex items-center">
-                        <div class="w-1.5 h-1.5 rounded-full mr-2 transition-all duration-300" :class="[
-                          getIconColor(item.icon) === 'blue' ? 'bg-blue-400' : '',
-                          getIconColor(item.icon) === 'red' ? 'bg-red-400' : '',
-                          getIconColor(item.icon) === 'green' ? 'bg-green-400' : '',
-                          { 'scale-150': openNestedSubmenus[sub.to] }
-                        ]"></div>
-                        {{ sub.label[locale as 'en' | 'km'] }}
+                  <!-- Submenu with smooth animation -->
+                  <div v-show="openSubmenus[item.to]"
+                    class="mt-2 ml-8 pl-4 border-l-2 overflow-hidden transition-all duration-300" :class="[
+                      getIconColor(item.icon) === 'blue' ? 'border-blue-200 dark:border-blue-800' : '',
+                      getIconColor(item.icon) === 'red' ? 'border-red-200 dark:border-red-800' : '',
+                      getIconColor(item.icon) === 'green' ? 'border-green-200 dark:border-green-800' : ''
+                    ]">
+                    <template v-for="sub in item.submenu" :key="sub.to">
+                      <!-- Submenu item with nested submenu -->
+                      <div v-if="sub.hasNestedSubmenu" class="mb-1">
+                        <button @click="toggleNestedSubmenu(sub.to)" 
+                          class="flex items-center justify-between w-full py-2.5 px-3 text-sm rounded-lg transition-all duration-300
+                          text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/30
+                          transform hover:translate-x-1 relative group/nested"
+                          :class="{
+                            'bg-gray-50 dark:bg-gray-800/50 font-medium': openNestedSubmenus[sub.to]
+                          }">
+                          <div class="flex items-center">
+                            <div class="w-1.5 h-1.5 rounded-full mr-2 transition-all duration-300" :class="[
+                              getIconColor(item.icon) === 'blue' ? 'bg-blue-400' : '',
+                              getIconColor(item.icon) === 'red' ? 'bg-red-400' : '',
+                              getIconColor(item.icon) === 'green' ? 'bg-green-400' : '',
+                              { 'scale-150': openNestedSubmenus[sub.to] }
+                            ]"></div>
+                            {{ sub.label[locale as 'en' | 'km'] }}
+                          </div>
+                          <Icon :icon="openNestedSubmenus[sub.to] ? 'mdi:chevron-up' : 'mdi:chevron-down'"
+                            class="text-xs transition-transform duration-300"
+                            :class="{ 'rotate-180': openNestedSubmenus[sub.to] }" />
+                        </button>
+
+                        <!-- Nested submenu items -->
+                        <div v-show="openNestedSubmenus[sub.to]"
+                          class="mt-1 ml-6 pl-3 border-l overflow-hidden transition-all duration-300" :class="[
+                            getIconColor(item.icon) === 'blue' ? 'border-blue-100 dark:border-blue-900' : '',
+                            getIconColor(item.icon) === 'red' ? 'border-red-100 dark:border-red-900' : '',
+                            getIconColor(item.icon) === 'green' ? 'border-green-100 dark:border-green-900' : ''
+                          ]">
+                          <NuxtLink v-for="nested in sub.nestedSubmenu" :key="nested.to" :to="nested.to"
+                            class="block py-2 px-3 my-1 text-xs rounded-lg transition-all duration-300
+                            text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/20
+                            transform hover:translate-x-1 relative group/nested-item"
+                            @click="closeSidebarOnMobile"
+                            :class="{
+                              'bg-gray-50 dark:bg-gray-800/50 font-medium border-l-2': $route.path.includes(nested.to) && nested.to !== '/',
+                              'border-blue-500 text-blue-600 dark:text-blue-400': $route.path.includes(nested.to) && nested.to !== '/' && getIconColor(item.icon) === 'blue',
+                              'border-red-500 text-red-600 dark:text-red-400': $route.path.includes(nested.to) && nested.to !== '/' && getIconColor(item.icon) === 'red',
+                              'border-green-500 text-green-600 dark:text-green-400': $route.path.includes(nested.to) && nested.to !== '/' && getIconColor(item.icon) === 'green'
+                            }">
+                            <div class="flex items-center">
+                              <div class="w-1 h-1 rounded-full mr-2 transition-all duration-300" :class="[
+                                getIconColor(item.icon) === 'blue' ? 'bg-blue-300' : '',
+                                getIconColor(item.icon) === 'red' ? 'bg-red-300' : '',
+                                getIconColor(item.icon) === 'green' ? 'bg-green-300' : '',
+                                { 'scale-150': $route.path.includes(nested.to) && nested.to !== '/' }
+                              ]"></div>
+                              {{ nested.label[locale as 'en' | 'km'] }}
+                            </div>
+                          </NuxtLink>
+                        </div>
                       </div>
-                      <Icon :icon="openNestedSubmenus[sub.to] ? 'mdi:chevron-up' : 'mdi:chevron-down'"
-                        class="text-xs transition-transform duration-300"
-                        :class="{ 'rotate-180': openNestedSubmenus[sub.to] }" />
-                    </button>
 
-                    <!-- Nested submenu items -->
-                    <div v-show="openNestedSubmenus[sub.to]"
-                      class="mt-1 ml-6 pl-3 border-l overflow-hidden transition-all duration-300" :class="[
-                        getIconColor(item.icon) === 'blue' ? 'border-blue-100 dark:border-blue-900' : '',
-                        getIconColor(item.icon) === 'red' ? 'border-red-100 dark:border-red-900' : '',
-                        getIconColor(item.icon) === 'green' ? 'border-green-100 dark:border-green-900' : ''
-                      ]">
-                      <NuxtLink v-for="nested in sub.nestedSubmenu" :key="nested.to" :to="nested.to"
-                        class="block py-2 px-3 my-1 text-xs rounded-lg transition-all duration-300
-                        text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/20
-                        transform hover:translate-x-1 relative group/nested-item"
-                        @click="closeSidebarOnMobile"
+                      <!-- Regular submenu item -->
+                      <NuxtLink v-else :to="sub.to" 
+                        class="block py-2.5 px-3 my-1 text-sm rounded-lg transition-all duration-300
+                        text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/30
+                        transform hover:translate-x-1 relative group/sub" 
+                        @click="closeSidebarOnMobile" 
                         :class="{
-                          'bg-gray-50 dark:bg-gray-800/50 font-medium border-l-2': $route.path.includes(nested.to) && nested.to !== '/',
-                          'border-blue-500 text-blue-600 dark:text-blue-400': $route.path.includes(nested.to) && nested.to !== '/' && getIconColor(item.icon) === 'blue',
-                          'border-red-500 text-red-600 dark:text-red-400': $route.path.includes(nested.to) && nested.to !== '/' && getIconColor(item.icon) === 'red',
-                          'border-green-500 text-green-600 dark:text-green-400': $route.path.includes(nested.to) && nested.to !== '/' && getIconColor(item.icon) === 'green'
+                          'bg-gray-50 dark:bg-gray-800/50 font-medium border-b-2': $route.path.includes(sub.to) && sub.to !== '/',
+                          'border-blue-500 text-blue-600 dark:text-blue-400': $route.path.includes(sub.to) && sub.to !== '/' && getIconColor(item.icon) === 'blue',
+                          'border-red-500 text-red-600 dark:text-red-400': $route.path.includes(sub.to) && sub.to !== '/' && getIconColor(item.icon) === 'red',
+                          'border-green-500 text-green-600 dark:text-green-400': $route.path.includes(sub.to) && sub.to !== '/' && getIconColor(item.icon) === 'green'
                         }">
                         <div class="flex items-center">
-                          <div class="w-1 h-1 rounded-full mr-2 transition-all duration-300" :class="[
-                            getIconColor(item.icon) === 'blue' ? 'bg-blue-300' : '',
-                            getIconColor(item.icon) === 'red' ? 'bg-red-300' : '',
-                            getIconColor(item.icon) === 'green' ? 'bg-green-300' : '',
-                            { 'scale-150': $route.path.includes(nested.to) && nested.to !== '/' }
+                          <div class="w-1.5 h-1.5 rounded-full mr-2 transition-all duration-300" :class="[
+                            getIconColor(item.icon) === 'blue' ? 'bg-blue-400' : '',
+                            getIconColor(item.icon) === 'red' ? 'bg-red-400' : '',
+                            getIconColor(item.icon) === 'green' ? 'bg-green-400' : '',
+                            { 'scale-150': $route.path.includes(sub.to) && sub.to !== '/' }
                           ]"></div>
-                          {{ nested.label[locale as 'en' | 'km'] }}
+                          {{ sub.label[locale as 'en' | 'km'] }}
                         </div>
                       </NuxtLink>
-                    </div>
+                    </template>
                   </div>
+                </div>
 
-                  <!-- Regular submenu item -->
-                  <NuxtLink v-else :to="sub.to" 
-                    class="block py-2.5 px-3 my-1 text-sm rounded-lg transition-all duration-300
-                    text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/30
-                    transform hover:translate-x-1 relative group/sub" 
-                    @click="closeSidebarOnMobile" 
-                    :class="{
-                      'bg-gray-50 dark:bg-gray-800/50 font-medium border-b-2': $route.path.includes(sub.to) && sub.to !== '/',
-                      'border-blue-500 text-blue-600 dark:text-blue-400': $route.path.includes(sub.to) && sub.to !== '/' && getIconColor(item.icon) === 'blue',
-                      'border-red-500 text-red-600 dark:text-red-400': $route.path.includes(sub.to) && sub.to !== '/' && getIconColor(item.icon) === 'red',
-                      'border-green-500 text-green-600 dark:text-green-400': $route.path.includes(sub.to) && sub.to !== '/' && getIconColor(item.icon) === 'green'
-                    }">
-                    <div class="flex items-center">
-                      <div class="w-1.5 h-1.5 rounded-full mr-2 transition-all duration-300" :class="[
-                        getIconColor(item.icon) === 'blue' ? 'bg-blue-400' : '',
-                        getIconColor(item.icon) === 'red' ? 'bg-red-400' : '',
-                        getIconColor(item.icon) === 'green' ? 'bg-green-400' : '',
-                        { 'scale-150': $route.path.includes(sub.to) && sub.to !== '/' }
-                      ]"></div>
-                      {{ sub.label[locale as 'en' | 'km'] }}
-                    </div>
-                  </NuxtLink>
-                </template>
-              </div>
-            </div>
+                <!-- Regular menu items -->
+                <NuxtLink v-else :to="item.to" class="flex items-center p-3 rounded-xl font-medium transition-all duration-300 ease-in-out 
+              relative overflow-hidden group/link
+              text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50
+              hover:shadow-md transform hover:-translate-y-0.5" :class="{
+                'bg-gray-50 dark:bg-gray-800/50 shadow-md border-b-2 font-semibold': $route.path === item.to || ($route.path.includes(item.to) && item.to !== '/'),
+                'border-blue-500 text-blue-700 dark:text-blue-400': ($route.path === item.to || ($route.path.includes(item.to) && item.to !== '/')) && getIconColor(item.icon) === 'blue',
+                'border-red-500 text-red-700 dark:text-red-400': ($route.path === item.to || ($route.path.includes(item.to) && item.to !== '/')) && getIconColor(item.icon) === 'red',
+                'border-green-500 text-green-700 dark:text-green-400': ($route.path === item.to || ($route.path.includes(item.to) && item.to !== '/')) && getIconColor(item.icon) === 'green'
+              }" @click="closeSidebarOnMobile">
+                  <Icon :icon="item.icon" class="mr-3 text-xl transition-all duration-300" :class="[
+                    getIconColorClass(item.icon, item),
+                    { 'scale-110': route.path === item.to || (route.path.includes(item.to) && item.to !== '/') }
+                  ]" />
+                  <span>{{ item.label }}</span>
 
-            <!-- Regular menu items -->
-            <NuxtLink v-else :to="item.to" class="flex items-center p-3 rounded-xl font-medium transition-all duration-300 ease-in-out 
-          relative overflow-hidden group/link
-          text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50
-          hover:shadow-md transform hover:-translate-y-0.5" :class="{
-            'bg-gray-50 dark:bg-gray-800/50 shadow-md border-b-2 font-semibold': $route.path === item.to || ($route.path.includes(item.to) && item.to !== '/'),
-            'border-blue-500 text-blue-700 dark:text-blue-400': ($route.path === item.to || ($route.path.includes(item.to) && item.to !== '/')) && getIconColor(item.icon) === 'blue',
-            'border-red-500 text-red-700 dark:text-red-400': ($route.path === item.to || ($route.path.includes(item.to) && item.to !== '/')) && getIconColor(item.icon) === 'red',
-            'border-green-500 text-green-700 dark:text-green-400': ($route.path === item.to || ($route.path.includes(item.to) && item.to !== '/')) && getIconColor(item.icon) === 'green'
-          }" @click="closeSidebarOnMobile">
-              <Icon :icon="item.icon" class="mr-3 text-xl transition-all duration-300" :class="[
-                getIconColorClass(item.icon, item),
-                { 'scale-110': route.path === item.to || (route.path.includes(item.to) && item.to !== '/') }
-              ]" />
-              <span>{{ item.label }}</span>
+                  <!-- Active indicator glow effect -->
+                  <div v-if="$route.path === item.to || ($route.path.includes(item.to) && item.to !== '/')"
+                    class="absolute inset-0 rounded-xl opacity-10 pointer-events-none" :class="[
+                      getIconColor(item.icon) === 'blue' ? 'bg-blue-500' : '',
+                      getIconColor(item.icon) === 'red' ? 'bg-red-500' : '',
+                      getIconColor(item.icon) === 'green' ? 'bg-green-500' : ''
+                    ]">
+                  </div>
+                </NuxtLink>
+              </li>
+            </ul>
+          </nav>
+        </div>
 
-              <!-- Active indicator glow effect -->
-              <div v-if="$route.path === item.to || ($route.path.includes(item.to) && item.to !== '/')"
-                class="absolute inset-0 rounded-xl opacity-10 pointer-events-none" :class="[
-                  getIconColor(item.icon) === 'blue' ? 'bg-blue-500' : '',
-                  getIconColor(item.icon) === 'red' ? 'bg-red-500' : '',
-                  getIconColor(item.icon) === 'green' ? 'bg-green-500' : ''
-                ]">
-              </div>
-            </NuxtLink>
-          </li>
-        </ul>
-      </nav>
-    </div>
-
-    <!-- Sidebar bottom (sticky footer) -->
-    <div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
-      <div class="mt-2 text-center">
-        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">
-          BAKSEY Tech Solution © {{ new Date().getFullYear() }}
-        </p>
-        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Version 1.0</p>
+        <!-- Sidebar bottom (sticky footer) -->
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+          <div class="mt-2 text-center">
+            <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">
+              BAKSEY Tech Solution © {{ new Date().getFullYear() }}
+            </p>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Version 1.0</p>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</aside>
+    </aside>
 
 
     <!-- Overlay for mobile -->
@@ -690,6 +686,14 @@ const menuItems: MenuItem[] = [
     icon: 'mdi:account-multiple',
     label: { en: 'Interview Clients', km: 'អតិថិជន' },
   },
+  // settings sub menu with ( user management, department, role management )
+  {
+    to: '/dashboard/settings',
+    icon: 'mdi:cog',
+    label: { en: 'Settings', km: 'ការកំណត់' },
+    role: 'admin', // Only admin can see settings
+    
+  }
 
 ]
 const openSubmenus = ref<Record<string, boolean>>({});
