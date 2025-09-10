@@ -691,7 +691,6 @@ const menuItems: MenuItem[] = [
     to: '/dashboard/settings',
     icon: 'mdi:cog',
     label: { en: 'Settings', km: 'ការកំណត់' },
-    role: 'admin', // Only admin can see settings
     
   }
 
