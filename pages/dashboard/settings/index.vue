@@ -1,26 +1,6 @@
 <!-- pages/dashboard/settings/index.vue -->
 <template>
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-    <!-- Header -->
-    <div class="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200/50 sticky top-0 z-40">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-          <div class="flex items-center space-x-4">
-            <div class="flex items-center space-x-3">
-              <div
-                class="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
-                <span class="text-white text-sm font-bold">◆</span>
-              </div>
-
-            </div>
-          </div>
-          <div class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-            {{ totalItems > 0 ? `1-${Math.min(itemsPerPage, totalItems)} of ${totalItems}` : '0 items' }}
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="max-w-7xl mx-auto flex flex-col lg:flex-row">
       <!-- Mobile Filter Toggle -->
       <div class="lg:hidden bg-white border-b border-gray-200 px-4 py-3">
