@@ -1,7 +1,7 @@
 <!-- pages/dashboard/settings/index.vue -->
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row">
+  <div class="min-h-screen ">
+    <div class="container mx-auto flex flex-col lg:flex-row">
       <!-- Mobile Filter Toggle -->
       <div class="lg:hidden bg-white border-b border-gray-200 px-4 py-3">
         <button @click="showMobileFilters = !showMobileFilters"
@@ -197,7 +197,7 @@
                 :disabled="loading || isFilterLoading">
                 <option value="today">Today</option>
                 <option value="day">By Day</option>
-                <option value="month">By Month</option>
+                <option value="month">By Month</option> 
               </select>
 
               <input v-if="selectedFilterType === 'day'" type="date" v-model="selectedDate"
@@ -239,7 +239,8 @@
           <!-- Table Header -->
           <div class="bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200/50 px-6 py-4">
             <div
-              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs font-semibold text-gray-600 uppercase tracking-wide">
+              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 text-xs font-semibold text-gray-600 uppercase tracking-wide">
+               
               <div class="flex items-center space-x-2">
                 <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -280,9 +281,13 @@
             <div v-for="(item, index) in filteredActivity" :key="item.id"
               class="px-6 py-4 hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-purple-50/50 transition-all duration-200 group cursor-pointer"
               :style="{ animationDelay: `${index * 50}ms` }">
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-center">
+                <!-- No -->
+              
                 <!-- Action -->
-                <div class="sm:col-span-1">
+                <div class="sm:col-span-1 space-x-2">
+                     <span class="text-sm text-gray-600 group-hover:text-gray-800 transition-colors">{{
+                    (currentPage - 1) * itemsPerPage + index + 1 }}</span>
                   <span
                     class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm transition-all duration-200 group-hover:shadow-md"
                     :class="{
@@ -292,7 +297,9 @@
                       'bg-gradient-to-r from-red-100 to-red-200 text-red-800 border border-red-300': item.action === 'delete'
                     }">
                     {{ item.action }}
+                    
                   </span>
+                  
                 </div>
 
                 <!-- Collection -->
