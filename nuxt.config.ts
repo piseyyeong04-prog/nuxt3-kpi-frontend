@@ -65,6 +65,9 @@ export default defineNuxtConfig({
     public: {
       API_BASE_URL: process.env.API_BASE_URL,
       GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+      TELEGRAM_BOT_TOKEN: process.env.NUXT_PUBLIC_TELEGRAM_BOT_TOKEN,
+      TELEGRAM_CHAT_ID: process.env.NUXT_PUBLIC_TELEGRAM_CHAT_ID,
+      TELEGRAM_THREAD_ID: process.env.NUXT_PUBLIC_TELEGRAM_THREAD_ID,
     },
   },
 

@@ -100,6 +100,50 @@
             </div>
           </div>
 
+          <!-- Report Generation Section -->
+          <div>
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 flex items-center">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Reports
+            </h3>
+            <div class="space-y-2">
+              <button 
+                @click="generatePDFReport"
+                :disabled="generatingReport || filteredActivity.length === 0"
+                class="w-full flex items-center space-x-3 px-4 py-3 text-sm text-gray-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 hover:text-red-700 rounded-xl transition-all duration-200 cursor-pointer group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-600">
+                <div
+                  class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center group-hover:bg-red-200 transition-colors group-disabled:bg-gray-100">
+                  <svg v-if="!generatingReport" class="w-4 h-4 text-red-600 group-disabled:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <div v-else class="w-4 h-4">
+                    <div class="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                </div>
+                <span class="font-medium group-hover:text-red-700 group-disabled:text-gray-400">
+                  {{ generatingReport ? 'Generating...' : 'Generate PDF Report' }}
+                </span>
+              </button>
+
+              <button 
+                @click="showReportModal = true"
+                :disabled="filteredActivity.length === 0"
+                class="w-full flex items-center space-x-3 px-4 py-3 text-sm text-gray-600 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 hover:text-blue-700 rounded-xl transition-all duration-200 cursor-pointer group disabled:opacity-50 disabled:cursor-not-allowed">
+                <div
+                  class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors group-disabled:bg-gray-100">
+                  <svg class="w-4 h-4 text-blue-600 group-disabled:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <span class="font-medium group-hover:text-blue-700 group-disabled:text-gray-400">Custom Report</span>
+              </button>
+            </div>
+          </div>
 
           <!-- Actions Section -->
           <div>
@@ -399,7 +443,7 @@
               <!-- Page Numbers -->
               <div class="hidden sm:flex items-center space-x-2">
                 <template v-for="page in visiblePages" :key="page">
-                  <button v-if="page !== '...'" @click="currentPage = page" :class="[
+                  <button v-if="page !== '...'" @click="currentPage = page as number" :class="[
                     'px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200',
                     page === currentPage
                       ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
@@ -423,6 +467,156 @@
         </div>
       </div>
     </div>
+
+    <!-- Custom Report Modal -->
+    <div v-if="showReportModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-gray-900 flex items-center">
+              <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Custom Report Settings
+            </h3>
+            <button @click="showReportModal = false"
+              class="text-gray-400 hover:text-gray-600 transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <form @submit.prevent="generateCustomPDFReport" class="space-y-6">
+            <!-- Report Title -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Report Title</label>
+              <input
+                v-model="reportSettings.title"
+                type="text"
+                class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                placeholder="Activity Report"
+              />
+            </div>
+
+            <!-- Company Name -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Company Name</label>
+              <input
+                v-model="reportSettings.companyName"
+                type="text"
+                class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                placeholder="Your Company Name"
+              />
+            </div>
+
+            <!-- Generated By -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Generated By</label>
+              <input
+                v-model="reportSettings.generatedBy"
+                type="text"
+                class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                placeholder="Your Name"
+              />
+            </div>
+
+            <!-- Include Charts -->
+            <div class="flex items-center space-x-3">
+              <input
+                v-model="reportSettings.includeCharts"
+                id="includeCharts"
+                type="checkbox"
+                class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <label for="includeCharts" class="text-sm font-medium text-gray-700">Include Charts & Analytics</label>
+            </div>
+
+            <!-- Color Theme -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Color Theme</label>
+              <div class="grid grid-cols-3 gap-3">
+                <button
+                  type="button"
+                  @click="reportSettings.customStyles.primaryColor = '#3B82F6'; reportSettings.customStyles.secondaryColor = '#8B5CF6'"
+                  :class="[
+                    'p-3 rounded-xl border-2 transition-all',
+                    reportSettings.customStyles.primaryColor === '#3B82F6' 
+                      ? 'border-blue-500 bg-blue-50' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  ]"
+                >
+                  <div class="flex space-x-1">
+                    <div class="w-4 h-4 bg-blue-500 rounded"></div>
+                    <div class="w-4 h-4 bg-purple-600 rounded"></div>
+                  </div>
+                  <span class="text-xs text-gray-600 mt-1 block">Blue/Purple</span>
+                </button>
+                
+                <button
+                  type="button"
+                  @click="reportSettings.customStyles.primaryColor = '#059669'; reportSettings.customStyles.secondaryColor = '#0891B2'"
+                  :class="[
+                    'p-3 rounded-xl border-2 transition-all',
+                    reportSettings.customStyles.primaryColor === '#059669' 
+                      ? 'border-emerald-500 bg-emerald-50' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  ]"
+                >
+                  <div class="flex space-x-1">
+                    <div class="w-4 h-4 bg-emerald-600 rounded"></div>
+                    <div class="w-4 h-4 bg-cyan-600 rounded"></div>
+                  </div>
+                  <span class="text-xs text-gray-600 mt-1 block">Green/Cyan</span>
+                </button>
+
+                <button
+                  type="button"
+                  @click="reportSettings.customStyles.primaryColor = '#DC2626'; reportSettings.customStyles.secondaryColor = '#EA580C'"
+                  :class="[
+                    'p-3 rounded-xl border-2 transition-all',
+                    reportSettings.customStyles.primaryColor === '#DC2626' 
+                      ? 'border-red-500 bg-red-50' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  ]"
+                >
+                  <div class="flex space-x-1">
+                    <div class="w-4 h-4 bg-red-600 rounded"></div>
+                    <div class="w-4 h-4 bg-orange-600 rounded"></div>
+                  </div>
+                  <span class="text-xs text-gray-600 mt-1 block">Red/Orange</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex space-x-3 pt-4">
+              <button
+                type="button"
+                @click="showReportModal = false"
+                class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                :disabled="generatingReport"
+                class="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+              >
+                <svg v-if="!generatingReport" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <div v-else class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>{{ generatingReport ? 'Generating...' : 'Generate Report' }}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -437,6 +631,21 @@ const selectedDate = ref(dayjs().format('YYYY-MM-DD'));
 const selectedMonth = ref(dayjs().format('YYYY-MM'));
 const isFilterLoading = ref(false);
 const showMobileFilters = ref(false);
+const generatingReport = ref(false);
+const showReportModal = ref(false);
+
+// Report settings
+const reportSettings = ref({
+  title: 'Activity Report',
+  subtitle: 'System Activity Analysis',
+  companyName: 'Your Company',
+  generatedBy: '',
+  includeCharts: true,
+  customStyles: {
+    primaryColor: '#3B82F6',
+    secondaryColor: '#8B5CF6'
+  }
+});
 
 // SEO
 useHead({
@@ -556,6 +765,23 @@ const dateRange = computed(() => {
   return null;
 });
 
+// Date range display for reports
+const dateRangeDisplay = computed(() => {
+  if (selectedFilterType.value === 'today') {
+    return `Today (${dayjs().format('MMMM DD, YYYY')})`;
+  }
+  
+  if (selectedFilterType.value === 'day' && selectedDate.value) {
+    return dayjs(selectedDate.value).format('MMMM DD, YYYY');
+  }
+  
+  if (selectedFilterType.value === 'month' && selectedMonth.value) {
+    return dayjs(selectedMonth.value).format('MMMM YYYY');
+  }
+  
+  return 'All Time';
+});
+
 // Methods
 const formatTimestamp = (timestamp: string) => {
   const date = new Date(timestamp);
@@ -577,6 +803,71 @@ const previousPage = () => {
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++;
+  }
+};
+
+// PDF Report Generation
+const generatePDFReport = async () => {
+  if (filteredActivity.value.length === 0) return;
+
+  generatingReport.value = true;
+  
+  try {
+    // Dynamically import the PDF generator to reduce initial bundle size
+    const { ActivityReportGenerator } = await import('~/utils/pdfReportGenerator');
+    
+    const options = {
+      title: 'Activity Report',
+      subtitle: 'System Activity Analysis',
+      dateRange: dateRangeDisplay.value,
+      companyName: 'Your Company',
+      generatedBy: 'System Administrator',
+      includeCharts: false,
+      customStyles: {
+        primaryColor: '#3B82F6',
+        secondaryColor: '#8B5CF6'
+      }
+    };
+
+    const generator = new ActivityReportGenerator(options);
+    generator.generateReport(filteredActivity.value, options);
+    generator.save();
+
+    // Show success message (you can implement toast notifications)
+    console.log('PDF report generated successfully!');
+    
+  } catch (error) {
+    console.error('Error generating PDF report:', error);
+    // Show error message
+  } finally {
+    generatingReport.value = false;
+  }
+};
+
+const generateCustomPDFReport = async () => {
+  if (filteredActivity.value.length === 0) return;
+
+  generatingReport.value = true;
+  
+  try {
+    const { ActivityReportGenerator } = await import('~/utils/pdfReportGenerator');
+    
+    const options = {
+      ...reportSettings.value,
+      dateRange: dateRangeDisplay.value,
+    };
+
+    const generator = new ActivityReportGenerator(options);
+    generator.generateReport(filteredActivity.value, options);
+    generator.save();
+
+    console.log('Custom PDF report generated successfully!');
+    showReportModal.value = false;
+    
+  } catch (error) {
+    console.error('Error generating custom PDF report:', error);
+  } finally {
+    generatingReport.value = false;
   }
 };
 

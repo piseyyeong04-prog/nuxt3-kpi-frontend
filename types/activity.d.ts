@@ -11,14 +11,42 @@ export interface User {
 export interface Avatar {
   id: string;
 }
+export interface PDFReportOptions {
+  title?: string;
+  subtitle?: string;
+  dateRange?: string;
+  companyName?: string;
+  companyLogo?: string;
+  generatedBy?: string;
+  includeCharts?: boolean;
+  customStyles?: {
+    primaryColor?: string;
+    secondaryColor?: string;
+  };
+}
+export interface ActivityResponse {
+  data: ActivityItem[];
+  meta: {
+    filter_count: number;
+    total_count: number;
+  };
+}
 
 export interface ActivityItem {
-  action: string;
+  id: string;
+  action: 'login' | 'create' | 'update' | 'delete';
   collection: string;
   timestamp: string;
-  id: number;
-  user: User;
-  avatar: Avatar;
+  user?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    title?: string;
+    email?: string;
+    avatar?: {
+      id: string;
+    };
+  };
 }
 
 export interface ActivityResponse {
