@@ -16,7 +16,7 @@ export const useEquipmentRequest = () => {
   const getEquipmentRequests = async () => {
     try {
       const response = await useApi<{ data: EquipmentRequest[] }>(
-        '/items/equipment_request?filter[status]=published&fields=user_created.first_name,user_created.last_name,user_created.id,user_created.title,user_created.department.*,shooting_time.id,shooting_time.name,shooting_date,return_date,microphone.id,microphone.name,camera.id,camera.name,tripod.id,tripod.name,gimbal.id,gimbal.name,camera_lens.id,camera_lens.name,light.id,light.name,drone.id,drone.name',
+        '/items/equipment_request?filter[status]=published&fields=id,user_created.first_name,user_created.last_name,user_created.id,user_created.title,user_created.department.*,shooting_time.id,shooting_time.name,shooting_date,return_date,microphone.id,microphone.name,camera.id,camera.name,tripod.id,tripod.name,gimbal.id,gimbal.name,camera_lens.id,camera_lens.name,light.id,light.name,drone.id,drone.name',
         {
           method: 'GET'
         }

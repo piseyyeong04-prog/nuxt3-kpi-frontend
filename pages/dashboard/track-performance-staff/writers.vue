@@ -734,7 +734,12 @@
                     </label>
                   </div>
                 </div>
-
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Remark
+                  </label>
+                  <textarea id="swal-remark" class="w-full p-2 border rounded" v-model="editForm.remark"></textarea>
+                </div>
               </form>
             </div>
           </div>
@@ -2017,7 +2022,8 @@ const editForm = ref({
   title: '',
   article_link: '',
   view: 0,
-  impact_article: 'no'
+  impact_article: 'no',
+  remark: ''
 });
 // Function to open edit modal with article data
 const editArticle = (article: any) => {
@@ -2026,7 +2032,8 @@ const editArticle = (article: any) => {
     title: article.title || '',
     article_link: article.article_link || '',
     view: article.view || 0,
-    impact_article: article.impact_article || 'no'
+    impact_article: article.impact_article || 'no',
+    remark: article.remark || ''
   };
   showEditModal.value = true;
 };
@@ -2039,7 +2046,8 @@ const closeEditModal = () => {
     title: '',
     article_link: '',
     view: 0,
-    impact_article: 'no'
+    impact_article: 'no',
+    remark: ''
   };
 };
 
@@ -2065,6 +2073,7 @@ const updateArticle = async () => {
         article_link: editForm.value.article_link,
         view: editForm.value.view,
         impact_article: editForm.value.impact_article, // ✅ Make sure this is included
+        remark: editForm.value.remark // ✅ Include remark field
       }
     });
 

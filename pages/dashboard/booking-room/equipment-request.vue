@@ -361,95 +361,300 @@
           </div>
 
           <!-- Equipment Selection -->
-          <div class="space-y-4">
-            <h4 class="text-md font-semibold text-gray-800">Equipment Selection</h4>
+          <div class="space-y-8">
+            <div class="border-b border-gray-200 pb-4">
+              <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                  <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                Equipment Selection
+              </h4>
+              <p class="text-sm text-gray-600 mt-1 ml-11">Select the equipment you need for your project</p>
+            </div>
             
-            <!-- Microphones -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Microphones</label>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label class="flex items-center">
-                  <input type="checkbox" value="1" v-model="manualRequest.microphone" class="mr-2">
-                  <span>Mic1</span>
-                </label>
-                <label class="flex items-center">
-                  <input type="checkbox" value="3" v-model="manualRequest.microphone" class="mr-2">
-                  <span>Mic PodCast1</span>
-                </label>
-                <label class="flex items-center">
-                  <input type="checkbox" value="4" v-model="manualRequest.microphone" class="mr-2">
-                  <span>Mic PodCast2</span>
-                </label>
+            <!-- Equipment Categories -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <!-- Microphones -->
+              <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                      <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                      </svg>
+                    </div>
+                    <h5 class="text-base font-semibold text-gray-900">Microphones</h5>
+                  </div>
+                  <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    {{ editRequest.microphone.length }} selected
+                  </span>
+                </div>
+                
+                <div class="space-y-3">
+                  <div v-for="microphone in equipmentData.microphones" :key="microphone.id" 
+                      class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-green-300 transition-colors">
+                    <div class="flex items-center">
+                      <input 
+                        type="checkbox" 
+                        :id="`mic-${microphone.id}`"
+                        :value="microphone.id" 
+                        v-model="editRequest.microphone" 
+                        class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                      />
+                      <label :for="`mic-${microphone.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                        {{ microphone.name }}
+                      </label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Available
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <!-- Cameras -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Cameras</label>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label class="flex items-center">
-                  <input type="checkbox" value="1" v-model="manualRequest.camera" class="mr-2">
-                  <span>A6400[1]</span>
-                </label>
+              <!-- Cameras -->
+              <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                      <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                      </svg>
+                    </div>
+                    <h5 class="text-base font-semibold text-gray-900">Cameras</h5>
+                  </div>
+                  <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    {{ editRequest.camera.length }} selected
+                  </span>
+                </div>
+                
+                <div class="space-y-3">
+                  <div v-for="camera in equipmentData.cameras" :key="camera.id" 
+                      class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 transition-colors">
+                    <div class="flex items-center">
+                      <input 
+                        type="checkbox" 
+                        :id="`cam-${camera.id}`"
+                        :value="camera.id" 
+                        v-model="editRequest.camera" 
+                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      <label :for="`cam-${camera.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                        {{ camera.name }}
+                      </label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        Available
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <!-- Tripods -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Tripods</label>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label class="flex items-center">
-                  <input type="checkbox" value="1" v-model="manualRequest.tripod" class="mr-2">
-                  <span>Tripod[1]</span>
-                </label>
+              <!-- Tripods -->
+              <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-6 border border-yellow-100">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                      <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                      </svg>
+                    </div>
+                    <h5 class="text-base font-semibold text-gray-900">Tripods</h5>
+                  </div>
+                  <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    {{ editRequest.tripod.length }} selected
+                  </span>
+                </div>
+                
+                <div class="space-y-3">
+                  <div v-for="tripod in equipmentData.tripods" :key="tripod.id" 
+                      class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-yellow-300 transition-colors">
+                    <div class="flex items-center">
+                      <input 
+                        type="checkbox" 
+                        :id="`tripod-${tripod.id}`"
+                        :value="tripod.id" 
+                        v-model="editRequest.tripod" 
+                        class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+                      />
+                      <label :for="`tripod-${tripod.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                        {{ tripod.name }}
+                      </label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        Available
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <!-- Gimbals -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Gimbals</label>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label class="flex items-center">
-                  <input type="checkbox" value="1" v-model="manualRequest.gimbal" class="mr-2">
-                  <span>RS4 Combo</span>
-                </label>
+              <!-- Gimbals -->
+              <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                      <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                      </svg>
+                    </div>
+                    <h5 class="text-base font-semibold text-gray-900">Gimbals</h5>
+                  </div>
+                  <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    {{ editRequest.gimbal.length }} selected
+                  </span>
+                </div>
+                
+                <div class="space-y-3">
+                  <div v-for="gimbal in equipmentData.gimbals" :key="gimbal.id" 
+                      class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-purple-300 transition-colors">
+                    <div class="flex items-center">
+                      <input 
+                        type="checkbox" 
+                        :id="`gimbal-${gimbal.id}`"
+                        :value="gimbal.id" 
+                        v-model="editRequest.gimbal" 
+                        class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                      />
+                      <label :for="`gimbal-${gimbal.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                        {{ gimbal.name }}
+                      </label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        Available
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <!-- Camera Lens -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Camera Lens</label>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label class="flex items-center">
-                  <input type="checkbox" value="1" v-model="manualRequest.camera_lens" class="mr-2">
-                  <span>Sony Full 50mm[1]</span>
-                </label>
+              <!-- Camera Lens -->
+              <div class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-6 border border-indigo-100">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
+                      <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                      </svg>
+                    </div>
+                    <h5 class="text-base font-semibold text-gray-900">Camera Lens</h5>
+                  </div>
+                  <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    {{ editRequest.camera_lens.length }} selected
+                  </span>
+                </div>
+                
+                <div class="space-y-3">
+                  <div v-for="lens in equipmentData.cameraLens" :key="lens.id" 
+                      class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-indigo-300 transition-colors">
+                    <div class="flex items-center">
+                      <input 
+                        type="checkbox" 
+                        :id="`lens-${lens.id}`"
+                        :value="lens.id" 
+                        v-model="editRequest.camera_lens" 
+                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                      />
+                      <label :for="`lens-${lens.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                        {{ lens.name }}
+                      </label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                        Available
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <!-- Lights -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Lights</label>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label class="flex items-center">
-                  <input type="checkbox" value="1" v-model="manualRequest.light" class="mr-2">
-                  <span>Light-1</span>
-                </label>
-                <label class="flex items-center">
-                  <input type="checkbox" value="2" v-model="manualRequest.light" class="mr-2">
-                  <span>Light-2</span>
-                </label>
+              <!-- Lights -->
+              <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-6 border border-orange-100">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
+                      <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                      </svg>
+                    </div>
+                    <h5 class="text-base font-semibold text-gray-900">Lights</h5>
+                  </div>
+                  <span class="bg-orange-100 text-orange-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    {{ editRequest.light.length }} selected
+                  </span>
+                </div>
+                
+                <div class="space-y-3">
+                  <div v-for="light in equipmentData.lights" :key="light.id" 
+                      class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-orange-300 transition-colors">
+                    <div class="flex items-center">
+                      <input 
+                        type="checkbox" 
+                        :id="`light-${light.id}`"
+                        :value="light.id" 
+                        v-model="editRequest.light" 
+                        class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                      />
+                      <label :for="`light-${light.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                        {{ light.name }}
+                      </label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                        Available
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <!-- Drones -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Drones</label>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label class="flex items-center">
-                  <input type="checkbox" value="1" v-model="manualRequest.drone" class="mr-2">
-                  <span>DJI air2s</span>
-                </label>
+              <!-- Drones -->
+              <div class="bg-gradient-to-br from-cyan-50 to-teal-50 rounded-xl p-6 border border-cyan-100 lg:col-span-2">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center mr-3">
+                      <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                      </svg>
+                    </div>
+                    <h5 class="text-base font-semibold text-gray-900">Drones</h5>
+                  </div>
+                  <span class="bg-cyan-100 text-cyan-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    {{ editRequest.drone.length }} selected
+                  </span>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div v-for="drone in equipmentData.drones" :key="drone.id" 
+                      class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-cyan-300 transition-colors">
+                    <div class="flex items-center">
+                      <input 
+                        type="checkbox" 
+                        :id="`drone-${drone.id}`"
+                        :value="drone.id" 
+                        v-model="editRequest.drone" 
+                        class="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-gray-300 rounded"
+                      />
+                      <label :for="`drone-${drone.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                        {{ drone.name }}
+                      </label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800">
+                        Available
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -506,95 +711,300 @@
           </div>
 
           <!-- Equipment Selection for Edit -->
-          <div class="space-y-4">
-            <h4 class="text-md font-semibold text-gray-800">Equipment Selection</h4>
+          <div class="space-y-8">
+            <div class="border-b border-gray-200 pb-4">
+              <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                  <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                Equipment Selection
+              </h4>
+              <p class="text-sm text-gray-600 mt-1 ml-11">Select the equipment you need for your project</p>
+            </div>
             
-            <!-- Microphones -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Microphones</label>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label class="flex items-center">
-                  <input type="checkbox" value="1" v-model="editRequest.microphone" class="mr-2">
-                  <span>Mic1</span>
-                </label>
-                <label class="flex items-center">
-                  <input type="checkbox" value="3" v-model="editRequest.microphone" class="mr-2">
-                  <span>Mic PodCast1</span>
-                </label>
-                <label class="flex items-center">
-                  <input type="checkbox" value="4" v-model="editRequest.microphone" class="mr-2">
-                  <span>Mic PodCast2</span>
-                </label>
+            <!-- Equipment Categories -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <!-- Microphones -->
+              <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                      <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                      </svg>
+                    </div>
+                    <h5 class="text-base font-semibold text-gray-900">Microphones</h5>
+                  </div>
+                  <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    {{ editRequest.microphone.length }} selected
+                  </span>
+                </div>
+                
+                <div class="space-y-3">
+                  <div v-for="microphone in equipmentData.microphones" :key="microphone.id" 
+                      class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-green-300 transition-colors">
+                    <div class="flex items-center">
+                      <input 
+                        type="checkbox" 
+                        :id="`mic-${microphone.id}`"
+                        :value="microphone.id" 
+                        v-model="editRequest.microphone" 
+                        class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                      />
+                      <label :for="`mic-${microphone.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                        {{ microphone.name }}
+                      </label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Available
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <!-- Cameras -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Cameras</label>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label class="flex items-center">
-                  <input type="checkbox" value="1" v-model="editRequest.camera" class="mr-2">
-                  <span>A6400[1]</span>
-                </label>
+              <!-- Cameras -->
+              <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                      <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                      </svg>
+                    </div>
+                    <h5 class="text-base font-semibold text-gray-900">Cameras</h5>
+                  </div>
+                  <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    {{ editRequest.camera.length }} selected
+                  </span>
+                </div>
+                
+                <div class="space-y-3">
+                  <div v-for="camera in equipmentData.cameras" :key="camera.id" 
+                      class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 transition-colors">
+                    <div class="flex items-center">
+                      <input 
+                        type="checkbox" 
+                        :id="`cam-${camera.id}`"
+                        :value="camera.id" 
+                        v-model="editRequest.camera" 
+                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      <label :for="`cam-${camera.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                        {{ camera.name }}
+                      </label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        Available
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <!-- Tripods -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Tripods</label>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label class="flex items-center">
-                  <input type="checkbox" value="1" v-model="editRequest.tripod" class="mr-2">
-                  <span>Tripod[1]</span>
-                </label>
+              <!-- Tripods -->
+              <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-6 border border-yellow-100">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                      <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                      </svg>
+                    </div>
+                    <h5 class="text-base font-semibold text-gray-900">Tripods</h5>
+                  </div>
+                  <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    {{ editRequest.tripod.length }} selected
+                  </span>
+                </div>
+                
+                <div class="space-y-3">
+                  <div v-for="tripod in equipmentData.tripods" :key="tripod.id" 
+                      class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-yellow-300 transition-colors">
+                    <div class="flex items-center">
+                      <input 
+                        type="checkbox" 
+                        :id="`tripod-${tripod.id}`"
+                        :value="tripod.id" 
+                        v-model="editRequest.tripod" 
+                        class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+                      />
+                      <label :for="`tripod-${tripod.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                        {{ tripod.name }}
+                      </label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        Available
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <!-- Gimbals -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Gimbals</label>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label class="flex items-center">
-                  <input type="checkbox" value="1" v-model="editRequest.gimbal" class="mr-2">
-                  <span>RS4 Combo</span>
-                </label>
+              <!-- Gimbals -->
+              <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                      <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                      </svg>
+                    </div>
+                    <h5 class="text-base font-semibold text-gray-900">Gimbals</h5>
+                  </div>
+                  <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    {{ editRequest.gimbal.length }} selected
+                  </span>
+                </div>
+                
+                <div class="space-y-3">
+                  <div v-for="gimbal in equipmentData.gimbals" :key="gimbal.id" 
+                      class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-purple-300 transition-colors">
+                    <div class="flex items-center">
+                      <input 
+                        type="checkbox" 
+                        :id="`gimbal-${gimbal.id}`"
+                        :value="gimbal.id" 
+                        v-model="editRequest.gimbal" 
+                        class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                      />
+                      <label :for="`gimbal-${gimbal.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                        {{ gimbal.name }}
+                      </label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        Available
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <!-- Camera Lens -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Camera Lens</label>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label class="flex items-center">
-                  <input type="checkbox" value="1" v-model="editRequest.camera_lens" class="mr-2">
-                  <span>Sony Full 50mm[1]</span>
-                </label>
+              <!-- Camera Lens -->
+              <div class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-6 border border-indigo-100">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
+                      <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                      </svg>
+                    </div>
+                    <h5 class="text-base font-semibold text-gray-900">Camera Lens</h5>
+                  </div>
+                  <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    {{ editRequest.camera_lens.length }} selected
+                  </span>
+                </div>
+                
+                <div class="space-y-3">
+                  <div v-for="lens in equipmentData.cameraLens" :key="lens.id" 
+                      class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-indigo-300 transition-colors">
+                    <div class="flex items-center">
+                      <input 
+                        type="checkbox" 
+                        :id="`lens-${lens.id}`"
+                        :value="lens.id" 
+                        v-model="editRequest.camera_lens" 
+                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                      />
+                      <label :for="`lens-${lens.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                        {{ lens.name }}
+                      </label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                        Available
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <!-- Lights -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Lights</label>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label class="flex items-center">
-                  <input type="checkbox" value="1" v-model="editRequest.light" class="mr-2">
-                  <span>Light-1</span>
-                </label>
-                <label class="flex items-center">
-                  <input type="checkbox" value="2" v-model="editRequest.light" class="mr-2">
-                  <span>Light-2</span>
-                </label>
+              <!-- Lights -->
+              <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-6 border border-orange-100">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
+                      <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                      </svg>
+                    </div>
+                    <h5 class="text-base font-semibold text-gray-900">Lights</h5>
+                  </div>
+                  <span class="bg-orange-100 text-orange-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    {{ editRequest.light.length }} selected
+                  </span>
+                </div>
+                
+                <div class="space-y-3">
+                  <div v-for="light in equipmentData.lights" :key="light.id" 
+                      class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-orange-300 transition-colors">
+                    <div class="flex items-center">
+                      <input 
+                        type="checkbox" 
+                        :id="`light-${light.id}`"
+                        :value="light.id" 
+                        v-model="editRequest.light" 
+                        class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                      />
+                      <label :for="`light-${light.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                        {{ light.name }}
+                      </label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                        Available
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <!-- Drones -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Drones</label>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label class="flex items-center">
-                  <input type="checkbox" value="1" v-model="editRequest.drone" class="mr-2">
-                  <span>DJI air2s</span>
-                </label>
+              <!-- Drones -->
+              <div class="bg-gradient-to-br from-cyan-50 to-teal-50 rounded-xl p-6 border border-cyan-100 lg:col-span-2">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center mr-3">
+                      <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                      </svg>
+                    </div>
+                    <h5 class="text-base font-semibold text-gray-900">Drones</h5>
+                  </div>
+                  <span class="bg-cyan-100 text-cyan-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    {{ editRequest.drone.length }} selected
+                  </span>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div v-for="drone in equipmentData.drones" :key="drone.id" 
+                      class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-cyan-300 transition-colors">
+                    <div class="flex items-center">
+                      <input 
+                        type="checkbox" 
+                        :id="`drone-${drone.id}`"
+                        :value="drone.id" 
+                        v-model="editRequest.drone" 
+                        class="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-gray-300 rounded"
+                      />
+                      <label :for="`drone-${drone.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                        {{ drone.name }}
+                      </label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800">
+                        Available
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -621,6 +1031,7 @@ import Swal from 'sweetalert2'
 import { useAuthStore } from '~/store/useAuthStore'
 
 const { createEquipmentRequest, getEquipmentRequests, updateEquipmentRequest, deleteEquipmentRequest } = useEquipmentRequest()
+const { getMicrophones, getCameras, getTripods, getGimbals, getCameraLens, getLights, getDrones } = useEquipment()
 
 const showMessage = (msg: string, type: 'success' | 'error' = 'success') => {
   Swal.fire({
@@ -680,12 +1091,53 @@ const handleDateSelect = (selectInfo: DateSelectArg) => {
   // Auto-fill manual request form with selected date
   manualRequest.value.shooting_date = selectInfo.startStr
   showManualModal.value = true
+  loadEquipmentData()
+  loadRequests()
 }
 
 const handleDateClick = (arg: { dateStr: string }) => {
   manualRequest.value.shooting_date = arg.dateStr
   showManualModal.value = true
+  loadEquipmentData()
+  loadRequests()
 }
+
+const loadEquipmentData = async () => {
+  try {
+    const [microphones, cameras, tripods, gimbals, cameraLens, lights, drones] = await Promise.all([
+      getMicrophones(),
+      getCameras(),
+      getTripods(),
+      getGimbals(),
+      getCameraLens(),
+      getLights(),
+      getDrones()
+    ])
+
+    equipmentData.value = {
+      microphones,
+      cameras,
+      tripods,
+      gimbals,
+      cameraLens,
+      lights,
+      drones
+    }
+  } catch (error) {
+    console.error('Error loading equipment data:', error)
+    showMessage('Failed to load equipment data.', 'error')
+  }
+}
+
+const equipmentData = ref({
+  microphones: [] as Array<{ id: number; name: string }>,
+  cameras: [] as Array<{ id: number; name: string }>,
+  tripods: [] as Array<{ id: number; name: string }>,
+  gimbals: [] as Array<{ id: number; name: string }>,
+  cameraLens: [] as Array<{ id: number; name: string }>,
+  lights: [] as Array<{ id: number; name: string }>,
+  drones: [] as Array<{ id: number; name: string }>
+})
 
 const calendarEvents = computed(() => {
   return requests.value.map(request => {
@@ -845,6 +1297,7 @@ const confirmDeleteRequestFromEvent = async (request: EquipmentRequest) => {
 }
 
 const editRequestFromEvent = (request: EquipmentRequest) => {
+  console.log('Original request data:', request)
   editRequest.value = {
     id: request.id!.toString(),
     shooting_date: request.shooting_date,

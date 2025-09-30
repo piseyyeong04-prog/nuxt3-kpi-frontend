@@ -814,6 +814,7 @@ const videoTitle = ref('');
 const selectedCreator = ref('');
 const isBigVideo = ref('no');
 const isImpactVideo = ref('no');
+const videoRemark = ref('');
 
 
 // Data
@@ -1105,6 +1106,7 @@ const saveVideoRemark = async (videoId: string) => {
     big_video: isBigVideo.value,
     impact_video: isImpactVideo.value,
     length_big_video: typeof fbVideoData.value?.length === 'number' ? fbVideoData.value.length : 0,
+    video_remark: videoRemark.value || ''
   };
 
   await useApi('/items/remark_link', {
@@ -1244,6 +1246,7 @@ const resetForm = () => {
   isBigVideo.value = 'no';
   isImpactVideo.value = 'no'; // Add this line
   fbVideoData.value = null;
+  videoRemark.value = '';
 };
 
 // ==============================================================================
@@ -1418,6 +1421,10 @@ const editVideo = async (remark: any) => {
           <option value="yes" ${remark.impact_video === 'yes' ? 'selected' : ''}>Yes</option>
         </select>
       </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Remark</label>
+        <textarea id="swal-remark" class="w-full p-2 border rounded">${remark.remark || ''}</textarea>
+      </div>
     `,
     focusConfirm: false,
     showCancelButton: true,
@@ -1475,6 +1482,7 @@ const editVideo = async (remark: any) => {
       const lengthValue = parseInt((document.getElementById('swal-length') as HTMLInputElement).value) || 0;
       const bigVideoValue = (document.getElementById('swal-bigvideo') as HTMLSelectElement).value;
       const impactVideoValue = (document.getElementById('swal-impactvideo') as HTMLSelectElement).value;
+      const remarkValue = (document.getElementById('swal-remark') as HTMLTextAreaElement).value;
 
       // Final validation
       if (bigVideoValue === 'yes' && lengthValue < minLength) {
@@ -1489,7 +1497,8 @@ const editVideo = async (remark: any) => {
         date_created: new Date((document.getElementById('swal-date') as HTMLInputElement).value).toISOString(),
         length_big_video: auth.user?.role?.name === 'Administrator' ? lengthValue : remark.length_big_video,
         big_video: bigVideoValue,
-        impact_video: impactVideoValue
+        impact_video: impactVideoValue,
+        remark: remarkValue
       };
     }
   });
