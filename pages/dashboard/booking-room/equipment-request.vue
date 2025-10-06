@@ -81,7 +81,7 @@
 
         <div v-else class="calendar-container">
           <div class="py-2 flex items-center gap-x-2 mb-4">
-            <button @click="showManualModal = true"
+            <button @click="handleButtonClick"
               class="sm:w-auto px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl font-medium shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-200 flex-shrink-0">
               <span class="flex items-center justify-center sm:justify-start space-x-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1085,6 +1085,7 @@ const editRequest = ref({
 
 const handleEventClick = (clickInfo: EventClickArg) => {
   selectedEvent.value = clickInfo.event
+  
 }
 
 const handleDateSelect = (selectInfo: DateSelectArg) => {
@@ -1100,6 +1101,11 @@ const handleDateClick = (arg: { dateStr: string }) => {
   showManualModal.value = true
   loadEquipmentData()
   loadRequests()
+}
+
+const handleButtonClick = async () => {
+  showManualModal.value = true
+  await loadEquipmentData()
 }
 
 const loadEquipmentData = async () => {
