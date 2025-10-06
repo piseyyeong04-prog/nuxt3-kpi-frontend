@@ -1,3 +1,4 @@
+<!-- pages/dashboard/booking-room/equipment-request.vue -->
 <template>
   <div class="min-h-screen">
     <div class="bg-white shadow-lg rounded-lg overflow-hidden">
@@ -334,18 +335,36 @@
             </svg>
           </button>
         </div>
-
         <form @submit.prevent="handleManualRequest" class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label for="modal-shooting-date" class="block text-sm font-medium text-gray-700 mb-1">Shooting Date</label>
-              <input type="date" id="modal-shooting-date" v-model="manualRequest.shooting_date" required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              <label for="modal-shooting-date" class="block text-sm font-medium text-gray-700 mb-1">
+                Shooting Date <span class="text-red-500">*</span>
+              </label>
+              <input 
+                type="date" 
+                id="modal-shooting-date" 
+                v-model="manualRequest.shooting_date" 
+                :min="today"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+              />
             </div>
             <div>
-              <label for="modal-return-date" class="block text-sm font-medium text-gray-700 mb-1">Return Date</label>
-              <input type="date" id="modal-return-date" v-model="manualRequest.return_date" required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              <label for="modal-return-date" class="block text-sm font-medium text-gray-700 mb-1">
+                Return Date <span class="text-red-500">*</span>
+              </label>
+              <input 
+                type="date" 
+                id="modal-return-date" 
+                v-model="manualRequest.return_date" 
+                :min="minReturnDateManual"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+              />
+              <p v-if="manualRequest.shooting_date" class="text-xs text-gray-500 mt-1">
+                Must be after {{ new Date(manualRequest.shooting_date).toLocaleDateString() }}
+              </p>
             </div>
           </div>
 
@@ -388,7 +407,7 @@
                     <h5 class="text-base font-semibold text-gray-900">Microphones</h5>
                   </div>
                   <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                    {{ editRequest.microphone.length }} selected
+                    {{ manualRequest.microphone.length }} selected
                   </span>
                 </div>
                 
@@ -398,12 +417,12 @@
                     <div class="flex items-center">
                       <input 
                         type="checkbox" 
-                        :id="`mic-${microphone.id}`"
+                        :id="`manual-mic-${microphone.id}`"
                         :value="microphone.id" 
-                        v-model="editRequest.microphone" 
+                        v-model="manualRequest.microphone" 
                         class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                       />
-                      <label :for="`mic-${microphone.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                      <label :for="`manual-mic-${microphone.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
                         {{ microphone.name }}
                       </label>
                     </div>
@@ -428,7 +447,7 @@
                     <h5 class="text-base font-semibold text-gray-900">Cameras</h5>
                   </div>
                   <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                    {{ editRequest.camera.length }} selected
+                    {{ manualRequest.camera.length }} selected
                   </span>
                 </div>
                 
@@ -438,12 +457,12 @@
                     <div class="flex items-center">
                       <input 
                         type="checkbox" 
-                        :id="`cam-${camera.id}`"
+                        :id="`manual-cam-${camera.id}`"
                         :value="camera.id" 
-                        v-model="editRequest.camera" 
+                        v-model="manualRequest.camera" 
                         class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                       />
-                      <label :for="`cam-${camera.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                      <label :for="`manual-cam-${camera.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
                         {{ camera.name }}
                       </label>
                     </div>
@@ -468,7 +487,7 @@
                     <h5 class="text-base font-semibold text-gray-900">Tripods</h5>
                   </div>
                   <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                    {{ editRequest.tripod.length }} selected
+                    {{ manualRequest.tripod.length }} selected
                   </span>
                 </div>
                 
@@ -478,12 +497,12 @@
                     <div class="flex items-center">
                       <input 
                         type="checkbox" 
-                        :id="`tripod-${tripod.id}`"
+                        :id="`manual-tripod-${tripod.id}`"
                         :value="tripod.id" 
-                        v-model="editRequest.tripod" 
+                        v-model="manualRequest.tripod" 
                         class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
                       />
-                      <label :for="`tripod-${tripod.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                      <label :for="`manual-tripod-${tripod.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
                         {{ tripod.name }}
                       </label>
                     </div>
@@ -508,7 +527,7 @@
                     <h5 class="text-base font-semibold text-gray-900">Gimbals</h5>
                   </div>
                   <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                    {{ editRequest.gimbal.length }} selected
+                    {{ manualRequest.gimbal.length }} selected
                   </span>
                 </div>
                 
@@ -518,12 +537,12 @@
                     <div class="flex items-center">
                       <input 
                         type="checkbox" 
-                        :id="`gimbal-${gimbal.id}`"
+                        :id="`manual-gimbal-${gimbal.id}`"
                         :value="gimbal.id" 
-                        v-model="editRequest.gimbal" 
+                        v-model="manualRequest.gimbal" 
                         class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                       />
-                      <label :for="`gimbal-${gimbal.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                      <label :for="`manual-gimbal-${gimbal.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
                         {{ gimbal.name }}
                       </label>
                     </div>
@@ -549,7 +568,7 @@
                     <h5 class="text-base font-semibold text-gray-900">Camera Lens</h5>
                   </div>
                   <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                    {{ editRequest.camera_lens.length }} selected
+                    {{ manualRequest.camera_lens.length }} selected
                   </span>
                 </div>
                 
@@ -559,12 +578,12 @@
                     <div class="flex items-center">
                       <input 
                         type="checkbox" 
-                        :id="`lens-${lens.id}`"
+                        :id="`manual-lens-${lens.id}`"
                         :value="lens.id" 
-                        v-model="editRequest.camera_lens" 
+                        v-model="manualRequest.camera_lens" 
                         class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                       />
-                      <label :for="`lens-${lens.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                      <label :for="`manual-lens-${lens.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
                         {{ lens.name }}
                       </label>
                     </div>
@@ -589,7 +608,7 @@
                     <h5 class="text-base font-semibold text-gray-900">Lights</h5>
                   </div>
                   <span class="bg-orange-100 text-orange-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                    {{ editRequest.light.length }} selected
+                    {{ manualRequest.light.length }} selected
                   </span>
                 </div>
                 
@@ -599,12 +618,12 @@
                     <div class="flex items-center">
                       <input 
                         type="checkbox" 
-                        :id="`light-${light.id}`"
+                        :id="`manual-light-${light.id}`"
                         :value="light.id" 
-                        v-model="editRequest.light" 
+                        v-model="manualRequest.light" 
                         class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
                       />
-                      <label :for="`light-${light.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                      <label :for="`manual-light-${light.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
                         {{ light.name }}
                       </label>
                     </div>
@@ -629,7 +648,7 @@
                     <h5 class="text-base font-semibold text-gray-900">Drones</h5>
                   </div>
                   <span class="bg-cyan-100 text-cyan-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                    {{ editRequest.drone.length }} selected
+                    {{ manualRequest.drone.length }} selected
                   </span>
                 </div>
                 
@@ -639,12 +658,12 @@
                     <div class="flex items-center">
                       <input 
                         type="checkbox" 
-                        :id="`drone-${drone.id}`"
+                        :id="`manual-drone-${drone.id}`"
                         :value="drone.id" 
-                        v-model="editRequest.drone" 
+                        v-model="manualRequest.drone" 
                         class="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-gray-300 rounded"
                       />
-                      <label :for="`drone-${drone.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                      <label :for="`manual-drone-${drone.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
                         {{ drone.name }}
                       </label>
                     </div>
@@ -688,14 +707,33 @@
         <form @submit.prevent="updateRequestData" class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label for="edit-shooting-date" class="block text-sm font-medium text-gray-700 mb-1">Shooting Date</label>
-              <input type="date" id="edit-shooting-date" v-model="editRequest.shooting_date" required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              <label for="edit-shooting-date" class="block text-sm font-medium text-gray-700 mb-1">
+                Shooting Date <span class="text-red-500">*</span>
+              </label>
+              <input 
+                type="date" 
+                id="edit-shooting-date" 
+                v-model="editRequest.shooting_date" 
+                :min="today"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+              />
             </div>
             <div>
-              <label for="edit-return-date" class="block text-sm font-medium text-gray-700 mb-1">Return Date</label>
-              <input type="date" id="edit-return-date" v-model="editRequest.return_date" required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              <label for="edit-return-date" class="block text-sm font-medium text-gray-700 mb-1">
+                Return Date <span class="text-red-500">*</span>
+              </label>
+              <input 
+                type="date" 
+                id="edit-return-date" 
+                v-model="editRequest.return_date" 
+                :min="minReturnDateEdit"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+              />
+              <p v-if="editRequest.shooting_date" class="text-xs text-gray-500 mt-1">
+                Must be after {{ new Date(editRequest.shooting_date).toLocaleDateString() }}
+              </p>
             </div>
           </div>
 
@@ -748,12 +786,12 @@
                     <div class="flex items-center">
                       <input 
                         type="checkbox" 
-                        :id="`mic-${microphone.id}`"
+                        :id="`edit-mic-${microphone.id}`"
                         :value="microphone.id" 
                         v-model="editRequest.microphone" 
                         class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                       />
-                      <label :for="`mic-${microphone.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                      <label :for="`edit-mic-${microphone.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
                         {{ microphone.name }}
                       </label>
                     </div>
@@ -788,12 +826,12 @@
                     <div class="flex items-center">
                       <input 
                         type="checkbox" 
-                        :id="`cam-${camera.id}`"
+                        :id="`edit-cam-${camera.id}`"
                         :value="camera.id" 
                         v-model="editRequest.camera" 
                         class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                       />
-                      <label :for="`cam-${camera.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                      <label :for="`edit-cam-${camera.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
                         {{ camera.name }}
                       </label>
                     </div>
@@ -828,12 +866,12 @@
                     <div class="flex items-center">
                       <input 
                         type="checkbox" 
-                        :id="`tripod-${tripod.id}`"
+                        :id="`edit-tripod-${tripod.id}`"
                         :value="tripod.id" 
                         v-model="editRequest.tripod" 
                         class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
                       />
-                      <label :for="`tripod-${tripod.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                      <label :for="`edit-tripod-${tripod.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
                         {{ tripod.name }}
                       </label>
                     </div>
@@ -868,12 +906,12 @@
                     <div class="flex items-center">
                       <input 
                         type="checkbox" 
-                        :id="`gimbal-${gimbal.id}`"
+                        :id="`edit-gimbal-${gimbal.id}`"
                         :value="gimbal.id" 
                         v-model="editRequest.gimbal" 
                         class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                       />
-                      <label :for="`gimbal-${gimbal.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                      <label :for="`edit-gimbal-${gimbal.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
                         {{ gimbal.name }}
                       </label>
                     </div>
@@ -909,12 +947,12 @@
                     <div class="flex items-center">
                       <input 
                         type="checkbox" 
-                        :id="`lens-${lens.id}`"
+                        :id="`edit-lens-${lens.id}`"
                         :value="lens.id" 
                         v-model="editRequest.camera_lens" 
                         class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                       />
-                      <label :for="`lens-${lens.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                      <label :for="`edit-lens-${lens.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
                         {{ lens.name }}
                       </label>
                     </div>
@@ -949,12 +987,12 @@
                     <div class="flex items-center">
                       <input 
                         type="checkbox" 
-                        :id="`light-${light.id}`"
+                        :id="`edit-light-${light.id}`"
                         :value="light.id" 
                         v-model="editRequest.light" 
                         class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
                       />
-                      <label :for="`light-${light.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                      <label :for="`edit-light-${light.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
                         {{ light.name }}
                       </label>
                     </div>
@@ -989,12 +1027,12 @@
                     <div class="flex items-center">
                       <input 
                         type="checkbox" 
-                        :id="`drone-${drone.id}`"
+                        :id="`edit-drone-${drone.id}`"
                         :value="drone.id" 
                         v-model="editRequest.drone" 
                         class="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-gray-300 rounded"
                       />
-                      <label :for="`drone-${drone.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
+                      <label :for="`edit-drone-${drone.id}`" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
                         {{ drone.name }}
                       </label>
                     </div>
@@ -1012,8 +1050,7 @@
           <div class="flex justify-end space-x-3 mt-6">
             <button type="button" @click="showEditModal = false"
               class="px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400 text-gray-800">Cancel</button>
-            <button type="submit" class="px-4 py-2 rounded-md bg-green-600 hover:bg-green-700 text-white">📂 Update
-              Request</button>
+            <button type="submit" class="px-4 py-2 rounded-md bg-green-600 hover:bg-green-700 text-white">Update Request</button>
           </div>
         </form>
       </div>
@@ -1045,6 +1082,26 @@ const showMessage = (msg: string, type: 'success' | 'error' = 'success') => {
     toast: true
   })
 }
+
+const today = computed(() =>{
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  return date.toISOString().split('T')[0];
+})
+
+const minReturnDateManual = computed(() =>{
+  if (!manualRequest.value.shooting_date) return today.value;
+  const shootingDate = new Date(manualRequest.value.shooting_date);
+  shootingDate.setDate(shootingDate.getDate() + 1);
+  return shootingDate.toISOString().split('T')[0];
+})
+
+const minReturnDateEdit = computed(() => {
+  if (!editRequest.value.shooting_date) return today.value
+  const shootingDate = new Date(editRequest.value.shooting_date)
+  shootingDate.setDate(shootingDate.getDate() + 1)
+  return shootingDate.toISOString().split('T')[0]
+})
 
 // Reactive state
 const requests = ref<EquipmentRequest[]>([])
@@ -1199,6 +1256,26 @@ const changeView = (viewName: string) => {
 }
 
 const handleManualRequest = async () => {
+  // Validate dates BEFORE setting isProcessing
+  const shootingDate = new Date(manualRequest.value.shooting_date)
+  const returnDate = new Date(manualRequest.value.return_date)
+  const nowDate = new Date()
+  nowDate.setHours(0, 0, 0, 0)
+  shootingDate.setHours(0, 0, 0, 0)
+  returnDate.setHours(0, 0, 0, 0)
+
+  // Check if shooting date is in the past
+  if (shootingDate < nowDate) {
+    showMessage('❌ Shooting date cannot be in the past.', 'error')
+    return
+  }
+
+  // Check if return date is after shooting date
+  if (returnDate <= shootingDate) {
+    showMessage('❌ Return date must be after the shooting date.', 'error')
+    return
+  }
+
   isProcessing.value = true
   try {
     const requestData = {
@@ -1215,7 +1292,7 @@ const handleManualRequest = async () => {
       status: 'published'
     }
 
-    await createEquipmentRequest(requestData)
+    await createEquipmentRequest(requestData as any)
     showMessage('✅ Equipment request created successfully!', 'success')
     
     // Reset form
@@ -1312,10 +1389,31 @@ const editRequestFromEvent = (request: EquipmentRequest) => {
     drone: request.drone?.map(d => d.id.toString()) || []
   }
   selectedEvent.value = null
+  loadEquipmentData() // Load equipment data before showing modal
   showEditModal.value = true
 }
 
 const updateRequestData = async () => {
+  // Validate dates BEFORE setting isProcessing
+  const shootingDate = new Date(editRequest.value.shooting_date)
+  const returnDate = new Date(editRequest.value.return_date)
+  const nowDate = new Date()
+  nowDate.setHours(0, 0, 0, 0)
+  shootingDate.setHours(0, 0, 0, 0)
+  returnDate.setHours(0, 0, 0, 0)
+
+  // Check if shooting date is in the past
+  if (shootingDate < nowDate) {
+    showMessage('❌ Shooting date cannot be in the past.', 'error')
+    return
+  }
+
+  // Check if return date is after shooting date
+  if (returnDate <= shootingDate) {
+    showMessage('❌ Return date must be after the shooting date.', 'error')
+    return
+  }
+
   isProcessing.value = true
   try {
     const updatedData = {
@@ -1331,7 +1429,8 @@ const updateRequestData = async () => {
       drone: editRequest.value.drone.map(id => parseInt(id))
     }
 
-    await updateEquipmentRequest(editRequest.value.id, updatedData)
+    // Cast to any to avoid TypeScript type checking issues
+    await updateEquipmentRequest(editRequest.value.id, updatedData as any)
     showMessage('✅ Equipment request updated successfully!', 'success')
     showEditModal.value = false
     await loadRequests()

@@ -27,7 +27,7 @@ export const useEquipmentRequest = () => {
     }
   };
 
-  const updateEquipmentRequest = async (id: string, requestData: Partial<EquipmentRequest>) => {
+  const updateEquipmentRequest = async (id: string, requestData: Partial<Omit<EquipmentRequest, 'shooting_time'> & { shooting_time: number }>) => {
     try {
       const response = await useApi<EquipmentRequest>(`/items/equipment_request/${id}`, {
         method: 'PATCH',

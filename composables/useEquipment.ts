@@ -1,3 +1,4 @@
+// composables/useEquipment.ts
 export const useEquipment = () => {
   const getMicrophones = async () => {
     try {
