@@ -59,19 +59,13 @@
                 {{ locale === 'en' ? 'Department' : 'ដេប៉ាតឺម៉ង់' }}
               </label>
               <div class="relative">
-                <select v-model="form.department" class="block w-full px-4 py-3 rounded-lg appearance-none bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white shadow-sm 
-                       focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-30 transition-all">
-                  <option value="" disabled>{{ locale === 'en' ? 'Select Department' : 'ជ្រើសរើសដេប៉ាតឺម៉ង់' }}</option>
-                  <option v-for="dept in availableDepartments" :key="dept" :value="dept">
-                    {{ dept }}
-                  </option>
-                </select>
-                <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
-                  <svg class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </div>
+                <input 
+                  readonly 
+                  :value="form.department" 
+                  type="text" 
+                  class="block w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white shadow-sm 
+                  focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-30 transition-all" 
+                />
               </div>
             </div>
           </div>
@@ -423,10 +417,21 @@
   import { useAuthStore } from '~/store/useAuthStore';
   import { useRouter } from 'vue-router';
   import type { IResponse } from '~/types/api';
+  import type { KpiItem } from '~/types/kpi';
   
+  // State
+  const kpiDetail = ref<KpiItem | null>(null);
+  const loading = ref(true);
+  const error = ref(false);
+  const errorMessage = ref('');
+
   const { t, locale } = useI18n();
   const router = useRouter();
+  const route = useRoute();
   const auth = useAuthStore();
+  const kpiId = computed(() => route.params.id as string);
+
+  const userDepartment = ref<{ id: string; title: string }>({ id: '', title: '' });
   
   // Format date as "26th /March/2025"
   const currentDate = computed(() => {
@@ -464,6 +469,108 @@
       )
     ))
   ).data;
+
+  // API Calls
+  const fetchKpiDetail = async () => {
+    loading.value = true;
+    error.value = false;
+    console.log('Fetching KPI detail for ID:', kpiId.value);
+
+    try {
+      if (!auth.user?.id) {
+        throw new Error('User is not authenticated');
+      }
+      console.log('User authenticated, making API request');
+
+      // API request
+      const response = await useApi<IResponse<KpiItem>>(
+        `/items/kpi/${kpiId.value}?fields=*,` +
+          `department.id,department.title,` +
+          `activities.*,activities.references.*,` +
+          `verifiedBy.id,verifiedBy.first_name,verifiedBy.last_name,verifiedBy.title,` +
+          `requestedBy.id,requestedBy.first_name,requestedBy.last_name,requestedBy.title,` +
+          `checkedBy.id,checkedBy.first_name,checkedBy.last_name,checkedBy.title,` +
+          `approvedBy.id,approvedBy.first_name,approvedBy.last_name,approvedBy.title`,
+        {
+          method: 'GET'
+        }
+      );
+      console.log('API response received:', response);
+
+      if (response && response.data) {
+        // Normalize activities: ensure numeric fields and expected shape
+        const raw = response.data as any;
+
+        const activities = (raw.activities || []).map((act: any) => {
+          // Resolve client: could be string or object
+          let clientValue = '';
+          if (act.client) {
+            if (typeof act.client === 'string') clientValue = act.client;
+            else if (typeof act.client === 'object') clientValue = act.client.name || act.client.first_name || String(act.client.id || '');
+          }
+
+          const refs = (act.references || []).map((r: any) => ({
+            image: r?.image ?? r?.id ?? null,
+            link: r?.link ?? ''
+          }));
+
+          const bonusFee = act.bonusFee != null ? Number(act.bonusFee) : 0;
+          const amount = act.amount != null ? Number(act.amount) : 0;
+          const total = act.total != null ? Number(act.total) : bonusFee * amount;
+
+          return {
+            name: act.name ?? '',
+            bonusFee,
+            amount,
+            client: clientValue,
+            total,
+            references: refs.length ? refs : [{ image: null, link: '' }]
+          };
+        });
+
+        // Populate form with fetched data (use value)
+        form.value.name = raw.name ?? form.value.name;
+        form.value.department = raw.department?.title ?? raw.department ?? form.value.department;
+        form.value.category = raw.category ?? form.value.category;
+        form.value.totalBonusAmount = Number(raw.totalBonusAmount ?? activities.reduce((s: number, a: any) => s + (a.total || 0), 0));
+        form.value.activities = activities.length ? activities : form.value.activities;
+        form.value.reference = raw.reference ?? form.value.reference;
+
+        // Approvers: requestedBy, checkedBy, verifiedBy, approvedBy
+        const setPerson = (src: any) => {
+          if (!src) return { id: '', name: '', position: '' };
+          const first = src.first_name ?? src.name ?? '';
+          const last = src.last_name ?? '';
+          return {
+            id: src.id ? String(src.id) : (src.id ?? ''),
+            name: (first + (last ? ' ' + last : '')).trim() || src.title || '',
+            position: src.title ?? ''
+          };
+        };
+
+        form.value.requestedBy = setPerson(raw.requestedBy ?? raw.requested_by ?? raw.requested);
+        form.value.checkedBy = setPerson(raw.checkedBy ?? raw.checkBy ?? raw.check_by);
+        form.value.verifiedBy = setPerson(raw.verifiedBy ?? raw.verifyBy ?? raw.verified);
+        form.value.approvedBy = setPerson(raw.approvedBy ?? raw.approveBy ?? raw.approved);
+
+        // Keep kpiDetail reactive for debug or other uses
+        kpiDetail.value = response.data;
+
+        // Ensure derived totals are consistent
+        form.value.totalBonusAmount = totaltotal.value;
+
+        console.log('KPI detail loaded successfully', { activities: form.value.activities, approvers: { requestedBy: form.value.requestedBy } });
+      } else {
+        throw new Error('Failed to load data');
+      }
+    } catch (err: any) {
+      console.error('Error fetching KPI detail:', err);
+      error.value = true;
+      errorMessage.value = err.message || 'An unexpected error occurred';
+    } finally {
+      loading.value = false;
+    }
+  };
   
   // Store for custom added clients
   const customClients = ref<{ id: string; name: string }[]>([]);
@@ -591,9 +698,6 @@
   
   // API submission format with just IDs
   interface KPISubmission {
-    name: string;
-    department: string;
-    category: string;
     totalBonusAmount: number;
     activities: Activity[];
     requestedBy: string;
@@ -620,7 +724,7 @@
   // Initialize form
   const form: Ref<KPIForm> = ref({
     name: auth.user?.first_name + ' ' + auth.user?.last_name || '',
-    department: '',
+    department: auth.user?.department?.title || '',
     category: auth.user?.title || '',
     totalBonusAmount: 0,
     activities: [{
@@ -856,9 +960,6 @@
   // Prepare data for API submission (only including IDs for approvers)
   const prepareFormData = (): KPISubmission => {
     return {
-      name: form.value.name,
-      department: form.value.department,
-      category: form.value.category,
       totalBonusAmount: form.value.totalBonusAmount,
       activities: form.value.activities,
       // Only send IDs for the approvers
@@ -866,23 +967,30 @@
       checkedBy: form.value.checkedBy.id || '',
       verifiedBy: form.value.verifiedBy.id || '',
       approvedBy: form.value.approvedBy.id || '',
-      reference: form.value.reference
+      // reference: form.value.reference
     };
   };
   
   // Submit form to API
   const submitForm = async () => {
     try {
-      // Validate form
-      if (!form.value.name || !form.value.department) {
+      // Basic validation
+      if (!kpiId.value) {
         return Swal.fire({
-          title: locale.value === 'en' ? 'Validation Error' : 'កំហុសការផ្ទៀងផ្ទាត់',
-          text: locale.value === 'en' ? 'Please fill in all required fields' : 'សូមបំពេញគ្រប់វាលដែលត្រូវការ',
+          title: locale.value === 'en' ? 'Error' : 'មានបញ្ហា',
+          text: locale.value === 'en' ? 'Missing KPI ID for update.' : 'មិនមានលេខសម្គាល់ KPI សម្រាប់ការធ្វើបច្ចុប្បន្នភាពទេ។',
           icon: 'error'
         });
       }
-  
-      // Check for empty activities
+
+      if (!form.value.name || !form.value.department) {
+        return Swal.fire({
+            title: locale.value === 'en' ? 'Validation Error' : 'កំហុសការផ្ទៀងផ្ទាត់',
+            text: locale.value === 'en' ? 'Please fill in all required fields' : 'សូមបំពេញគ្រប់វាលដែលត្រូវការ',
+            icon: 'error'
+        });
+      }
+
       const hasEmptyActivity = form.value.activities.some(a => !a.name);
       if (hasEmptyActivity) {
         return Swal.fire({
@@ -891,50 +999,49 @@
           icon: 'error'
         });
       }
-  
-      // Show loading indicator
+
+      // Recompute total before submit (defensive)
+      form.value.totalBonusAmount = form.value.activities.reduce((s, a) => s + (a.total || 0), 0);
+
       Swal.fire({
-        title: locale.value === 'en' ? 'Submitting...' : 'កំពុងដាក់ស្នើ...',
+        title: locale.value === 'en' ? 'Updating...' : 'កំពុងធ្វើបច្ចុប្បន្នភាព...',
         allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        }
+        didOpen: () => Swal.showLoading()
       });
-  
-      // Prepare data with only IDs for approvers
+
       const submissionData = prepareFormData();
-  
-      // For debugging
-      console.log('Submitting data with ID-only approvers:', submissionData);
-  
-      // Send data to API
-      const response = await useApi<{ data: { id: string } }>('/items/kpi', {
-        method: 'POST',
+      console.log('[KPI EDIT] PATCH payload:', submissionData);
+
+      const response = await useApi<{ data: { id: string } }>(`/items/kpi/${kpiId.value}`, {
+        method: 'PATCH',
         data: submissionData
       });
-  
-      // Show success message
+
+      console.log('[KPI EDIT] PATCH response:', response);
+
       Swal.fire({
-        title: locale.value === 'en' ? 'Success!' : 'ជោគជ័យ!',
-        text: locale.value === 'en' ? 'Your commission request has been submitted successfully' : 'សំណើកម្រៃជើងសាររបស់អ្នកត្រូវបានដាក់ស្នើដោយជោគជ័យ',
+        title: locale.value === 'en' ? 'Updated!' : 'បានធ្វើបច្ចុប្បន្នភាព!',
+        text: locale.value === 'en'
+          ? 'KPI has been updated successfully.'
+          : 'KPI ត្រូវបានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ។',
         icon: 'success',
-        confirmButtonText: locale.value === 'en' ? 'View Requests' : 'មើលសំណើ'
-      }).then((result) => {
+        confirmButtonText: locale.value === 'en' ? 'View KPI' : 'មើល KPI'
+      }).then(result => {
         if (result.isConfirmed) {
-          // Navigate to commission requests list by id
-          const commissionId = (response as { data: { id: string } }).data.id;
-          router.push(`/dashboard/history-kpi/${commissionId}`);
+          router.push(`/dashboard/history-kpi/${kpiId.value}`);
         }
       });
-  
-      // Reset form
-      resetForm();
-  
-    } catch (error) {
-      console.error('Error submitting form:', error);
+
+      // Optionally refresh form with latest saved data
+      await fetchKpiDetail();
+
+    } catch (err) {
+      console.error('Error updating KPI:', err);
       Swal.fire({
         title: locale.value === 'en' ? 'Error' : 'មានបញ្ហា',
-        text: locale.value === 'en' ? 'An error occurred while submitting your request' : 'មានកំហុសកើតឡើងពេលដាក់ស្នើសុំរបស់អ្នក',
+        text: locale.value === 'en'
+          ? 'An error occurred while updating the KPI.'
+          : 'មានកំហុសកើតឡើងក្នុងពេលធ្វើបច្ចុប្បន្នភាព KPI។',
         icon: 'error'
       });
     }
@@ -950,19 +1057,8 @@
   // Initialize component
   onMounted(() => {
     logDebugInfo();
-  
-    // If user department matches an available department, select it by default
-    if (auth.user?.departments?.text) {
-      const userDepartment = auth.user.departments.text;
-      const matchingDept = availableDepartments.value.find(
-        dept => dept.toLowerCase().trim() === userDepartment.toLowerCase().trim()
-      );
-  
-      if (matchingDept) {
-        form.value.department = matchingDept;
-        updateApprovers(matchingDept);
-      }
-    }
+
+    fetchKpiDetail();
   });
   
   definePageMeta({
