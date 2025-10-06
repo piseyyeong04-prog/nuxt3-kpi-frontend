@@ -1207,7 +1207,7 @@ const changeView = (viewName: string) => {
 const handleManualRequest = async () => {
   // Add validation before processing
   if (new Date(manualRequest.value.return_date) < new Date(manualRequest.value.shooting_date)) {
-    showMessage('❌ Return date must be greater than or equal to shooting date.', 'error')
+    showMessage('❌ Return date must be on or after the shooting date.', 'error')
     return
   }
   
@@ -1330,7 +1330,7 @@ const editRequestFromEvent = (request: EquipmentRequest) => {
 const updateRequestData = async () => {
   // Add validation before processing
   if (new Date(editRequest.value.return_date) < new Date(editRequest.value.shooting_date)) {
-    showMessage('❌ Return date must be greater than or equal to shooting date.', 'error')
+    showMessage('❌ Return date must be on or after the shooting date.', 'error')
     return
   }
   isProcessing.value = true
