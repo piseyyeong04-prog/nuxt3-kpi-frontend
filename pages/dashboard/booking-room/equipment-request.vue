@@ -1453,10 +1453,10 @@ const formatDate = (dateString: string) => {
 
 const sendTelegramMessage = async (text: string) => {
   try {
-    await $fetch(`https://api.telegram.org/bot7611691528:AAHKm4sEPEvMUDZGgBqJ7Fp3yNxLZO_HMJM/sendMessage`, {
+    await $fetch(`https://api.telegram.org/bot8387097831:AAGUvNCJPqfWP0-P6FQZmaImny_oJTNaV7g/sendMessage`, {
       method: 'POST',
       body: {
-        chat_id: '-1002544759581',
+        chat_id: '-1002740135200',
         text: text,
         parse_mode: 'HTML'
       }
