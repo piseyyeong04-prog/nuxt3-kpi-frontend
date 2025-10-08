@@ -361,7 +361,7 @@
           </div>
   
           <!-- Reference Section -->
-          <div
+          <!-- <div
             class="bg-gray-50 dark:bg-gray-800/50 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <label class="block text-sm font-medium text-gray-700 dark:text-white mb-2 flex items-center gap-2">
               <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -374,7 +374,7 @@
                     focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-30 transition-all
                     dark:border-gray-700 dark:placeholder-gray-500" rows="3"
               placeholder="Add any reference information here..."></textarea>
-          </div>
+          </div> -->
   
           <!-- Action Buttons -->
           <div class="flex flex-col sm:flex-row sm:justify-end gap-3 pt-4" v-motion-slide-visible-once="{

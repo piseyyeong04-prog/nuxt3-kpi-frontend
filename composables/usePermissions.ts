@@ -6,6 +6,10 @@ export function usePermissions() {
   const auth = useAuthStore()
   const adminRoleId = '3a5cb98e-02f8-4f09-afd9-dcd43288c756'
   const saleRoleId = 'a7b9388a-9f74-4a0d-afd4-741f0f488ec2'
+  // creator roldid
+  const creatorRoleId = '487171a6-b731-4d96-b350-3481868c8f92'
+  // Writer roleID
+  const writerRoleId = 'bb5d4a67-a17e-4cdf-9d59-c8f95518797b'
   // hrRoleId
   const hrRoleId = '90feab0a-4641-44bc-91ea-806387b95230'
 
@@ -18,7 +22,19 @@ export function usePermissions() {
   const isHr = computed(() =>{
     return auth.user?.role?.id === hrRoleId
   })
+    const isCreator = computed(() => {
+    return auth.user?.role?.id === creatorRoleId
+  })
   
-
-  return { isAdmin , isSale ,isHr }
+  const isWriter = computed(() => {
+    return auth.user?.role?.id === writerRoleId
+  })
+  
+  return { 
+    isAdmin, 
+    isSale, 
+    isHr, 
+    isCreator, 
+    isWriter 
+  }
 }
