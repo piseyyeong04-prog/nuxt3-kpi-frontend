@@ -9,7 +9,7 @@ export interface IRemark {
   creators: number;
   date_created: Date;
   impact_article: string;
-
+  pr: boolean;
 }
 
 export interface IWriter {
@@ -40,7 +40,7 @@ export const getTotalViews = (remarks: IRemark[] | undefined): string => {
 
   let total = 0;
   remarks.forEach(remark => {
-    if (remark.view) {
+    if (remark.view && !remark.pr) {
       total += parseInt(remark.view);
     }
   });
@@ -160,26 +160,45 @@ export const getTotalArticlesCountInCurrentPeriod = (creators: IWriter[], period
 
 export const getTotalViewsAcrossAllInCurrentPeriod = (creators: IWriter[], period: { from: Date; to: Date } | null): string => {
   if (!period) return '0';
-  let totalViews = 0;
-  creators.forEach(creator => {
-    const views = (creator.remarks || []).filter(article => {
-      const date = new Date(article.date_created);
-      return date >= period.from && date < period.to;
-    }).reduce((sum, article) => sum + (parseInt(article.view || '0')), 0);
-    totalViews += views;
-  });
+  const totalViews = creators.reduce((acc, creator) => {
+    const views = (creator.remarks || [])
+      .filter(r => r.pr !== true)
+      .filter(r => {
+        const date = new Date(r.date_created);
+        return date >= period.from && date < period.to;
+      })
+      .reduce((sum, r) => sum + (parseInt(r.view || '0') || 0), 0);
+    return acc + views;
+  }, 0);
+  return totalViews.toString();
+};
+
+export const getTotalPrViewsAcrossAllInCurrentPeriod = (creators: IWriter[], period: { from: Date; to: Date } | null): string => {
+  if (!period) return '0';
+  const totalViews = creators.reduce((acc, creator) => {
+    const views = (creator.remarks || [])
+      .filter(r => r.pr === true)
+      .filter(r => {
+        const date = new Date(r.date_created);
+        return date >= period.from && date < period.to;
+      })
+      .reduce((sum, r) => sum + (parseInt(r.view || '0') || 0), 0);
+    return acc + views;
+  }, 0);
   return totalViews.toString();
 };
 
 export const getCompletedTargetsCountInCurrentPeriod = (creators: IWriter[], period: { from: Date; to: Date } | null): number => {
   if (!period) return 0;
   return creators.filter(creator => {
-    const remarksInPeriod = (creator.remarks || []).filter(article => {
-      const date = new Date(article.date_created);
-      return date >= period.from && date < period.to;
-    });
-    const views = remarksInPeriod.reduce((sum, r) => sum + (parseInt(r.view || '0')), 0);
-    const target = parseInt(creator.target || '0');
+    const remarksInPeriod = (creator.remarks || [])
+      .filter(r => r.pr !== true) // exclude PR items
+      .filter(r => {
+        const date = new Date(r.date_created);
+        return date >= period.from && date < period.to;
+      });
+    const views = remarksInPeriod.reduce((sum, r) => sum + (parseInt(r.view || '0', 10) || 0), 0);
+    const target = parseInt(creator.target || '0', 10);
     return views >= target;
   }).length;
 };
