@@ -11,6 +11,7 @@ export interface IRemark {
   big_video: string;
   impact_video: string;
   length_big_video: number;
+  pr: boolean;
 }
 
 export interface ICreator {
@@ -368,3 +369,20 @@ export const getCurrentKpiPeriodKey = (): string => {
   
   return `${year}-${String(month + 1).padStart(2, '0')}`
 }
+
+/**
+ * Count PR videos from remarks
+ */
+export const countPrVideos = (remarks: IRemark[] = []): number => {
+  return remarks.filter(r => r.pr === true).length;
+};
+
+/**
+ * Get total views from PR videos only
+ */
+export const getPrVideoViews = (remarks: IRemark[] = []): string => {
+  return remarks
+    .filter(r => r.pr === true && r.view)
+    .reduce((sum, r) => sum + parseInt(r.view || '0'), 0)
+    .toString();
+};
