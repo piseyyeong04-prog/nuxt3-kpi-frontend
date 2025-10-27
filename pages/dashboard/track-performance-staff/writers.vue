@@ -626,6 +626,9 @@
                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Type
                       </th>
+                      <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        PR
+                      </th>
                       <th
                         class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Actions
@@ -680,7 +683,17 @@
                           Simple
                         </span>
                       </td>
-
+                       <td class="px-6 py-4 text-center">
+                        <span v-if="article.pr === true || article.pr === 'true'"
+                          class="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                          <Icon icon="mdi:bullhorn" class="h-3 w-3" />
+                          Yes
+                        </span>
+                        <span v-else
+                          class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">
+                          No
+                        </span>
+                      </td>
                       <!-- Actions -->
                       <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div class="flex gap-2 justify-end">
