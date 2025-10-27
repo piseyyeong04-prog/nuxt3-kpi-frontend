@@ -69,6 +69,50 @@
 
                       <!-- Article type selection (only for single mode) -->
                       <div v-if="importMode === 'single'" class="space-y-2 mt-3">
+                        <!-- PR Article Toggle -->
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">PR Article</label>
+                        <div class="flex gap-4">
+                          <!-- No -->
+                          <label class="flex items-center cursor-pointer">
+                            <input
+                              v-model="isPrArticle"
+                              type="radio"
+                              :value="false"
+                              name="pr-article"
+                              class="sr-only"
+                              required
+                            />
+                            <div
+                              class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
+                              :class="isPrArticle === false
+                                ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300'
+                                : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'"
+                            >
+                              <span class="font-medium">No</span>
+                            </div>
+                          </label>
+
+                          <!-- Yes -->
+                          <label class="flex items-center cursor-pointer">
+                            <input
+                              v-model="isPrArticle"
+                              type="radio"
+                              :value="true"
+                              name="pr-article"
+                              class="sr-only"
+                            />
+                            <div
+                              class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
+                              :class="isPrArticle === true
+                                ? 'border-green-500 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                                : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'"
+                            >
+                              <Icon icon="mdi:bullhorn" class="h-5 w-5" />
+                              <span class="font-medium">Yes</span>
+                            </div>
+                          </label>
+                        </div>
+
                         <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Article Type</label>
                         <div class="flex gap-4">
                           <label class="flex items-center cursor-pointer">
@@ -244,7 +288,7 @@
             </div>
 
             <!-- Performance Summary Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
               <!-- Total Articles Card -->
               <div
                 class="group relative overflow-hidden bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-700 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
@@ -292,6 +336,23 @@
                   <p class="text-rose-100 text-sm font-medium uppercase tracking-wide">Completed Targets</p>
                   <p class="text-4xl font-bold text-white">
                     {{ getCompletedTargetsCountInCurrentPeriod(creators, currentKpiPeriod) }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Total Views Card -->
+              <div
+                class="group relative overflow-hidden bg-gradient-to-br from-blue-500 to-cyan-600 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+                <div class="relative space-y-3">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-center w-12 h-12 bg-white/20 rounded-2xl backdrop-blur-sm">
+                      <Icon icon="mdi:bullhorn" class="h-8 w-8 text-white" />
+                    </div>
+                  </div>
+                  <p class="text-emerald-100 text-sm font-medium uppercase tracking-wide">PR Views (This Period)</p>
+                  <p class="text-4xl font-bold text-white">
+                    {{ formatNumber(getTotalPrViewsAcrossAllInCurrentPeriod(creators, currentKpiPeriod)) }}
                   </p>
                 </div>
               </div>
@@ -708,6 +769,34 @@
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    PR Article
+                  </label>
+                  <div class="flex gap-4">
+                    <!-- No -->
+                    <label :class="[
+                      'cursor-pointer px-4 py-2 rounded-lg border transition-all',
+                      editForm.pr === false
+                        ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-200 border-indigo-500'
+                        : 'bg-white text-gray-700 dark:bg-gray-800 dark:text-gray-300 border-gray-300'
+                    ]">
+                      <input type="radio" class="hidden" :value="false" v-model="editForm.pr" name="edit-pr" />
+                      No
+                    </label>
+
+                    <!-- Yes -->
+                    <label :class="[
+                      'cursor-pointer px-4 py-2 rounded-lg border transition-all',
+                      editForm.pr === true
+                        ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-200 border-indigo-500'
+                        : 'bg-white text-gray-700 dark:bg-gray-800 dark:text-gray-300 border-gray-300'
+                    ]">
+                      <input type="radio" class="hidden" :value="true" v-model="editForm.pr" name="edit-pr" />
+                      Yes
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Article Type
                   </label>
                   <div class="flex gap-4">
@@ -1017,6 +1106,7 @@ const article_date = ref('');
 const creators = ref<IWriter[]>([]);
 const staffMembers = ref<Record<string, string>>({});
 const isImpactArticle = ref('no');
+const isPrArticle = ref(false);
 
 // Computed value to show formatted date but keep ISO internally
 const formattedArticleDate = computed({
@@ -1232,8 +1322,12 @@ const addArticleData = async () => {
       date_created: article_date.value,
       status: 'active',
       creators: selectedCreator.value,
-      impact_article: isImpactArticle.value
+      impact_article: isImpactArticle.value,
+      pr: isPrArticle.value ? 'true' : 'false'
     };
+
+    console.log(remarkData);
+    
 
     // Save the remark
     const response = await useApi('/items/remark_link_writer', {
@@ -2023,7 +2117,8 @@ const editForm = ref({
   article_link: '',
   view: 0,
   impact_article: 'no',
-  remark: ''
+  remark: '',
+  pr: false
 });
 // Function to open edit modal with article data
 const editArticle = (article: any) => {
@@ -2033,7 +2128,8 @@ const editArticle = (article: any) => {
     article_link: article.article_link || '',
     view: article.view || 0,
     impact_article: article.impact_article || 'no',
-    remark: article.remark || ''
+    remark: article.remark || '',
+    pr: article.pr === true || article.pr === 'true' // normalize to boolean
   };
   showEditModal.value = true;
 };
@@ -2047,7 +2143,8 @@ const closeEditModal = () => {
     article_link: '',
     view: 0,
     impact_article: 'no',
-    remark: ''
+    remark: '',
+    pr: false
   };
 };
 
@@ -2073,7 +2170,8 @@ const updateArticle = async () => {
         article_link: editForm.value.article_link,
         view: editForm.value.view,
         impact_article: editForm.value.impact_article, // ✅ Make sure this is included
-        remark: editForm.value.remark // ✅ Include remark field
+        remark: editForm.value.remark, // ✅ Include remark field
+        pr: editForm.value.pr // ✅ Include PR field
       }
     });
 
@@ -2085,7 +2183,8 @@ const updateArticle = async () => {
         title: editForm.value.title,
         article_link: editForm.value.article_link,
         view: String(editForm.value.view), // ✅ Convert to string
-        impact_article: editForm.value.impact_article
+        impact_article: editForm.value.impact_article,
+        pr: editForm.value.pr
       };
     }
 
@@ -2101,7 +2200,8 @@ const updateArticle = async () => {
             title: editForm.value.title,
             article_link: editForm.value.article_link,
             view: String(editForm.value.view), // ✅ Convert to string
-            impact_article: editForm.value.impact_article
+            impact_article: editForm.value.impact_article,
+            pr: editForm.value.pr
           };
         }
       }
@@ -2397,7 +2497,8 @@ const importArticlesFromUrl = async () => {
           date_created: articleData.date_created || new Date().toISOString(),
           status: 'active',
           creators: selectedCreator.value,
-          impact_article: isImpactArticle.value
+          impact_article: isImpactArticle.value,
+          pr: articleData.pr
         };
 
         // Save the article
