@@ -55,18 +55,18 @@ export interface ICreator {
 
 //   return total.toString();
 // };
+// Exclude PR videos from total view calculations
 export const getTotalViews = (remarks: IRemark[]): string => {
   if (!remarks || remarks.length === 0) return '0';
-
   let total = 0;
   remarks.forEach(remark => {
-    if (remark.view) {
+    if (remark.view && !remark.pr) { // 👈 exclude PR videos
       total += parseInt(remark.view);
     }
   });
-
   return total.toString();
 };
+
 
 /**
  * Check if a creator has completed their target
@@ -76,11 +76,11 @@ export const getTotalViews = (remarks: IRemark[]): string => {
 export const isCompleted = (creator: ICreator): boolean => {
   if (creator.status === 'completed') return true;
 
-  const totalViews = parseInt(getTotalViews(creator.remarks) || '0');
+  const totalViews = parseInt(getTotalViews(creator.remarks) || '0'); // now skips PR
   const target = parseInt(creator.target || '0');
-
   return totalViews >= target;
 };
+
 
 /**
  * Calculate percentage of target achieved
@@ -88,12 +88,12 @@ export const isCompleted = (creator: ICreator): boolean => {
  * @returns Percentage as a number
  */
 export const calculatePercent = (creator: ICreator): number => {
-  const totalViews = parseInt(getTotalViews(creator.remarks) || '0');
+  const totalViews = parseInt(getTotalViews(creator.remarks) || '0'); // PR-excluded
   const target = parseInt(creator.target || '0');
-
   if (target === 0) return 0;
   return Math.round((totalViews / target) * 100);
 };
+
 
 /**
  * Get the appropriate CSS class for percentage display
