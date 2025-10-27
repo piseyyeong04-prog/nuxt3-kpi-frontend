@@ -49,7 +49,7 @@
         </div>
       </div>
 
-      <!-- Update the Performance Summary Cards to show filtered data -->
+      <!-- Performance Summary Cards  -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <!-- Total Creators -->
         <div
@@ -74,7 +74,7 @@
           </div>
         </div>
 
-        <!-- Big Video Views (Now showing filtered data) -->
+        <!-- Big Video Views -->
         <div
           class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl hover:scale-105 border border-gray-100 dark:border-gray-700">
           <div class="flex items-center justify-between">
@@ -82,19 +82,33 @@
               <div class="flex items-center gap-2 mb-2">
                 <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Big Video Views</h3>
                 <div class="bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded-full">
-                  <span class="text-xs font-medium text-red-600 dark:text-red-400">Big Videos</span>
+                  <span class="text-xs font-medium text-red-600 dark:text-red-400">Big</span>
                 </div>
               </div>
               <p class="text-3xl font-bold text-red-600 dark:text-red-400 mb-1">
-                {{formatTotalViews(creatorsList.reduce((sum, c) => sum + parseInt(getBigVideoViews(c.remarks || []) ||
-                  '0'), 0).toString())}}
+                {{
+                  formatTotalViews(
+                    creatorsList.reduce(
+                      (sum, c) =>
+                        sum +
+                        parseInt(
+                          getBigVideoViews(filterRemarksByKpiPeriod(c.remarks || [], selectedMonth, kpiPeriods)) || '0'
+                        ),
+                      0
+                    ).toString()
+                  )
+                }}
               </p>
               <p class="text-sm text-gray-500 dark:text-gray-400">{{ currentPeriodLabel }}</p>
+            </div>
+            <div
+              class="bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30 p-4 rounded-2xl">
+              <Icon icon="mdi:video-high-definition" class="h-8 w-8 text-red-600 dark:text-red-400" />
             </div>
           </div>
         </div>
 
-        <!-- Total Videos (Now showing filtered data) -->
+        <!-- Total Videos -->
         <div
           class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl hover:scale-105 border border-gray-100 dark:border-gray-700">
           <div class="flex items-center justify-between">
@@ -106,7 +120,13 @@
                 </div>
               </div>
               <p class="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-1">
-                {{creatorsList.reduce((sum, c) => sum + (c.remarks?.length || 0), 0)}}
+                {{
+                  creatorsList.reduce(
+                    (sum, c) =>
+                      sum + filterRemarksByKpiPeriod(c.remarks || [], selectedMonth, kpiPeriods).length,
+                    0
+                  )
+                }}
               </p>
               <p class="text-sm text-gray-500 dark:text-gray-400">{{ currentPeriodLabel }}</p>
             </div>
@@ -117,7 +137,7 @@
           </div>
         </div>
 
-        <!-- Total Views (Now showing filtered data) -->
+        <!-- Total Views (excluding PR videos) -->
         <div
           class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl hover:scale-105 border border-gray-100 dark:border-gray-700">
           <div class="flex items-center justify-between">
@@ -129,8 +149,21 @@
                 </div>
               </div>
               <p class="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-1">
-                {{formatTotalViews(creatorsList.reduce((sum, c) => sum + parseInt(getTotalViews(c.remarks || []) ||
-                  '0'), 0).toString())}}
+                {{
+                  formatTotalViews(
+                    creatorsList.reduce(
+                      (sum, c) =>
+                        sum +
+                        parseInt(
+                          getTotalViews(
+                            filterRemarksByKpiPeriod(c.remarks || [], selectedMonth, kpiPeriods)
+                              .filter(r => !r.pr)
+                          ) || '0'
+                        ),
+                      0
+                    ).toString()
+                  )
+                }}
               </p>
               <p class="text-sm text-gray-500 dark:text-gray-400">{{ currentPeriodLabel }}</p>
             </div>
@@ -140,7 +173,45 @@
             </div>
           </div>
         </div>
+
+        <!-- PR Video Views -->
+        <div
+          class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl hover:scale-105 border border-gray-100 dark:border-gray-700">
+          <div class="flex items-center justify-between">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-2">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">PR Video Views</h3>
+                <div class="bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">
+                  <span class="text-xs font-medium text-green-600 dark:text-green-400">PR</span>
+                </div>
+              </div>
+              <p class="text-3xl font-bold text-green-600 dark:text-green-400 mb-1">
+                {{
+                  formatTotalViews(
+                    creatorsList.reduce(
+                      (sum, c) =>
+                        sum +
+                        parseInt(
+                          getTotalViews(
+                            filterRemarksByKpiPeriod(c.remarks || [], selectedMonth, kpiPeriods)
+                              .filter(r => r.pr)
+                          ) || '0'
+                        ),
+                      0
+                    ).toString()
+                  )
+                }}
+              </p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ currentPeriodLabel }}</p>
+            </div>
+            <div
+              class="bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30 p-4 rounded-2xl">
+              <Icon icon="mdi:bullhorn" class="h-8 w-8 text-green-600 dark:text-green-400" />
+            </div>
+          </div>
+        </div>
       </div>
+
 
       <!-- Update the Performance Table headers to show current period -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
@@ -341,6 +412,8 @@
               <div><strong>KPI Period:</strong> {{ kpiPeriods[selectedMonth]?.label }}</div>
               <div><strong>Total Videos:</strong> {{ creatorVideos.length }}</div>
               <div><strong>Total Views:</strong> {{ formatNumber(getTotalViews(creatorVideos)) }}</div>
+              <div><strong>PR Videos:</strong> {{ countPrVideos(creatorVideos) }}</div>
+              <div><strong>PR Views:</strong> {{ formatNumber(getPrVideoViews(creatorVideos)) }}</div>
               <div>
                 <strong>Status:</strong>
                 <span :class="parseInt(getTotalViews(creatorVideos)) >= parseInt(currentCreator?.target || '0')
@@ -368,6 +441,22 @@
                 </div>
               </div>
             </div>
+            <!-- PR Videos Section -->
+            <div class="border-t border-gray-200 dark:border-gray-600 pt-3 mt-3">
+              <div class="mb-2">
+                <strong>PR Videos:</strong> {{ countPrVideos(creatorVideos) }}
+              </div>
+              <div class="space-y-1">
+                <div v-for="pr in creatorVideos.filter(v => v.pr)" :key="pr.id"
+                  class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-sm">
+                  <a :href="pr.video_link" target="_blank" class="text-green-600 hover:underline font-medium break-all">
+                    {{ pr.title }}
+                  </a>
+                  <span class="text-gray-500">– {{ formatNumber(pr.view || '0') }} views</span>
+                </div>
+              </div>
+            </div>
+
           </div>
 
           <!-- KPI Period Selector -->
@@ -406,6 +495,7 @@ import {
   filterRemarksByKpiMonth, filterRemarksByKpiPeriod, initializeKpiPeriods,
   getCurrentKpiPeriodKey, getKpiPeriodsFromCreators,countImpactVideos,
   getImpactVideoViews,
+  countPrVideos, getPrVideoViews
 } from '~/utils/creators';
 import { extractVideoId, isValidVideoInput, buildFacebookVideoUrl } from '~/utils/facebook';
 import { formatDate, formatNumber, formatTotalViews, getKpiDateHeaders } from '~/utils/format';
@@ -748,6 +838,10 @@ const createRemarksHtml = (remarks: any[], creatorName: string) => {
               Created
             </th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              PR Video
+            </th>
+
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               Actions
             </th>
           </tr>
@@ -789,6 +883,12 @@ const createRemarksHtml = (remarks: any[], creatorName: string) => {
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                 ${formatDate(r.date_created)}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                ${r.pr
+                  ? '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Yes</span>'
+                  : '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">No</span>'
+                }
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm">
                 <div class="flex flex-col space-y-1">
@@ -833,6 +933,77 @@ const setupGlobalHandlers = (creator: ICreator, creatorName: string) => {
       }
     }
   };
+  // ✅ Delete Video
+  window.deleteRemark = async (remarkId: string, creatorName: string, videoTitle: string) => {
+    const confirmed = await Swal.fire({
+      title: 'Delete Video?',
+      html: `Are you sure you want to delete <b>${videoTitle}</b> from <b>${creatorName}</b>?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Delete it',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6'
+    });
+
+    if (confirmed.isConfirmed) {
+      const deleted = await deleteVideo(remarkId, creatorName, videoTitle);
+      if (deleted) {
+        await fetchCreators();
+        const updatedCreator = creators.value.find(c => c.id === creator.id);
+        if (updatedCreator) {
+          handleRemarkClick(updatedCreator);
+        }
+      }
+    }
+  };
+
+  // ✅ Refresh single video view count
+  window.refreshViewCount = async (remarkId: string) => {
+    const remark = creator.remarks?.find(r => r.id.toString() === remarkId);
+    if (!remark || !remark.video_link) {
+      showWarning('Missing video link for this remark.');
+      return;
+    }
+
+    const videoId = extractVideoId(remark.video_link);
+    if (!videoId) {
+      showWarning('Could not extract Facebook video ID.');
+      return;
+    }
+
+    Swal.fire({
+      title: 'Refreshing View Count...',
+      text: 'Fetching latest view data from Facebook...',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    try {
+      await fetchVideoData(videoId);
+      if (fbVideoData.value?.views) {
+        await updateVideo(remark.id, { view: fbVideoData.value.views.toString() });
+        Swal.fire({
+          title: 'Updated!',
+          text: 'View count refreshed successfully.',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false
+        });
+        await fetchCreators();
+        const updatedCreator = creators.value.find(c => c.id === creator.id);
+        if (updatedCreator) {
+          handleRemarkClick(updatedCreator);
+        }
+      } else {
+        showWarning('Could not fetch view count from Facebook.');
+      }
+    } catch (err) {
+      console.error(err);
+      showError('Failed to refresh view count.');
+    }
+  };
+
 };
 
 
@@ -928,18 +1099,29 @@ const editVideo = async (remark: any) => {
         <input id="swal-date" type="datetime-local" class="w-full p-2 border rounded"
           value="${remark.date_created ? new Date(remark.date_created).toISOString().slice(0, 16) : ''}">
       </div>
+
+      <!-- ✅ PR Video Selector -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">PR Video?</label>
+        <select id="swal-prvideo" class="w-full p-2 border rounded">
+          <option value="false" ${!remark.pr ? 'selected' : ''}>No</option>
+          <option value="true" ${remark.pr ? 'selected' : ''}>Yes</option>
+        </select>
+      </div>
+
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-1">Video Length (seconds)</label>
         <input id="swal-length" type="number" min="0" class="w-full p-2 border rounded" 
           value="${remark.length_big_video || 0}" disabled>
         <div class="text-xs text-gray-500 mt-1">
           Current: ${Math.floor((remark.length_big_video || 0) / 60)}m ${Math.floor((remark.length_big_video || 0) % 60)}s
-          ${(remark.length_big_video || 0) < 1500 ?
-        '<span class="text-red-500">(Less than 25 minutes)</span>' :
-        '<span class="text-green-500">(25+ minutes - Big Video eligible)</span>'
-      }
+          ${(remark.length_big_video || 0) < 1500
+            ? '<span class="text-red-500">(Less than 25 minutes)</span>'
+            : '<span class="text-green-500">(25+ minutes - Big Video eligible)</span>'
+          }
         </div>
       </div>
+
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-1">Big Video?</label>
         <select id="swal-bigvideo" class="w-full p-2 border rounded">
@@ -950,6 +1132,7 @@ const editVideo = async (remark: any) => {
           </option>
         </select>
       </div>
+
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-1">Impact Video?</label>
         <select id="swal-impactvideo" class="w-full p-2 border rounded">
@@ -957,7 +1140,6 @@ const editVideo = async (remark: any) => {
           <option value="yes" ${remark.impact_video === 'yes' ? 'selected' : ''}>Yes</option>
         </select>
       </div>
-
     `,
     focusConfirm: false,
     showCancelButton: true,
@@ -966,38 +1148,34 @@ const editVideo = async (remark: any) => {
       const selectElement = document.getElementById('swal-bigvideo') as HTMLSelectElement;
       const videoLength = remark.length_big_video || 0;
 
-      // Listen for Big Video selection changes
+      // Prevent marking as Big Video if shorter than 25 minutes
       selectElement.addEventListener('change', (e) => {
         const target = e.target as HTMLSelectElement;
-
         if (target.value === 'yes' && videoLength < 1500) {
           target.value = 'no';
           Swal.showValidationMessage('Videos shorter than 25 minutes cannot be marked as Big Video');
-          setTimeout(() => {
-            Swal.resetValidationMessage();
-          }, 3000);
+          setTimeout(() => Swal.resetValidationMessage(), 3000);
         }
       });
     },
     preConfirm: () => {
-      const bigVideoValue = (document.getElementById('swal-bigvideo') as HTMLSelectElement).value;
-      const impactVideoValue = (document.getElementById('swal-impactvideo') as HTMLSelectElement).value; // Add this
-      const videoLength = remark.length_big_video || 0;
+      const title = (document.getElementById('swal-title') as HTMLInputElement).value;
+      const video_link = (document.getElementById('swal-url') as HTMLInputElement).value;
+      const view = (document.getElementById('swal-views') as HTMLInputElement).value;
+      const date_created = new Date(
+        (document.getElementById('swal-date') as HTMLInputElement).value
+      ).toISOString();
+      const big_video = (document.getElementById('swal-bigvideo') as HTMLSelectElement).value;
+      const impact_video = (document.getElementById('swal-impactvideo') as HTMLSelectElement).value;
+      const pr = (document.getElementById('swal-prvideo') as HTMLSelectElement).value === 'true';
 
-      // Final validation before submitting
-      if (bigVideoValue === 'yes' && videoLength < 1500) {
+      const videoLength = remark.length_big_video || 0;
+      if (big_video === 'yes' && videoLength < 1500) {
         Swal.showValidationMessage('Videos shorter than 25 minutes cannot be marked as Big Video');
         return false;
       }
 
-      return {
-        title: (document.getElementById('swal-title') as HTMLInputElement).value,
-        video_link: (document.getElementById('swal-url') as HTMLInputElement).value,
-        view: (document.getElementById('swal-views') as HTMLInputElement).value,
-        date_created: new Date((document.getElementById('swal-date') as HTMLInputElement).value).toISOString(),
-        big_video: bigVideoValue,
-        impact_video: impactVideoValue // Add this line
-      };
+      return { title, video_link, view, date_created, big_video, impact_video, pr };
     }
   });
 
@@ -1006,6 +1184,7 @@ const editVideo = async (remark: any) => {
   }
   return false;
 };
+
 // Lifecycle
 onMounted(async () => {
   await fetchCreators();

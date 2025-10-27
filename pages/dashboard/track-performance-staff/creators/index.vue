@@ -63,6 +63,35 @@
                 class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-gray-900 dark:text-white"
                 placeholder="Video Title will be auto-generated (After Click Fetch Data Button)" />
             </div>
+            <!-- PR Video Toggle -->
+              <div class="space-y-2">
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">PR Video</label>
+                <div class="flex gap-4">
+                  <!-- No -->
+                  <label class="flex items-center cursor-pointer">
+                    <input v-model="isPrVideo" type="radio" value="false" class="sr-only" required />
+                    <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
+                      :class="isPrVideo === 'false'
+                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300'
+                        : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
+                      <Icon icon="mdi:video-off" class="h-5 w-5" />
+                      <span class="font-medium">No</span>
+                    </div>
+                  </label>
+
+                  <!-- Yes -->
+                  <label class="flex items-center cursor-pointer">
+                    <input v-model="isPrVideo" type="radio" value="true" class="sr-only" />
+                    <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
+                      :class="isPrVideo === 'true'
+                        ? 'border-green-500 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                        : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
+                      <Icon icon="mdi:bullhorn" class="h-5 w-5" />
+                      <span class="font-medium">Yes</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
 
             <!-- Big Video Toggle -->
             <div class="space-y-2">
@@ -221,8 +250,7 @@
         </div>
       </div>
 
-      <!-- Performance Summary Cards -->
-      <!-- Performance Summary Cards -->
+     <!-- Performance Summary Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <!-- Total Creators -->
         <div
@@ -271,12 +299,13 @@
               </p>
               <p class="text-sm text-gray-500 dark:text-gray-400">{{ dateRangeHeader }}</p>
             </div>
-            <!-- <div
+            <div
               class="bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30 p-4 rounded-2xl">
               <Icon icon="mdi:video-high-definition" class="h-8 w-8 text-red-600 dark:text-red-400" />
-            </div> -->
+            </div>
           </div>
         </div>
+
         <!-- Total Videos (Filtered by KPI Month) -->
         <div
           class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl hover:scale-105 border border-gray-100 dark:border-gray-700">
@@ -289,7 +318,12 @@
                 </div>
               </div>
               <p class="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-1">
-                {{creatorsList.reduce((sum, c) => sum + filterRemarksByKpiMonth(c.remarks || []).length, 0)}}
+                {{
+                  creatorsList.reduce(
+                    (sum, c) => sum + filterRemarksByKpiMonth(c.remarks || []).length,
+                    0
+                  )
+                }}
               </p>
               <p class="text-sm text-gray-500 dark:text-gray-400">{{ dateRangeHeader }}</p>
             </div>
@@ -312,15 +346,21 @@
                 </div>
               </div>
               <p class="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-1">
-                {{formatTotalViews(
-                  creatorsList.reduce(
-                    (sum, c) => sum + parseInt(getTotalViews(filterRemarksByKpiMonth(c.remarks || [])) || '0'),
-                    0
-                  ).toString()
-                )}}
+                {{
+                  formatTotalViews(
+                    creatorsList.reduce(
+                      (sum, c) =>
+                        sum +
+                        parseInt(
+                          getTotalViews(
+                            filterRemarksByKpiMonth(c.remarks || []).filter(r => !r.pr)
+                          ) || '0'
+                        ),
+                      0
+                    ).toString()
+                  )
+                }}
               </p>
-
-
               <p class="text-sm text-gray-500 dark:text-gray-400">{{ dateRangeHeader }}</p>
             </div>
             <div
@@ -329,7 +369,40 @@
             </div>
           </div>
         </div>
+
+        <!-- PR Video Views (Filtered by KPI Month) -->
+        <div
+          class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl hover:scale-105 border border-gray-100 dark:border-gray-700">
+          <div class="flex items-center justify-between">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-2">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">PR Video Views</h3>
+                <div class="bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">
+                  <span class="text-xs font-medium text-green-600 dark:text-green-400">PR</span>
+                </div>
+              </div>
+              <p class="text-3xl font-bold text-green-600 dark:text-green-400 mb-1">
+                {{
+                  formatTotalViews(
+                    creatorsList.reduce(
+                      (sum, c) =>
+                        sum +
+                        parseInt(getPrVideoViews(filterRemarksByKpiMonth(c.remarks || [])) || '0'),
+                      0
+                    ).toString()
+                  )
+                }}
+              </p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ dateRangeHeader }}</p>
+            </div>
+            <div
+              class="bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30 p-4 rounded-2xl">
+              <Icon icon="mdi:bullhorn" class="h-8 w-8 text-green-600 dark:text-green-400" />
+            </div>
+          </div>
+        </div>
       </div>
+
       <!-- Performance Table -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
         <div class="p-4 border-b flex justify-between items-center">
@@ -773,7 +846,7 @@ import type { IResponse } from '~/types/api';
 import {
   getTotalViews, isCompleted, calculatePercent, getPercentClass,
   getProgressBarColor, getCompletedTargetsCount, getActiveCreatorsCount,
-  getTotalViewsAcrossAll, getTotalVideosCount, countBigVideos, getBigVideoViews, countImpactVideos, getImpactVideoViews
+  getTotalViewsAcrossAll, getTotalVideosCount, countBigVideos, getBigVideoViews, countImpactVideos, getImpactVideoViews,countPrVideos, getPrVideoViews
 } from '~/utils/creators';
 import { extractVideoId, isValidVideoInput, buildFacebookVideoUrl } from '~/utils/facebook';
 import { formatDate, formatNumber, formatTotalViews, getKpiDateHeaders } from '~/utils/format';
@@ -815,7 +888,7 @@ const selectedCreator = ref('');
 const isBigVideo = ref('no');
 const isImpactVideo = ref('no');
 const videoRemark = ref('');
-
+const isPrVideo = ref('false');
 
 // Data
 const creators = ref<ICreator[]>([]);
@@ -1105,6 +1178,7 @@ const saveVideoRemark = async (videoId: string) => {
     creators: parseInt(selectedCreator.value),
     big_video: isBigVideo.value,
     impact_video: isImpactVideo.value,
+     pr: isPrVideo.value === 'true',
     length_big_video: typeof fbVideoData.value?.length === 'number' ? fbVideoData.value.length : 0,
     video_remark: videoRemark.value || ''
   };
@@ -1245,6 +1319,7 @@ const resetForm = () => {
   videoTitle.value = '';
   isBigVideo.value = 'no';
   isImpactVideo.value = 'no'; // Add this line
+   isPrVideo.value = 'false';
   fbVideoData.value = null;
   videoRemark.value = '';
 };
@@ -1384,6 +1459,13 @@ const editVideo = async (remark: any) => {
         <input id="swal-views" class="w-full p-2 border rounded" disabled value="${remark.view || '0'}">
       </div>
       <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">PR Video?</label>
+        <select id="swal-prvideo" class="w-full p-2 border rounded">
+          <option value="false" ${remark.pr ? '' : 'selected'}>No</option>
+          <option value="true" ${remark.pr ? 'selected' : ''}>Yes</option>
+        </select>
+      </div>
+      <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-1">Date Created</label>
         <input id="swal-date" type="datetime-local" class="w-full p-2 border rounded"
           value="${remark.date_created ? new Date(remark.date_created).toISOString().slice(0, 16) : ''}">
@@ -1483,7 +1565,7 @@ const editVideo = async (remark: any) => {
       const bigVideoValue = (document.getElementById('swal-bigvideo') as HTMLSelectElement).value;
       const impactVideoValue = (document.getElementById('swal-impactvideo') as HTMLSelectElement).value;
       const remarkValue = (document.getElementById('swal-remark') as HTMLTextAreaElement).value;
-
+      const prValue = (document.getElementById('swal-prvideo') as HTMLSelectElement).value;
       // Final validation
       if (bigVideoValue === 'yes' && lengthValue < minLength) {
         Swal.showValidationMessage(`Videos shorter than ${Math.floor(minLength / 60)} minutes cannot be marked as Big Video`);
@@ -1498,6 +1580,7 @@ const editVideo = async (remark: any) => {
         length_big_video: auth.user?.role?.name === 'Administrator' ? lengthValue : remark.length_big_video,
         big_video: bigVideoValue,
         impact_video: impactVideoValue,
+        pr: prValue === 'true',
         remark: remarkValue
       };
     }
@@ -1582,6 +1665,11 @@ const createRemarksHtml = (remarks: any[], creatorName: string) => {
                      Impact Video
                    </span>`
       : ''}
+              ${r.pr
+                ? `<span class="inline-block bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+                     PR Video
+                   </span>`
+                : ''}
             </div>
             
             <p class="text-xs mt-2 text-gray-600 dark:text-gray-400">
