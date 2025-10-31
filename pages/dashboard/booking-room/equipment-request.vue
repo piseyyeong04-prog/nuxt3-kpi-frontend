@@ -206,7 +206,7 @@
               <div class="space-y-1">
                 <span v-for="camera in selectedEvent.extendedProps.request.camera" :key="camera.id" 
                       class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
-                  {{ camera.name }}
+                  {{ camera.camera_id.name }}
                 </span>
               </div>
             </div>
@@ -222,7 +222,7 @@
               <div class="space-y-1">
                 <span v-for="mic in selectedEvent.extendedProps.request.microphone" :key="mic.id" 
                       class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
-                  {{ mic.name }}
+                  {{ mic.microphone_id.name }}
                 </span>
               </div>
             </div>
@@ -238,7 +238,7 @@
               <div class="space-y-1">
                 <span v-for="tripod in selectedEvent.extendedProps.request.tripod" :key="tripod.id" 
                       class="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
-                  {{ tripod.name }}
+                  {{ tripod.tripod_id.name }}
                 </span>
               </div>
             </div>
@@ -254,7 +254,7 @@
               <div class="space-y-1">
                 <span v-for="gimbal in selectedEvent.extendedProps.request.gimbal" :key="gimbal.id" 
                       class="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
-                  {{ gimbal.name }}
+                  {{ gimbal.gimbal_id.name }}
                 </span>
               </div>
             </div>
@@ -271,7 +271,7 @@
               <div class="space-y-1">
                 <span v-for="lens in selectedEvent.extendedProps.request.camera_lens" :key="lens.id" 
                       class="inline-block bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
-                  {{ lens.name }}
+                  {{ lens.camera_lens_id.name }}
                 </span>
               </div>
             </div>
@@ -287,7 +287,7 @@
               <div class="space-y-1">
                 <span v-for="light in selectedEvent.extendedProps.request.light" :key="light.id" 
                       class="inline-block bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
-                  {{ light.name }}
+                  {{ light.light_id.name }}
                 </span>
               </div>
             </div>
@@ -303,7 +303,7 @@
               <div class="space-y-1">
                 <span v-for="drone in selectedEvent.extendedProps.request.drone" :key="drone.id" 
                       class="inline-block bg-cyan-100 text-cyan-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
-                  {{ drone.name }}
+                  {{ drone.drone_id.name }}
                 </span>
               </div>
             </div>
@@ -1107,6 +1107,7 @@ const minReturnDateEdit = computed(() => {
 const requests = ref<EquipmentRequest[]>([])
 const loading = ref(false)
 const isProcessing = ref(false)
+
 const selectedEvent = ref<any>(null)
 const currentView = ref('dayGridMonth')
 const fullCalendar = ref()
@@ -1282,13 +1283,13 @@ const handleManualRequest = async () => {
       shooting_date: manualRequest.value.shooting_date,
       return_date: manualRequest.value.return_date,
       shooting_time: parseInt(manualRequest.value.shooting_time),
-      microphone: manualRequest.value.microphone.map(id => parseInt(id)),
-      camera: manualRequest.value.camera.map(id => parseInt(id)),
-      tripod: manualRequest.value.tripod.map(id => parseInt(id)),
-      gimbal: manualRequest.value.gimbal.map(id => parseInt(id)),
-      camera_lens: manualRequest.value.camera_lens.map(id => parseInt(id)),
-      light: manualRequest.value.light.map(id => parseInt(id)),
-      drone: manualRequest.value.drone.map(id => parseInt(id)),
+      microphone: manualRequest.value.microphone.map(id => ({ microphone_id: parseInt(id) })),
+      camera: manualRequest.value.camera.map(id => ({ camera_id: parseInt(id) })),
+      tripod: manualRequest.value.tripod.map(id => ({ tripod_id: parseInt(id) })),
+      gimbal: manualRequest.value.gimbal.map(id => ({ gimbal_id: parseInt(id) })),
+      camera_lens: manualRequest.value.camera_lens.map(id => ({ camera_lens_id: parseInt(id) })),
+      light: manualRequest.value.light.map(id => ({ light_id: parseInt(id) })),
+      drone: manualRequest.value.drone.map(id => ({ drone_id: parseInt(id) })),
       status: 'published'
     }
 
@@ -1333,8 +1334,78 @@ const handleManualRequest = async () => {
   }
 }
 
+const editRequestFromEvent = (request: EquipmentRequest) => {
+  editRequest.value = {
+    id: request.id!.toString(),
+    shooting_date: request.shooting_date,
+    return_date: request.return_date,
+    shooting_time: request.shooting_time.id.toString(),
+    // map to related IDs (fallback to item.id to satisfy TS and mixed shapes)
+    microphone: request.microphone?.map((m: any) => (m?.microphone_id?.id ?? m?.id)?.toString()) || [],
+    camera: request.camera?.map((c: any) => (c?.camera_id?.id ?? c?.id)?.toString()) || [],
+    tripod: request.tripod?.map((t: any) => (t?.tripod_id?.id ?? t?.id)?.toString()) || [],
+    gimbal: request.gimbal?.map((g: any) => (g?.gimbal_id?.id ?? g?.id)?.toString()) || [],
+    camera_lens: request.camera_lens?.map((cl: any) => (cl?.camera_lens_id?.id ?? cl?.id)?.toString()) || [],
+    light: request.light?.map((l: any) => (l?.light_id?.id ?? l?.id)?.toString()) || [],
+    drone: request.drone?.map((d: any) => (d?.drone_id?.id ?? d?.id)?.toString()) || []
+  }
+  selectedEvent.value = null
+  loadEquipmentData()
+  showEditModal.value = true
+}
+
+const updateRequestData = async () => {
+  // Validate dates BEFORE setting isProcessing
+  const shootingDate = new Date(editRequest.value.shooting_date)
+  const returnDate = new Date(editRequest.value.return_date)
+  const nowDate = new Date()
+  nowDate.setHours(0, 0, 0, 0)
+  shootingDate.setHours(0, 0, 0, 0)
+  returnDate.setHours(0, 0, 0, 0)
+
+  // Check if shooting date is in the past
+  if (shootingDate < nowDate) {
+    showMessage('❌ Shooting date cannot be in the past.', 'error')
+    return
+  }
+
+  // Check if return date is after shooting date
+  if (returnDate <= shootingDate) {
+    showMessage('❌ Return date must be after the shooting date.', 'error')
+    return
+  }
+
+  isProcessing.value = true
+  try {
+    const updatedData = {
+      shooting_date: editRequest.value.shooting_date,
+      return_date: editRequest.value.return_date,
+      shooting_time: parseInt(editRequest.value.shooting_time),
+      // send junction objects like create()
+      microphone: editRequest.value.microphone.map(id => ({ microphone_id: parseInt(id) })),
+      camera: editRequest.value.camera.map(id => ({ camera_id: parseInt(id) })),
+      tripod: editRequest.value.tripod.map(id => ({ tripod_id: parseInt(id) })),
+      gimbal: editRequest.value.gimbal.map(id => ({ gimbal_id: parseInt(id) })),
+      camera_lens: editRequest.value.camera_lens.map(id => ({ camera_lens_id: parseInt(id) })),
+      light: editRequest.value.light.map(id => ({ light_id: parseInt(id) })),
+      drone: editRequest.value.drone.map(id => ({ drone_id: parseInt(id) }))
+    }
+
+    // Cast to any to avoid TypeScript type checking issues
+    await updateEquipmentRequest(editRequest.value.id, updatedData as any)
+    showMessage('✅ Equipment request updated successfully!', 'success')
+    showEditModal.value = false
+    await loadRequests()
+  } catch (error) {
+    console.error('Update request error:', error)
+    showMessage('❌ Failed to update equipment request.', 'error')
+  } finally {
+    isProcessing.value = false
+  }
+}
+
 const getEquipmentSummary = (data: any) => {
-  const summary = []
+  const summary: string[] = []
   if (data.camera?.length) summary.push(`📷 Cameras: ${data.camera.length}`)
   if (data.microphone?.length) summary.push(`🎤 Microphones: ${data.microphone.length}`)
   if (data.tripod?.length) summary.push(`📹 Tripods: ${data.tripod.length}`)
@@ -1370,75 +1441,6 @@ const confirmDeleteRequestFromEvent = async (request: EquipmentRequest) => {
       console.error('Delete request error:', error)
       showMessage('Failed to delete equipment request.', 'error')
     }
-  }
-}
-
-const editRequestFromEvent = (request: EquipmentRequest) => {
-  console.log('Original request data:', request)
-  editRequest.value = {
-    id: request.id!.toString(),
-    shooting_date: request.shooting_date,
-    return_date: request.return_date,
-    shooting_time: request.shooting_time.id.toString(),
-    microphone: request.microphone?.map(m => m.id.toString()) || [],
-    camera: request.camera?.map(c => c.id.toString()) || [],
-    tripod: request.tripod?.map(t => t.id.toString()) || [],
-    gimbal: request.gimbal?.map(g => g.id.toString()) || [],
-    camera_lens: request.camera_lens?.map(cl => cl.id.toString()) || [],
-    light: request.light?.map(l => l.id.toString()) || [],
-    drone: request.drone?.map(d => d.id.toString()) || []
-  }
-  selectedEvent.value = null
-  loadEquipmentData() // Load equipment data before showing modal
-  showEditModal.value = true
-}
-
-const updateRequestData = async () => {
-  // Validate dates BEFORE setting isProcessing
-  const shootingDate = new Date(editRequest.value.shooting_date)
-  const returnDate = new Date(editRequest.value.return_date)
-  const nowDate = new Date()
-  nowDate.setHours(0, 0, 0, 0)
-  shootingDate.setHours(0, 0, 0, 0)
-  returnDate.setHours(0, 0, 0, 0)
-
-  // Check if shooting date is in the past
-  if (shootingDate < nowDate) {
-    showMessage('❌ Shooting date cannot be in the past.', 'error')
-    return
-  }
-
-  // Check if return date is after shooting date
-  if (returnDate <= shootingDate) {
-    showMessage('❌ Return date must be after the shooting date.', 'error')
-    return
-  }
-
-  isProcessing.value = true
-  try {
-    const updatedData = {
-      shooting_date: editRequest.value.shooting_date,
-      return_date: editRequest.value.return_date,
-      shooting_time: parseInt(editRequest.value.shooting_time),
-      microphone: editRequest.value.microphone.map(id => parseInt(id)),
-      camera: editRequest.value.camera.map(id => parseInt(id)),
-      tripod: editRequest.value.tripod.map(id => parseInt(id)),
-      gimbal: editRequest.value.gimbal.map(id => parseInt(id)),
-      camera_lens: editRequest.value.camera_lens.map(id => parseInt(id)),
-      light: editRequest.value.light.map(id => parseInt(id)),
-      drone: editRequest.value.drone.map(id => parseInt(id))
-    }
-
-    // Cast to any to avoid TypeScript type checking issues
-    await updateEquipmentRequest(editRequest.value.id, updatedData as any)
-    showMessage('✅ Equipment request updated successfully!', 'success')
-    showEditModal.value = false
-    await loadRequests()
-  } catch (error) {
-    console.error('Update request error:', error)
-    showMessage('❌ Failed to update equipment request.', 'error')
-  } finally {
-    isProcessing.value = false
   }
 }
 
