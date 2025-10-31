@@ -362,7 +362,7 @@ const isToday = (day: number) => {
 <template>
   <div class="p-6 max-w-7xl mx-auto">
     <div class="mb-6">
-      <h1 class="text-3xl font-bold text-gray-900">Seller Attendance Report</h1>
+      <h1 class="text-3xl font-bold text-gray-900">Creators Attendance Report</h1>
       <p class="text-gray-600 mt-2">Track daily system usage by creators</p>
     </div>
 
