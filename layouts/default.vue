@@ -686,6 +686,32 @@ const menuItems: MenuItem[] = [
     icon: 'mdi:account-multiple',
     label: { en: 'Interview Clients', km: 'អតិថិជន' },
   },
+  // attendance ( sub menu creators, writers, editors )
+  {
+    to: '#',
+    icon: 'mdi:calendar-clock',
+    label: { en: 'Attendance', km: 'វត្តមាន' },
+    hasSubmenu: true,
+    submenu: [
+      {
+        to: '/dashboard/attendance/creators',
+        label: { en: 'Creators Attendance', km: 'វត្តមានអ្នកបង្កើត' }
+      },
+      {
+        to: '/dashboard/attendance/writers',
+        label: { en: 'Writers Attendance', km: 'វត្តមានអ្នកសរសេរ' }
+      },
+      {
+        to: '/dashboard/attendance/editors',
+        label: { en: 'Editors Attendance', km: 'វត្តមានអ្នកកែសម្រួល' }
+      },
+      // researcher
+      {
+        to: '/dashboard/attendance/researchers',
+        label: { en: 'Researchers Attendance', km: 'វត្តមានអ្នកស្រាវជ្រាវ' }
+      }
+    ]
+  },
   // settings sub menu with ( user management, department, role management )
   {
     to: '/dashboard/settings',

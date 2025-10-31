@@ -1,6 +1,7 @@
 export interface IAPIOption {
   method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
   data?: any;
+  params?: any;
   headers?: any;
   withCredentials?: boolean;
 }
