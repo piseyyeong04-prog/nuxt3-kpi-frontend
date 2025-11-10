@@ -136,6 +136,64 @@
               </div>
             </div>
           </div>
+          <div v-if="selectedEvent?.extendedProps?.request?.program_name" 
+              class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="text-xs font-medium text-purple-700 uppercase tracking-wide">Program Name</p>
+                <p class="font-semibold text-gray-900 leading-tight mt-0.5">
+                  {{ selectedEvent.extendedProps.request.program_name }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Content Creator & Camera Man -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div v-if="selectedEvent?.extendedProps?.request?.content_creator" 
+                class="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-xl p-4 border border-teal-100">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-full flex items-center justify-center">
+                  <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-teal-700 uppercase tracking-wide">Content Creator</p>
+                  <p class="font-semibold text-gray-900 leading-tight mt-0.5">
+                    {{ selectedEvent.extendedProps.request.content_creator.first_name }}
+                    {{ selectedEvent.extendedProps.request.content_creator.last_name }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="selectedEvent?.extendedProps?.request?.camera_man" 
+                class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-100">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center">
+                  <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-amber-700 uppercase tracking-wide">Camera Man</p>
+                  <p class="font-semibold text-gray-900 leading-tight mt-0.5">
+                    {{ selectedEvent.extendedProps.request.camera_man.first_name }}
+                    {{ selectedEvent.extendedProps.request.camera_man.last_name }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <!-- Date & Time Grid -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -380,6 +438,43 @@
               <option value="2">Afternoon</option>
               <option value="3">Evening</option>
             </select>
+          </div>
+          <div>
+            <label for="modal-program-name" class="block text-sm font-medium text-gray-700 mb-1">
+              Program Name <span class="text-red-500">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="modal-program-name" 
+              v-model="manualRequest.program_name" 
+              required
+              placeholder="Enter program name"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            />
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Content Creator
+              </label>
+              <SearchableSelect
+                v-model="manualRequest.content_creator"
+                :users="users"
+                placeholder="Select content creator (optional)"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Camera Man
+              </label>
+              <SearchableSelect
+                v-model="manualRequest.camera_man"
+                :users="users"
+                placeholder="Select camera man (optional)"
+              />
+            </div>
           </div>
 
           <!-- Equipment Selection -->
@@ -750,7 +845,42 @@
               <option value="3">Evening</option>
             </select>
           </div>
+          <div>
+            <label for="edit-program-name" class="block text-sm font-medium text-gray-700 mb-1">
+              Program Name <span class="text-red-500">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="edit-program-name" 
+              v-model="editRequest.program_name" 
+              required
+              placeholder="Enter program name"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            />
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Content Creator
+              </label>
+              <SearchableSelect
+                v-model="editRequest.content_creator"
+                :users="users"
+                placeholder="Select content creator (optional)"
+              />
+            </div>
 
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Camera Man
+              </label>
+              <SearchableSelect
+                v-model="editRequest.camera_man"
+                :users="users"
+                placeholder="Select camera man (optional)"
+              />
+            </div>
+          </div>
           <!-- Equipment Selection for Edit -->
           <div class="space-y-8">
             <div class="border-b border-gray-200 pb-4">
@@ -1121,6 +1251,9 @@ const manualRequest = ref({
   shooting_date: '',
   return_date: '',
   shooting_time: '',
+  program_name:'',
+  content_creator: null as number | null,
+  camera_man: null as number | null,
   microphone: [] as string[],
   camera: [] as string[],
   tripod: [] as string[],
@@ -1135,6 +1268,9 @@ const editRequest = ref({
   shooting_date: '',
   return_date: '',
   shooting_time: '',
+  program_name: '',
+  content_creator: null as number | null,
+  camera_man: null as number | null,
   microphone: [] as string[],
   camera: [] as string[],
   tripod: [] as string[],
@@ -1144,6 +1280,20 @@ const editRequest = ref({
   drone: [] as string[]
 })
 
+const users = ref<Array<{ id: number; first_name: string; last_name: string }>>([])
+
+// Add this function to load users
+const loadUsers = async () => {
+  try {
+    const response = await useApi<{ data: Array<{ id: number; first_name: string; last_name: string }> }>(
+      '/users?fields=id,first_name,last_name&limit=-1',
+      { method: 'GET' }
+    )
+    users.value = response.data
+  } catch (error) {
+    console.error('Error loading users:', error)
+  }
+}
 const handleEventClick = (clickInfo: EventClickArg) => {
   selectedEvent.value = clickInfo.event
 }
@@ -1184,6 +1334,9 @@ const loadEquipmentData = async () => {
       lights,
       drones
     }
+    // Load users for content creator and camera man dropdowns
+    await loadUsers()
+
   } catch (error) {
     console.error('Error loading equipment data:', error)
     showMessage('Failed to load equipment data.', 'error')
@@ -1287,6 +1440,9 @@ const handleManualRequest = async () => {
       shooting_date: manualRequest.value.shooting_date,
       return_date: manualRequest.value.return_date,
       shooting_time: parseInt(manualRequest.value.shooting_time),
+      program_name: manualRequest.value.program_name,
+      content_creator: manualRequest.value.content_creator,
+      camera_man: manualRequest.value.camera_man,
       microphone: manualRequest.value.microphone.map(id => ({ microphone_id: parseInt(id) })),
       camera: manualRequest.value.camera.map(id => ({ camera_id: parseInt(id) })),
       tripod: manualRequest.value.tripod.map(id => ({ tripod_id: parseInt(id) })),
@@ -1305,6 +1461,9 @@ const handleManualRequest = async () => {
       shooting_date: '',
       return_date: '',
       shooting_time: '',
+      program_name: '',
+      content_creator: null,
+      camera_man: null,
       microphone: [],
       camera: [],
       tripod: [],
@@ -1344,6 +1503,9 @@ const editRequestFromEvent = (request: EquipmentRequest) => {
     shooting_date: request.shooting_date,
     return_date: request.return_date,
     shooting_time: request.shooting_time.id.toString(),
+    program_name: request.program_name || '',
+    content_creator: request.content_creator?.id ?? null,
+    camera_man: request.camera_man?.id ?? null,
     // map to related IDs (fallback to item.id to satisfy TS and mixed shapes)
     microphone: request.microphone?.map((m: any) => (m?.microphone_id?.id ?? m?.id)?.toString()) || [],
     camera: request.camera?.map((c: any) => (c?.camera_id?.id ?? c?.id)?.toString()) || [],
@@ -1385,6 +1547,9 @@ const updateRequestData = async () => {
       shooting_date: editRequest.value.shooting_date,
       return_date: editRequest.value.return_date,
       shooting_time: parseInt(editRequest.value.shooting_time),
+      program_name: editRequest.value.program_name,
+      content_creator: editRequest.value.content_creator,
+      camera_man: editRequest.value.camera_man,
       // send junction objects like create()
       microphone: editRequest.value.microphone.map(id => ({ microphone_id: parseInt(id) })),
       camera: editRequest.value.camera.map(id => ({ camera_id: parseInt(id) })),

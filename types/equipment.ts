@@ -20,13 +20,29 @@ export interface UserCreated {
   title?: string;
   department?: Department;
 }
-
+export interface UserCreator {
+  id: string;
+  first_name: string;
+  last_name: string;
+  title?: string;
+  department?: Department;
+}
+export interface UserCameraman {
+  id: string;
+  first_name: string;
+  last_name: string;
+  title?: string;
+  department?: Department;
+}
 export interface EquipmentRequest {
   id?: number;
   shooting_date: string;
   return_date: string;
   user_created: UserCreated;
   shooting_time: ShootingTime;
+  program_name: string;
+  content_creator: UserCreator;
+  camera_man: UserCameraman;
   microphone: Equipment[];
   camera: Equipment[];
   tripod: Equipment[];
