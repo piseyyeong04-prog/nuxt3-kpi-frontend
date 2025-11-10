@@ -111,7 +111,8 @@
 
         <div class="space-y-6">
           <!-- User Created Info -->
-          <div v-if="selectedEvent.extendedProps.request.user_created" class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+          <div v-if="selectedEvent?.extendedProps?.request?.user_created" 
+              class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
             <div class="flex items-center space-x-3">
               <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,13 +122,15 @@
               </div>
               <div>
                 <p class="font-semibold text-gray-900 leading-tight">
-                  {{ selectedEvent.extendedProps.request.user_created.first_name }}
-                  {{ selectedEvent.extendedProps.request.user_created.last_name }}
+                  {{ selectedEvent.extendedProps.request.user_created.first_name || '' }}
+                  {{ selectedEvent.extendedProps.request.user_created.last_name || '' }}
                 </p>
-                <p v-if="selectedEvent.extendedProps.request.user_created.title" class="text-sm text-blue-600 font-medium">
+                <p v-if="selectedEvent.extendedProps.request.user_created.title" 
+                  class="text-sm text-blue-600 font-medium">
                   {{ selectedEvent.extendedProps.request.user_created.title }}
                 </p>
-                <p v-if="selectedEvent.extendedProps.request.user_created.department?.title" class="text-sm text-blue-600 font-medium">
+                <p v-if="selectedEvent.extendedProps.request.user_created.department?.title" 
+                  class="text-sm text-blue-600 font-medium">
                   {{ selectedEvent.extendedProps.request.user_created.department.title }}
                 </p>
               </div>
@@ -186,128 +189,128 @@
                 <div>
                   <h4 class="text-xs font-medium text-green-700 uppercase tracking-wide">Shooting Time</h4>
                   <p class="text-sm font-semibold text-gray-900 mt-0.5">
-                    {{ selectedEvent.extendedProps.request.shooting_time?.name || 'N/A' }}
+                    {{ selectedEvent?.extendedProps?.request?.shooting_time?.name || 'N/A' }}
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Equipment Grid -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Cameras -->
-            <div v-if="selectedEvent.extendedProps.request.camera?.length" class="bg-slate-50 rounded-xl p-4 border border-slate-100">
-              <h4 class="text-sm font-medium text-slate-700 mb-2 flex items-center">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-                </svg>
-                Cameras
-              </h4>
-              <div class="space-y-1">
-                <span v-for="camera in selectedEvent.extendedProps.request.camera" :key="camera.id" 
-                      class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
-                  {{ camera.camera_id.name }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Microphones -->
-            <div v-if="selectedEvent.extendedProps.request.microphone?.length" class="bg-slate-50 rounded-xl p-4 border border-slate-100">
-              <h4 class="text-sm font-medium text-slate-700 mb-2 flex items-center">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
-                </svg>
-                Microphones
-              </h4>
-              <div class="space-y-1">
-                <span v-for="mic in selectedEvent.extendedProps.request.microphone" :key="mic.id" 
-                      class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
-                  {{ mic.microphone_id.name }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Tripods -->
-            <div v-if="selectedEvent.extendedProps.request.tripod?.length" class="bg-slate-50 rounded-xl p-4 border border-slate-100">
-              <h4 class="text-sm font-medium text-slate-700 mb-2 flex items-center">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
-                </svg>
-                Tripods
-              </h4>
-              <div class="space-y-1">
-                <span v-for="tripod in selectedEvent.extendedProps.request.tripod" :key="tripod.id" 
-                      class="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
-                  {{ tripod.tripod_id.name }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Gimbals -->
-            <div v-if="selectedEvent.extendedProps.request.gimbal?.length" class="bg-slate-50 rounded-xl p-4 border border-slate-100">
-              <h4 class="text-sm font-medium text-slate-700 mb-2 flex items-center">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                </svg>
-                Gimbals
-              </h4>
-              <div class="space-y-1">
-                <span v-for="gimbal in selectedEvent.extendedProps.request.gimbal" :key="gimbal.id" 
-                      class="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
-                  {{ gimbal.gimbal_id.name }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Camera Lens -->
-            <div v-if="selectedEvent.extendedProps.request.camera_lens?.length" class="bg-slate-50 rounded-xl p-4 border border-slate-100">
-              <h4 class="text-sm font-medium text-slate-700 mb-2 flex items-center">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                </svg>
-                Camera Lens
-              </h4>
-              <div class="space-y-1">
-                <span v-for="lens in selectedEvent.extendedProps.request.camera_lens" :key="lens.id" 
-                      class="inline-block bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
-                  {{ lens.camera_lens_id.name }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Lights -->
-            <div v-if="selectedEvent.extendedProps.request.light?.length" class="bg-slate-50 rounded-xl p-4 border border-slate-100">
-              <h4 class="text-sm font-medium text-slate-700 mb-2 flex items-center">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-                </svg>
-                Lights
-              </h4>
-              <div class="space-y-1">
-                <span v-for="light in selectedEvent.extendedProps.request.light" :key="light.id" 
-                      class="inline-block bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
-                  {{ light.light_id.name }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Drones -->
-            <div v-if="selectedEvent.extendedProps.request.drone?.length" class="bg-slate-50 rounded-xl p-4 border border-slate-100">
-              <h4 class="text-sm font-medium text-slate-700 mb-2 flex items-center">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                </svg>
-                Drones
-              </h4>
-              <div class="space-y-1">
-                <span v-for="drone in selectedEvent.extendedProps.request.drone" :key="drone.id" 
-                      class="inline-block bg-cyan-100 text-cyan-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
-                  {{ drone.drone_id.name }}
-                </span>
-              </div>
+        <!-- Equipment Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Cameras -->
+          <div v-if="selectedEvent?.extendedProps?.request?.camera?.length" class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+            <h4 class="text-sm font-medium text-slate-700 mb-2 flex items-center">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+              </svg>
+              Cameras
+            </h4>
+            <div class="space-y-1">
+              <span v-for="camera in selectedEvent.extendedProps.request.camera" :key="camera.id" 
+                    class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
+                {{ camera?.camera_id?.name || 'Unknown Camera' }}
+              </span>
             </div>
           </div>
+
+          <!-- Microphones -->
+          <div v-if="selectedEvent?.extendedProps?.request?.microphone?.length" class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+            <h4 class="text-sm font-medium text-slate-700 mb-2 flex items-center">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+              </svg>
+              Microphones
+            </h4>
+            <div class="space-y-1">
+              <span v-for="mic in selectedEvent.extendedProps.request.microphone" :key="mic.id" 
+                    class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
+                {{ mic?.microphone_id?.name || 'Unknown Microphone' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Tripods -->
+          <div v-if="selectedEvent?.extendedProps?.request?.tripod?.length" class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+            <h4 class="text-sm font-medium text-slate-700 mb-2 flex items-center">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+              </svg>
+              Tripods
+            </h4>
+            <div class="space-y-1">
+              <span v-for="tripod in selectedEvent.extendedProps.request.tripod" :key="tripod.id" 
+                    class="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
+                {{ tripod?.tripod_id?.name || 'Unknown Tripod' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Gimbals -->
+          <div v-if="selectedEvent?.extendedProps?.request?.gimbal?.length" class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+            <h4 class="text-sm font-medium text-slate-700 mb-2 flex items-center">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+              Gimbals
+            </h4>
+            <div class="space-y-1">
+              <span v-for="gimbal in selectedEvent.extendedProps.request.gimbal" :key="gimbal.id" 
+                    class="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
+                {{ gimbal?.gimbal_id?.name || 'Unknown Gimbal' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Camera Lens -->
+          <div v-if="selectedEvent?.extendedProps?.request?.camera_lens?.length" class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+            <h4 class="text-sm font-medium text-slate-700 mb-2 flex items-center">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+              Camera Lens
+            </h4>
+            <div class="space-y-1">
+              <span v-for="lens in selectedEvent.extendedProps.request.camera_lens" :key="lens.id" 
+                    class="inline-block bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
+                {{ lens?.camera_lens_id?.name || 'Unknown Lens' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Lights -->
+          <div v-if="selectedEvent?.extendedProps?.request?.light?.length" class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+            <h4 class="text-sm font-medium text-slate-700 mb-2 flex items-center">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+              </svg>
+              Lights
+            </h4>
+            <div class="space-y-1">
+              <span v-for="light in selectedEvent.extendedProps.request.light" :key="light.id" 
+                    class="inline-block bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
+                {{ light?.light_id?.name || 'Unknown Light' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Drones -->
+          <div v-if="selectedEvent?.extendedProps?.request?.drone?.length" class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+            <h4 class="text-sm font-medium text-slate-700 mb-2 flex items-center">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+              </svg>
+              Drones
+            </h4>
+            <div class="space-y-1">
+              <span v-for="drone in selectedEvent.extendedProps.request.drone" :key="drone.id" 
+                    class="inline-block bg-cyan-100 text-cyan-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
+                {{ drone?.drone_id?.name || 'Unknown Drone' }}
+              </span>
+            </div>
+          </div>
+        </div>
         </div>
 
         <div class="flex space-x-3 mt-6">
@@ -1219,7 +1222,8 @@ const calendarEvents = computed(() => {
       backgroundColor: '#059669',
       borderColor: '#047857',
       extendedProps: {
-        request: request
+        request: request,
+        shooting_time: request.shooting_time || { id: null, name: 'N/A' }
       }
     }
   })
