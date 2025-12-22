@@ -1,21 +1,20 @@
 <template>
   <div class="bg-gray-100 dark:bg-gray-950 min-h-screen">
     <!-- Mobile Header -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+    <header
+      class="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
       <div class="flex items-center justify-between h-16 px-4">
         <!-- Left Section: Menu & Logo -->
         <div class="flex items-center gap-3">
-          <button 
-            @click="toggleSidebar" 
+          <button @click="toggleSidebar"
             class="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            aria-label="Toggle Sidebar"
-          >
+            aria-label="Toggle Sidebar">
             <Icon :icon="isSidebarOpen ? 'mdi:close' : 'mdi:menu'" class="text-xl" />
           </button>
           <h1 class="text-lg font-bold text-blue-600 dark:text-blue-500 lg:hidden">
             BAKSEY
           </h1>
-          <!-- Desktop: Show page title or breadcrumb here if needed -->
+          <!-- Desktop: Breadcrumb area -->
           <div class="hidden lg:block">
             <!-- You can add breadcrumbs or page title here -->
           </div>
@@ -24,39 +23,32 @@
         <!-- Right Section: Actions -->
         <div class="flex items-center gap-2">
           <!-- Theme Toggle (Desktop) -->
-          <button 
-            @click="customToggleTheme"
-            class="hidden lg:flex p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          >
+          <button @click="customToggleTheme"
+            class="hidden lg:flex p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
             <Icon
               :icon="theme === 'dark' ? 'line-md:sunny-filled-loop-to-moon-filled-alt-loop-transition' : 'line-md:moon-filled-alt-to-sunny-filled-loop-transition'"
-              class="w-5 h-5"
-            />
+              class="w-5 h-5" />
           </button>
 
           <!-- Notifications -->
           <div class="relative" ref="notificationDropdownContainer">
-            <button 
-              @click="toggleNotificationDropdown"
-              class="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
+            <button @click="toggleNotificationDropdown"
+              class="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
               <Icon icon="mdi:bell-outline" class="w-5 h-5" />
-              <span 
-                v-if="notifications.length > 0"
-                class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-gray-900"
-              />
+              <span v-if="notifications.length > 0"
+                class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-gray-900" />
             </button>
 
             <!-- Notification Dropdown -->
             <Transition name="dropdown">
-              <div 
-                v-if="notificationDropdownOpen"
-                class="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-800"
-              >
-                <div class="sticky top-0 bg-white dark:bg-gray-900 px-4 py-3 border-b border-gray-200 dark:border-gray-800">
+              <div v-if="notificationDropdownOpen"
+                class="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-800">
+                <div
+                  class="sticky top-0 bg-white dark:bg-gray-900 px-4 py-3 border-b border-gray-200 dark:border-gray-800">
                   <div class="flex items-center justify-between">
                     <h3 class="font-semibold">Notifications</h3>
-                    <span class="px-2 py-0.5 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full">
+                    <span
+                      class="px-2 py-0.5 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full">
                       {{ notifications.length }}
                     </span>
                   </div>
@@ -68,11 +60,8 @@
                 </div>
 
                 <div v-else class="divide-y divide-gray-100 dark:divide-gray-800">
-                  <button
-                    v-for="(notification, index) in notifications"
-                    :key="index"
-                    class="w-full p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors text-left"
-                  >
+                  <button v-for="(notification, index) in notifications" :key="index"
+                    class="w-full p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors text-left">
                     <div class="flex gap-3">
                       <div class="w-2 h-2 mt-1.5 bg-blue-500 rounded-full flex-shrink-0" />
                       <div class="flex-1 min-w-0">
@@ -92,40 +81,30 @@
 
           <!-- Language Selector -->
           <div class="relative" ref="dropdownContainer">
-            <button 
-              @click="toggleDropdown"
-              class="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
+            <button @click="toggleDropdown"
+              class="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
               <span class="text-sm font-medium">{{ locale === 'en' ? 'EN' : 'KH' }}</span>
               <Icon icon="mdi:chevron-down" class="w-4 h-4" />
             </button>
 
             <Transition name="dropdown">
-              <div 
-                v-if="dropdownOpen"
-                class="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-800 overflow-hidden"
-              >
-                <button
-                  @click="switchLanguage('en')"
-                  :class="[
-                    'flex items-center w-full px-4 py-2.5 text-sm transition-colors',
-                    locale === 'en' 
-                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium' 
-                      : 'hover:bg-gray-50 dark:hover:bg-gray-800'
-                  ]"
-                >
+              <div v-if="dropdownOpen"
+                class="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+                <button @click="switchLanguage('en')" :class="[
+                  'flex items-center w-full px-4 py-2.5 text-sm transition-colors',
+                  locale === 'en'
+                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
+                    : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                ]">
                   <Icon icon="emojione-v1:flag-for-united-states" class="w-4 h-4 mr-2" />
                   English
                 </button>
-                <button
-                  @click="switchLanguage('km')"
-                  :class="[
-                    'flex items-center w-full px-4 py-2.5 text-sm transition-colors',
-                    locale === 'km' 
-                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium' 
-                      : 'hover:bg-gray-50 dark:hover:bg-gray-800'
-                  ]"
-                >
+                <button @click="switchLanguage('km')" :class="[
+                  'flex items-center w-full px-4 py-2.5 text-sm transition-colors',
+                  locale === 'km'
+                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
+                    : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                ]">
                   <Icon icon="emojione-v1:flag-for-cambodia" class="w-4 h-4 mr-2" />
                   ភាសាខ្មែរ
                 </button>
@@ -135,33 +114,24 @@
 
           <!-- User Avatar -->
           <div class="relative" ref="userDropdownContainer">
-            <button 
-              @click="toggleUserDropdown"
-              class="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
+            <button @click="toggleUserDropdown"
+              class="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
               <div class="relative">
-                <img 
-                  :src="useImg(auth.user?.avatar || '/user-avatar.png')"
-                  alt="User Avatar"
-                  class="w-8 h-8 rounded-lg object-cover"
-                />
-                <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full ring-2 ring-white dark:ring-gray-900" />
+                <img :src="useImg(auth.user?.avatar || '/user-avatar.png')" alt="User Avatar"
+                  class="w-8 h-8 rounded-lg object-cover" />
+                <div
+                  class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full ring-2 ring-white dark:ring-gray-900" />
               </div>
             </button>
 
             <Transition name="dropdown">
-              <div 
-                v-if="userDropdownOpen"
-                class="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-800 overflow-hidden"
-              >
+              <div v-if="userDropdownOpen"
+                class="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
                 <!-- User Info -->
                 <div class="p-4">
                   <div class="flex items-center gap-3 mb-3">
-                    <img 
-                      :src="useImg(auth.user?.avatar || '/default-avatar.png')"
-                      alt="User Avatar"
-                      class="w-12 h-12 rounded-lg object-cover"
-                    />
+                    <img :src="useImg(auth.user?.avatar || '/default-avatar.png')" alt="User Avatar"
+                      class="w-12 h-12 rounded-lg object-cover" />
                     <div class="flex-1 min-w-0">
                       <p class="font-semibold text-gray-900 dark:text-white truncate">
                         {{ auth.user?.first_name }} {{ auth.user?.last_name }}
@@ -170,10 +140,8 @@
                         {{ auth.user?.email }}
                       </p>
                     </div>
-                    <button 
-                      @click="customToggleTheme"
-                      class="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-                    >
+                    <button @click="customToggleTheme"
+                      class="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
                       <Icon :icon="theme === 'dark' ? 'mdi:weather-night' : 'mdi:weather-sunny'" class="w-5 h-5" />
                     </button>
                   </div>
@@ -188,11 +156,8 @@
                     <div class="flex items-center justify-between text-xs">
                       <span class="text-gray-600 dark:text-gray-400">Role</span>
                       <div class="flex flex-wrap gap-1">
-                        <span 
-                          v-for="(role, index) in formatDepartments(auth.user?.role.name)"
-                          :key="index"
-                          class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg font-medium"
-                        >
+                        <span v-for="(role, index) in formatDepartments(auth.user?.role.name)" :key="index"
+                          class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg font-medium">
                           {{ role }}
                         </span>
                       </div>
@@ -202,18 +167,14 @@
 
                 <!-- Actions -->
                 <div class="border-t border-gray-200 dark:border-gray-800">
-                  <NuxtLink
-                    to="/profile"
+                  <NuxtLink to="/profile"
                     class="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                    @click="closeUserDropdown"
-                  >
+                    @click="closeUserDropdown">
                     <Icon icon="mdi:account-outline" class="w-5 h-5 text-gray-500" />
                     <span>Profile</span>
                   </NuxtLink>
-                  <button
-                    @click="handleLogout"
-                    class="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
-                  >
+                  <button @click="handleLogout"
+                    class="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
                     <Icon icon="mdi:logout" class="w-5 h-5" />
                     <span>Logout</span>
                   </button>
@@ -226,14 +187,16 @@
     </header>
 
     <!-- Sidebar -->
-    <aside 
-      :class="[
-        'fixed top-0 left-0 h-full w-64 z-[50]  bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transition-transform duration-300',
-        'lg:translate-x-0',
-        isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      ]"
-    >
-      <div class="flex flex-col h-full">
+    <aside :class="[
+      'fixed top-0 left-0 h-full z-[50] bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transition-all duration-300',
+      isDesktopSidebarCollapsed ? 'lg:w-0 lg:border-r-0' : 'lg:w-64',
+      'w-64',
+      isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+    ]">
+      <div :class="[
+        'flex flex-col h-full transition-opacity duration-300',
+        isDesktopSidebarCollapsed ? 'lg:opacity-0 lg:pointer-events-none' : 'lg:opacity-100'
+      ]">
         <!-- Logo -->
         <div class="h-16 flex items-center justify-center border-b border-gray-200 dark:border-gray-800">
           <h1 class="text-xl font-bold text-blue-600 dark:text-blue-500">
@@ -247,23 +210,18 @@
             <li v-for="item in localizedMenuItems" :key="item.to">
               <!-- Menu Item with Submenu -->
               <template v-if="item.hasSubmenu">
-                <button
-                  @click="toggleSubmenu(item.to)"
-                  :class="[
-                    'w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
-                    openSubmenus[item.to]
-                      ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
-                  ]"
-                >
+                <button @click="toggleSubmenu(item.to)" :class="[
+                  'w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+                  openSubmenus[item.to]
+                    ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                ]">
                   <div class="flex items-center gap-3">
                     <Icon :icon="item.icon" class="text-lg flex-shrink-0" :class="getIconColorClass(item.icon)" />
                     <span class="text-left">{{ item.label }}</span>
                   </div>
-                  <Icon 
-                    :icon="openSubmenus[item.to] ? 'mdi:chevron-up' : 'mdi:chevron-down'"
-                    class="text-sm transition-transform flex-shrink-0"
-                  />
+                  <Icon :icon="openSubmenus[item.to] ? 'mdi:chevron-up' : 'mdi:chevron-down'"
+                    class="text-sm transition-transform flex-shrink-0" />
                 </button>
 
                 <!-- Submenu -->
@@ -272,40 +230,33 @@
                     <li v-for="sub in item.submenu" :key="sub.to">
                       <!-- Nested Submenu -->
                       <template v-if="sub.hasNestedSubmenu">
-                        <button
-                          @click="toggleNestedSubmenu(sub.to)"
-                          :class="[
-                            'w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all',
-                            openNestedSubmenus[sub.to]
-                              ? 'bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-white font-medium'
-                              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/30'
-                          ]"
-                        >
+                        <button @click="toggleNestedSubmenu(sub.to)" :class="[
+                          'w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all',
+                          openNestedSubmenus[sub.to]
+                            ? 'bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-white font-medium'
+                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/30'
+                        ]">
                           <div class="flex items-center gap-2">
-                            <Icon v-if="sub.icon" :icon="sub.icon" class="text-base flex-shrink-0" :class="getIconColorClass(sub.icon)" />
+                            <Icon v-if="sub.icon" :icon="sub.icon" class="text-base flex-shrink-0"
+                              :class="getIconColorClass(sub.icon)" />
                             <span class="text-left">{{ sub.label[locale as 'en' | 'km'] }}</span>
                           </div>
-                          <Icon 
-                            :icon="openNestedSubmenus[sub.to] ? 'mdi:chevron-up' : 'mdi:chevron-down'"
-                            class="text-xs transition-transform flex-shrink-0"
-                          />
+                          <Icon :icon="openNestedSubmenus[sub.to] ? 'mdi:chevron-up' : 'mdi:chevron-down'"
+                            class="text-xs transition-transform flex-shrink-0" />
                         </button>
 
                         <!-- Nested Submenu Items -->
                         <Transition name="submenu">
                           <ul v-show="openNestedSubmenus[sub.to]" class="mt-1 ml-6 space-y-1">
                             <li v-for="nested in sub.nestedSubmenu" :key="nested.to">
-                              <NuxtLink
-                                :to="nested.to"
-                                @click="closeSidebarOnMobile"
-                                :class="[
-                                  'flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all',
-                                  isActiveRoute(nested.to)
-                                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
-                                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/30'
-                                ]"
-                              >
-                                <Icon v-if="nested.icon" :icon="nested.icon" class="text-sm flex-shrink-0" :class="getIconColorClass(nested.icon)" />
+                              <NuxtLink :to="nested.to" @click="closeSidebarOnMobile" :class="[
+                                'flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all',
+                                isActiveRoute(nested.to)
+                                  ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
+                                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/30'
+                              ]">
+                                <Icon v-if="nested.icon" :icon="nested.icon" class="text-sm flex-shrink-0"
+                                  :class="getIconColorClass(nested.icon)" />
                                 <span>{{ nested.label[locale as 'en' | 'km'] }}</span>
                               </NuxtLink>
                             </li>
@@ -314,18 +265,14 @@
                       </template>
 
                       <!-- Regular Submenu Item -->
-                      <NuxtLink
-                        v-else
-                        :to="sub.to"
-                        @click="closeSidebarOnMobile"
-                        :class="[
-                          'flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all',
-                          isActiveRoute(sub.to)
-                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
-                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/30'
-                        ]"
-                      >
-                        <Icon v-if="sub.icon" :icon="sub.icon" class="text-base flex-shrink-0" :class="getIconColorClass(sub.icon)" />
+                      <NuxtLink v-else :to="sub.to" @click="closeSidebarOnMobile" :class="[
+                        'flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all',
+                        isActiveRoute(sub.to)
+                          ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
+                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/30'
+                      ]">
+                        <Icon v-if="sub.icon" :icon="sub.icon" class="text-base flex-shrink-0"
+                          :class="getIconColorClass(sub.icon)" />
                         <span>{{ sub.label[locale as 'en' | 'km'] }}</span>
                       </NuxtLink>
                     </li>
@@ -334,17 +281,12 @@
               </template>
 
               <!-- Regular Menu Item -->
-              <NuxtLink
-                v-else
-                :to="item.to"
-                @click="closeSidebarOnMobile"
-                :class="[
-                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
-                  isActiveRoute(item.to)
-                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
-                ]"
-              >
+              <NuxtLink v-else :to="item.to" @click="closeSidebarOnMobile" :class="[
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+                isActiveRoute(item.to)
+                  ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
+              ]">
                 <Icon :icon="item.icon" class="text-lg flex-shrink-0" :class="getIconColorClass(item.icon)" />
                 <span>{{ item.label }}</span>
               </NuxtLink>
@@ -359,20 +301,30 @@
           </p>
         </div>
       </div>
+
+      <!-- Desktop Sidebar Toggle Button (Floating) - Always Visible -->
+      <button @click="toggleDesktopSidebar" :class="[
+        'hidden lg:flex fixed top-20 z-[60] w-8 h-12 items-center justify-center',
+        'bg-blue-600 hover:bg-blue-700 text-white rounded-r-lg shadow-lg',
+        'transition-all duration-300',
+        isDesktopSidebarCollapsed ? 'left-0' : 'left-64'
+      ]" aria-label="Toggle Sidebar">
+        <Icon :icon="isDesktopSidebarCollapsed ? 'mdi:chevron-right' : 'mdi:chevron-left'"
+          class="text-lg transition-transform hover:scale-110" />
+      </button>
     </aside>
 
     <!-- Overlay -->
     <Transition name="fade">
-      <div 
-        v-if="isSidebarOpen"
-        @click="closeSidebar"
-        class="fixed inset-0 bg-black/50 z-30 lg:hidden"
-      />
+      <div v-if="isSidebarOpen" @click="closeSidebar" class="fixed inset-0 bg-black/50 z-30 lg:hidden" />
     </Transition>
 
     <!-- Main Content -->
-    <main class="lg:ml-64 pt-16 min-h-screen">
-      <div class="p-4 lg:p-6">
+    <main :class="[
+      'pt-16 min-h-screen transition-all duration-300',
+      isDesktopSidebarCollapsed ? 'lg:ml-0' : 'lg:ml-64'
+    ]">
+      <div class="">
         <slot />
       </div>
     </main>
@@ -399,6 +351,7 @@ const { theme } = useTheme()
 
 // State
 const isSidebarOpen = ref(false)
+const isDesktopSidebarCollapsed = ref(false)
 const notificationDropdownOpen = ref(false)
 const dropdownOpen = ref(false)
 const userDropdownOpen = ref(false)
@@ -431,6 +384,15 @@ const closeSidebar = () => {
 const closeSidebarOnMobile = () => {
   if (window.innerWidth < 1024) {
     closeSidebar()
+  }
+}
+
+// Desktop sidebar toggle
+const toggleDesktopSidebar = () => {
+  isDesktopSidebarCollapsed.value = !isDesktopSidebarCollapsed.value
+  // Save preference to localStorage
+  if (process.client) {
+    localStorage.setItem('desktopSidebarCollapsed', String(isDesktopSidebarCollapsed.value))
   }
 }
 
@@ -551,10 +513,10 @@ interface MenuItem {
     icon?: string
     label: { en: string; km: string }
     hasNestedSubmenu?: boolean
-    nestedSubmenu?: { 
+    nestedSubmenu?: {
       to: string
       icon?: string
-      label: { en: string; km: string } 
+      label: { en: string; km: string }
     }[]
   }[]
 }
@@ -757,6 +719,14 @@ onMounted(async () => {
   }
   await fetchNotificationsData()
   document.addEventListener('click', handleClickOutside)
+
+  // Restore desktop sidebar state from localStorage
+  if (process.client) {
+    const savedState = localStorage.getItem('desktopSidebarCollapsed')
+    if (savedState !== null) {
+      isDesktopSidebarCollapsed.value = savedState === 'true'
+    }
+  }
 })
 
 onBeforeUnmount(() => {
