@@ -973,7 +973,7 @@ watch(() => form.value.department, (newDepartmentId) => {
     updateApprovers(newDepartmentId);
   }
 });
-  definePageMeta({
-    middleware: 'auth',
-  });
+definePageMeta({
+    middleware: ['auth','expo']
+});
   </script>

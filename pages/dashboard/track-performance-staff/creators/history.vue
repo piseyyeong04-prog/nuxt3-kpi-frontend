@@ -477,7 +477,9 @@
 
 </template>
 <script lang="ts" setup>
-
+definePageMeta({
+  middleware: ['auth', 'role'],
+});
 // Updated script section for the Vue component
 
 import { ref, computed, onMounted, onUnmounted, watch, watchEffect } from 'vue';

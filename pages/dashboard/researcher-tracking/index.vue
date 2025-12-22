@@ -374,7 +374,7 @@ import type { IResponse } from '~/types/api';
 import Swal from 'sweetalert2';
 
 definePageMeta({
-    middleware: 'auth',
+  middleware: ['auth', 'role','expo'],
 });
 
 interface ContactLink {
