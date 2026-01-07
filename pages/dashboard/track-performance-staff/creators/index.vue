@@ -64,34 +64,34 @@
                 placeholder="Video Title will be auto-generated (After Click Fetch Data Button)" />
             </div>
             <!-- PR Video Toggle -->
-              <div class="space-y-2">
-                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">PR Video</label>
-                <div class="flex gap-4">
-                  <!-- No -->
-                  <label class="flex items-center cursor-pointer">
-                    <input v-model="isPrVideo" type="radio" value="false" class="sr-only" required />
-                    <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
-                      :class="isPrVideo === 'false'
-                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300'
-                        : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
-                      <Icon icon="mdi:video-off" class="h-5 w-5" />
-                      <span class="font-medium">No</span>
-                    </div>
-                  </label>
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-gray-700 dark:text-gray-300">PR Video</label>
+              <div class="flex gap-4">
+                <!-- No -->
+                <label class="flex items-center cursor-pointer">
+                  <input v-model="isPrVideo" type="radio" value="false" class="sr-only" required />
+                  <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
+                    :class="isPrVideo === 'false'
+                      ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300'
+                      : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
+                    <Icon icon="mdi:video-off" class="h-5 w-5" />
+                    <span class="font-medium">No</span>
+                  </div>
+                </label>
 
-                  <!-- Yes -->
-                  <label class="flex items-center cursor-pointer">
-                    <input v-model="isPrVideo" type="radio" value="true" class="sr-only" />
-                    <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
-                      :class="isPrVideo === 'true'
-                        ? 'border-green-500 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                        : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
-                      <Icon icon="mdi:bullhorn" class="h-5 w-5" />
-                      <span class="font-medium">Yes</span>
-                    </div>
-                  </label>
-                </div>
+                <!-- Yes -->
+                <label class="flex items-center cursor-pointer">
+                  <input v-model="isPrVideo" type="radio" value="true" class="sr-only" />
+                  <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
+                    :class="isPrVideo === 'true'
+                      ? 'border-green-500 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                      : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
+                    <Icon icon="mdi:bullhorn" class="h-5 w-5" />
+                    <span class="font-medium">Yes</span>
+                  </div>
+                </label>
               </div>
+            </div>
 
             <!-- Big Video Toggle -->
             <div class="space-y-2">
@@ -121,7 +121,8 @@
                   ]">
                     <Icon icon="mdi:video-high-definition" class="h-5 w-5" />
                     <span class="font-medium">Big Video</span>
-                    <span v-if="isBigVideoDisabled" class="text-xs text-red-500 ml-1">({{ Math.floor(minBigVideoLength / 60) }}min+ required)</span>
+                    <span v-if="isBigVideoDisabled" class="text-xs text-red-500 ml-1">({{ Math.floor(minBigVideoLength /
+                      60) }}min+ required)</span>
                   </div>
                 </label>
               </div>
@@ -250,7 +251,7 @@
         </div>
       </div>
 
-     <!-- Performance Summary Cards -->
+      <!-- Performance Summary Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <!-- Total Creators -->
         <div
@@ -522,7 +523,8 @@
                     class="px-2 py-1 bg-orange-500 text-white dark:bg-orange-800 rounded text-xs">
                     {{ filterRemarksByKpiMonth(creator.remarks).length }} Videos
                   </button> <br>
-                  <button @click="viewCreatorVideos(creator)" class="px-2 py-1 bg-green-500 dark:bg-green-800 text-white rounded text-xs">
+                  <button @click="viewCreatorVideos(creator)"
+                    class="px-2 py-1 bg-green-500 dark:bg-green-800 text-white rounded text-xs">
                     View History
                   </button>
                 </td>
@@ -571,265 +573,280 @@
     </div>
   </div>
 
-<!-- Enhanced History Modal Section -->
-<Transition name="fade">
-  <div v-if="showHistoryModal" class="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-7xl max-h-[95vh] flex flex-col">
-      <!-- Enhanced Header with Summary Stats -->
-      <div class="flex justify-between items-center p-4 sm:p-6 border-b border-gray-200 dark:border-gray-600 flex-shrink-0">
-        <div class="flex-1">
-          <h3 class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-white truncate pr-4 mb-2">
-            KPI History for {{ selectedCreatorName }}
-          </h3>
-          
-          <!-- Summary Statistics Row -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 text-xs">
-            <!-- Total Videos -->
-            <div class="bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded-lg text-center">
-              <div class="font-bold text-blue-700 dark:text-blue-400 text-lg">{{ creatorVideos.length }}</div>
-              <div class="text-blue-600 dark:text-blue-300">Total Videos</div>
-            </div>
-            
-            <!-- Big Videos -->
-            <div class="bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg text-center">
-              <div class="font-bold text-red-700 dark:text-red-400 text-lg">{{ countBigVideos(creatorVideos) }}</div>
-              <div class="text-red-600 dark:text-red-300">Big Videos</div>
-            </div>
-            
-            <!-- Impact Videos -->
-            <div class="bg-orange-50 dark:bg-orange-900/20 px-3 py-2 rounded-lg text-center">
-              <div class="font-bold text-orange-700 dark:text-orange-400 text-lg">{{ countImpactVideos(creatorVideos) }}</div>
-              <div class="text-orange-600 dark:text-orange-300">Impact Videos</div>
-            </div>
-            
-            <!-- Total Views -->
-            <div class="bg-purple-50 dark:bg-purple-900/20 px-3 py-2 rounded-lg text-center">
-              <div class="font-bold text-purple-700 dark:text-purple-400 text-lg">{{ formatTotalViews(getTotalViews(creatorVideos)) }}</div>
-              <div class="text-purple-600 dark:text-purple-300">Total Views</div>
-            </div>
-            
-            <!-- Big Video Views -->
-            <div class="bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg text-center">
-              <div class="font-bold text-red-700 dark:text-red-400 text-lg">{{ formatTotalViews(getBigVideoViews(creatorVideos)) }}</div>
-              <div class="text-red-600 dark:text-red-300">Big Video Views</div>
-            </div>
-            
-            <!-- Impact Video Views -->
-            <div class="bg-orange-50 dark:bg-orange-900/20 px-3 py-2 rounded-lg text-center">
-              <div class="font-bold text-orange-700 dark:text-orange-400 text-lg">{{ formatTotalViews(getImpactVideoViews(creatorVideos)) }}</div>
-              <div class="text-orange-600 dark:text-orange-300">Impact Video Views</div>
+  <!-- Enhanced History Modal Section -->
+  <Transition name="fade">
+    <div v-if="showHistoryModal" class="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center p-4">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-7xl max-h-[95vh] flex flex-col">
+        <!-- Enhanced Header with Summary Stats -->
+        <div
+          class="flex justify-between items-center p-4 sm:p-6 border-b border-gray-200 dark:border-gray-600 flex-shrink-0">
+          <div class="flex-1">
+            <h3 class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-white truncate pr-4 mb-2">
+              KPI History for {{ selectedCreatorName }}
+            </h3>
+
+            <!-- Summary Statistics Row -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 text-xs">
+              <!-- Total Videos -->
+              <div class="bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded-lg text-center">
+                <div class="font-bold text-blue-700 dark:text-blue-400 text-lg">{{ creatorVideos.length }}</div>
+                <div class="text-blue-600 dark:text-blue-300">Total Videos</div>
+              </div>
+
+              <!-- Big Videos -->
+              <div class="bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg text-center">
+                <div class="font-bold text-red-700 dark:text-red-400 text-lg">{{ countBigVideos(creatorVideos) }}</div>
+                <div class="text-red-600 dark:text-red-300">Big Videos</div>
+              </div>
+
+              <!-- Impact Videos -->
+              <div class="bg-orange-50 dark:bg-orange-900/20 px-3 py-2 rounded-lg text-center">
+                <div class="font-bold text-orange-700 dark:text-orange-400 text-lg">{{ countImpactVideos(creatorVideos)
+                  }}</div>
+                <div class="text-orange-600 dark:text-orange-300">Impact Videos</div>
+              </div>
+
+              <!-- Total Views -->
+              <div class="bg-purple-50 dark:bg-purple-900/20 px-3 py-2 rounded-lg text-center">
+                <div class="font-bold text-purple-700 dark:text-purple-400 text-lg">{{
+                  formatTotalViews(getTotalViews(creatorVideos)) }}</div>
+                <div class="text-purple-600 dark:text-purple-300">Total Views</div>
+              </div>
+
+              <!-- Big Video Views -->
+              <div class="bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg text-center">
+                <div class="font-bold text-red-700 dark:text-red-400 text-lg">{{
+                  formatTotalViews(getBigVideoViews(creatorVideos)) }}</div>
+                <div class="text-red-600 dark:text-red-300">Big Video Views</div>
+              </div>
+
+              <!-- Impact Video Views -->
+              <div class="bg-orange-50 dark:bg-orange-900/20 px-3 py-2 rounded-lg text-center">
+                <div class="font-bold text-orange-700 dark:text-orange-400 text-lg">{{
+                  formatTotalViews(getImpactVideoViews(creatorVideos)) }}</div>
+                <div class="text-orange-600 dark:text-orange-300">Impact Video Views</div>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <button @click="showHistoryModal = false"
-          class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-xl p-2 -m-2 ml-4">
-          ✕
-        </button>
-      </div>
 
-      <!-- Scrollable Content -->
-      <div class="flex-1 overflow-y-auto p-4 sm:p-6">
-        <!-- Existing Summary Block (simplified since we have header stats now) -->
-        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4 text-sm text-gray-700 dark:text-gray-200">
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
-            <div><strong>KPI Period:</strong> {{ kpiPeriods[selectedMonth]?.label }}</div>
-            <div>
-              <strong>Status:</strong>
-              <span :class="parseInt(getTotalViews(creatorVideos)) >= parseInt(currentCreator?.target || '0')
-                ? 'text-green-600 font-semibold'
-                : 'text-yellow-600 font-semibold'">
-                {{ parseInt(getTotalViews(creatorVideos)) >= parseInt(currentCreator?.target || '0')
-                  ? 'Target Completed'
-                  : 'In Progress' }}
-              </span>
+          <button @click="showHistoryModal = false"
+            class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-xl p-2 -m-2 ml-4">
+            ✕
+          </button>
+        </div>
+
+        <!-- Scrollable Content -->
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6">
+          <!-- Existing Summary Block (simplified since we have header stats now) -->
+          <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4 text-sm text-gray-700 dark:text-gray-200">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
+              <div><strong>KPI Period:</strong> {{ kpiPeriods[selectedMonth]?.label }}</div>
+              <div>
+                <strong>Status:</strong>
+                <span :class="parseInt(getTotalViews(creatorVideos)) >= parseInt(currentCreator?.target || '0')
+                  ? 'text-green-600 font-semibold'
+                  : 'text-yellow-600 font-semibold'">
+                  {{ parseInt(getTotalViews(creatorVideos)) >= parseInt(currentCreator?.target || '0')
+                    ? 'Target Completed'
+                    : 'In Progress' }}
+                </span>
+              </div>
+              <div><strong>Target:</strong> {{ formatNumber(currentCreator?.target || 0) }} views</div>
             </div>
-            <div><strong>Target:</strong> {{ formatNumber(currentCreator?.target || 0) }} views</div>
           </div>
-        </div>
 
-        <!-- KPI Period Selector -->
-        <div class="mb-4 flex flex-col sm:flex-row sm:items-center gap-2">
-          <label class="text-sm font-medium text-gray-700 dark:text-gray-300">KPI Period:</label>
-          <select v-model="selectedMonth" @change="filterVideosByKpiPeriod" 
-            class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+          <!-- KPI Period Selector -->
+          <div class="mb-4 flex flex-col sm:flex-row sm:items-center gap-2">
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">KPI Period:</label>
+            <select v-model="selectedMonth" @change="filterVideosByKpiPeriod" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
                    bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                    focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-0 sm:max-w-xs">
-            <option v-for="(period, key) in kpiPeriods" :key="key" :value="key">
-              {{ period.label }}
-            </option>
-          </select>
-        </div>
+              <option v-for="(period, key) in kpiPeriods" :key="key" :value="key">
+                {{ period.label }}
+              </option>
+            </select>
+          </div>
 
-        <!-- Mobile Card View (< md) -->
-        <div class="md:hidden space-y-4">
-          <div v-for="(item, index) in creatorVideos" :key="item.id"
-            class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4 shadow-sm">
-            <div class="flex justify-between items-start mb-3">
-              <div class="flex items-center gap-2">
-                <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 
+          <!-- Mobile Card View (< md) -->
+          <div class="md:hidden space-y-4">
+            <div v-for="(item, index) in creatorVideos" :key="item.id"
+              class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4 shadow-sm">
+              <div class="flex justify-between items-start mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 
                            text-xs font-medium px-2.5 py-0.5 rounded">
-                  #{{ index + 1 }}
-                </span>
-                <!-- Video Type Badges -->
-                <span v-if="item.big_video === 'yes'" 
-                  class="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 
+                    #{{ index + 1 }}
+                  </span>
+                  <!-- Video Type Badges -->
+                  <span v-if="item.big_video === 'yes'" class="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 
                          text-xs font-medium px-2.5 py-0.5 rounded">
-                  Big Video
-                </span>
-                <span v-if="item.impact_video === 'yes'" 
-                  class="bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 
+                    Big Video
+                  </span>
+                  <span v-if="item.impact_video === 'yes'" class="bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 
                          text-xs font-medium px-2.5 py-0.5 rounded">
-                  Impact Video
-                </span>
-              </div>
-              <div class="flex space-x-2">
-                <button @click="editVideo(item)"
-                  class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-medium">
-                  Edit
-                </button>
-                <button @click="deleteVideo(item.id, selectedCreatorName, item.title)"
-                  class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-xs font-medium">
-                  Delete
-                </button>
-              </div>
-            </div>
-
-            <div class="space-y-2">
-              <div>
-                <div class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Title</div>
-                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.title }}</div>
-              </div>
-
-              <div>
-                <div class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Link</div>
-                <a :href="item.video_link" target="_blank" class="text-blue-600 hover:underline text-sm break-all">
-                  {{ item.video_link }}
-                </a>
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Views</div>
-                  <div class="text-sm font-medium text-gray-900 dark:text-white">{{ formatNumber(item.view || 0) }}</div>
+                    Impact Video
+                  </span>
                 </div>
-                <div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Created</div>
-                  <div class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDate(item.date_created) }}</div>
+                <div class="flex space-x-2">
+                  <button @click="editVideo(item)"
+                    class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-medium">
+                    Edit
+                  </button>
+                  <button @click="deleteVideo(item.id, selectedCreatorName, item.title)"
+                    class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-xs font-medium">
+                    Delete
+                  </button>
                 </div>
               </div>
 
-              <!-- Video Length for Big Videos -->
-              <div v-if="item.big_video === 'yes' && item.length_big_video" class="pt-2 border-t border-gray-200 dark:border-gray-600">
-                <div class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Video Length</div>
-                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDuration(item.length_big_video) }}</div>
+              <div class="space-y-2">
+                <div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Title</div>
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.title }}</div>
+                </div>
+
+                <div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Link</div>
+                  <a :href="item.video_link" target="_blank" class="text-blue-600 hover:underline text-sm break-all">
+                    {{ item.video_link }}
+                  </a>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Views</div>
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ formatNumber(item.view || 0) }}
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Created</div>
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDate(item.date_created) }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Video Length for Big Videos -->
+                <div v-if="item.big_video === 'yes' && item.length_big_video"
+                  class="pt-2 border-t border-gray-200 dark:border-gray-600">
+                  <div class="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Video Length</div>
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">{{
+                    formatDuration(item.length_big_video) }}</div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Enhanced Desktop/Tablet Table View (>= md) -->
-        <div class="hidden md:block">
-          <div class="overflow-x-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead class="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    No.
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Title
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Link
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Views
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Big Video
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Impact Video
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Length
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Created
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                <tr v-for="(item, index) in creatorVideos" :key="item.id"
-                  class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {{ index + 1 }}
-                  </td>
-                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
-                    <div class="max-w-xs truncate">{{ item.title }}</div>
-                  </td>
-                  <td class="px-6 py-4 text-sm text-blue-600 dark:text-blue-400">
-                    <a :href="item.video_link" target="_blank" class="hover:underline block truncate max-w-xs">
-                      {{ item.video_link }}
-                    </a>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {{ formatNumber(item.view || 0) }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    <span v-if="item.big_video === 'yes'" 
-                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                             bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                      <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                      </svg>
+          <!-- Enhanced Desktop/Tablet Table View (>= md) -->
+          <div class="hidden md:block">
+            <div
+              class="overflow-x-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                  <tr>
+                    <th
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      No.
+                    </th>
+                    <th
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Title
+                    </th>
+                    <th
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Link
+                    </th>
+                    <th
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Views
+                    </th>
+                    <th
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Big Video
-                    </span>
-                    <span v-else class="text-gray-400 dark:text-gray-500 text-xs">—</span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    <span v-if="item.impact_video === 'yes'" 
-                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                             bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
-                      <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                      </svg>
+                    </th>
+                    <th
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Impact Video
-                    </span>
-                    <span v-else class="text-gray-400 dark:text-gray-500 text-xs">—</span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    <span v-if="item.length_big_video && item.length_big_video > 0">
-                      {{ formatDuration(item.length_big_video) }}
-                    </span>
-                    <span v-else class="text-gray-400 dark:text-gray-500">—</span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {{ formatDate(item.date_created) }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                    <button @click="editVideo(item)"
-                      class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs">
-                      Edit
-                    </button>
-                    <button @click="deleteVideo(item.id, selectedCreatorName, item.title)"
-                      class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-xs">
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                    </th>
+                    <th
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Length
+                    </th>
+                    <th
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Created
+                    </th>
+                    <th
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  <tr v-for="(item, index) in creatorVideos" :key="item.id"
+                    class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      {{ index + 1 }}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                      <div class="max-w-xs truncate">{{ item.title }}</div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-blue-600 dark:text-blue-400">
+                      <a :href="item.video_link" target="_blank" class="hover:underline block truncate max-w-xs">
+                        {{ item.video_link }}
+                      </a>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      {{ formatNumber(item.view || 0) }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                      <span v-if="item.big_video === 'yes'" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                             bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Big Video
+                      </span>
+                      <span v-else class="text-gray-400 dark:text-gray-500 text-xs">—</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                      <span v-if="item.impact_video === 'yes'" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                             bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path
+                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        Impact Video
+                      </span>
+                      <span v-else class="text-gray-400 dark:text-gray-500 text-xs">—</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      <span v-if="item.length_big_video && item.length_big_video > 0">
+                        {{ formatDuration(item.length_big_video) }}
+                      </span>
+                      <span v-else class="text-gray-400 dark:text-gray-500">—</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      {{ formatDate(item.date_created) }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                      <button @click="editVideo(item)"
+                        class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs">
+                        Edit
+                      </button>
+                      <button @click="deleteVideo(item.id, selectedCreatorName, item.title)"
+                        class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-xs">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</Transition>
+  </Transition>
 
 </template>
 
@@ -846,7 +863,7 @@ import type { IResponse } from '~/types/api';
 import {
   getTotalViews, isCompleted, calculatePercent, getPercentClass,
   getProgressBarColor, getCompletedTargetsCount, getActiveCreatorsCount,
-  getTotalViewsAcrossAll, getTotalVideosCount, countBigVideos, getBigVideoViews, countImpactVideos, getImpactVideoViews,countPrVideos, getPrVideoViews
+  getTotalViewsAcrossAll, getTotalVideosCount, countBigVideos, getBigVideoViews, countImpactVideos, getImpactVideoViews, countPrVideos, getPrVideoViews
 } from '~/utils/creators';
 import { extractVideoId, isValidVideoInput, buildFacebookVideoUrl } from '~/utils/facebook';
 import { formatDate, formatNumber, formatTotalViews, getKpiDateHeaders } from '~/utils/format';
@@ -1178,7 +1195,7 @@ const saveVideoRemark = async (videoId: string) => {
     creators: parseInt(selectedCreator.value),
     big_video: isBigVideo.value,
     impact_video: isImpactVideo.value,
-     pr: isPrVideo.value === 'true',
+    pr: isPrVideo.value === 'true',
     length_big_video: typeof fbVideoData.value?.length === 'number' ? fbVideoData.value.length : 0,
     video_remark: videoRemark.value || ''
   };
@@ -1274,7 +1291,7 @@ const addVideoData = async () => {
 
   const videoId = validateVideoUrl();
   if (!videoId) return;
-   const length = fbVideoData.value?.length || 0;
+  const length = fbVideoData.value?.length || 0;
   if (isBigVideo.value === 'yes' && length < minBigVideoLength.value) {
     showWarning(`Videos shorter than ${Math.floor(minBigVideoLength.value / 60)} minutes cannot be uploaded as Big Video`);
     return;
@@ -1319,7 +1336,7 @@ const resetForm = () => {
   videoTitle.value = '';
   isBigVideo.value = 'no';
   isImpactVideo.value = 'no'; // Add this line
-   isPrVideo.value = 'false';
+  isPrVideo.value = 'false';
   fbVideoData.value = null;
   videoRemark.value = '';
 };
@@ -1438,7 +1455,7 @@ const deleteVideo = async (remarkId: string, creatorName: string, videoTitle: st
 };
 const editVideo = async (remark: any) => {
   // Get the creator for this remark to get their min_big_video_lenght
-  const remarkCreator = creatorsList.value.find(c => 
+  const remarkCreator = creatorsList.value.find(c =>
     c.remarks?.some(r => r.id === remark.id)
   );
   const minLength = remarkCreator?.min_big_video_lenght || 1500;
@@ -1477,14 +1494,14 @@ const editVideo = async (remark: any) => {
         <div id="length-display" class="text-xs text-gray-500 mt-1">
           Current: ${Math.floor((remark.length_big_video || 0) / 60)}m ${Math.floor((remark.length_big_video || 0) % 60)}s
           ${(remark.length_big_video || 0) < minLength ?
-            `<span class="text-red-500">(Less than ${Math.floor(minLength / 60)} minutes)</span>` :
-            `<span class="text-green-500">(${Math.floor(minLength / 60)}+ minutes - Big Video eligible)</span>`
-          }
+        `<span class="text-red-500">(Less than ${Math.floor(minLength / 60)} minutes)</span>` :
+        `<span class="text-green-500">(${Math.floor(minLength / 60)}+ minutes - Big Video eligible)</span>`
+      }
         </div>
-        ${auth.user?.role?.name !== 'Administrator' ? 
-          '<div class="text-xs text-orange-600 mt-1">⚠️ Only administrators can update video length</div>' : 
-          '<div class="text-xs text-blue-600 mt-1">✓ You can update the video length as administrator</div>'
-        }
+        ${auth.user?.role?.name !== 'Administrator' ?
+        '<div class="text-xs text-orange-600 mt-1">⚠️ Only administrators can update video length</div>' :
+        '<div class="text-xs text-blue-600 mt-1">✓ You can update the video length as administrator</div>'
+      }
       </div>
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-1">Big Video?</label>
@@ -1521,21 +1538,21 @@ const editVideo = async (remark: any) => {
         // Update length display
         const minutes = Math.floor(length / 60);
         const seconds = Math.floor(length % 60);
-        
-        const statusText = length < minLength ? 
+
+        const statusText = length < minLength ?
           `<span class="text-red-500">(Less than ${Math.floor(minLength / 60)} minutes)</span>` :
           `<span class="text-green-500">(${Math.floor(minLength / 60)}+ minutes - Big Video eligible)</span>`;
-          
+
         lengthDisplay.innerHTML = `Current: ${minutes}m ${seconds}s ${statusText}`;
-        
+
         // Update Big Video select options
         const yesOption = bigVideoSelect.querySelector('option[value="yes"]') as HTMLOptionElement;
-        
+
         if (length < minLength) {
           // Disable "Yes" option and update text
           yesOption.disabled = true;
           yesOption.textContent = `Yes (Video too short - min ${Math.floor(minLength / 60)} minutes)`;
-          
+
           // Force selection to "No" if currently "Yes"
           if (bigVideoSelect.value === 'yes') {
             bigVideoSelect.value = 'no';
@@ -1666,10 +1683,10 @@ const createRemarksHtml = (remarks: any[], creatorName: string) => {
                    </span>`
       : ''}
               ${r.pr
-                ? `<span class="inline-block bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+      ? `<span class="inline-block bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
                      PR Video
                    </span>`
-                : ''}
+      : ''}
             </div>
             
             <p class="text-xs mt-2 text-gray-600 dark:text-gray-400">
@@ -1744,7 +1761,7 @@ const setupGlobalHandlers = (creator: ICreator, creatorName: string) => {
       }
     });
 
-    const pageCode = getPageCodeFromCreator(creator); // ✅ use correct page per creator
+    const pageCodes: ('TC' | 'BC' | 'HC')[] = ['TC', 'BC', 'HC'];
 
     for (let i = 0; i < remarksToRefresh.length; i++) {
       const r = remarksToRefresh[i];
@@ -1762,9 +1779,22 @@ const setupGlobalHandlers = (creator: ICreator, creatorName: string) => {
       }
 
       try {
-        await fetchVideoData(videoId, pageCode); // ✅ pass correct page
+        let fetched = false;
 
-        if (!fbVideoData.value?.views) {
+        // Try all tokens
+        for (const page of pageCodes) {
+          try {
+            await fetchVideoData(videoId, page);
+            if (fbVideoData.value?.views) {
+              fetched = true;
+              break;
+            }
+          } catch (e) {
+            console.warn(`Failed to fetch with ${page}:`, e);
+          }
+        }
+
+        if (!fetched || !fbVideoData.value?.views) {
           stats.error++;
           continue;
         }
