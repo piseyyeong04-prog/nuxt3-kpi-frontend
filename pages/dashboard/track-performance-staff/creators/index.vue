@@ -70,10 +70,9 @@
                 <!-- No -->
                 <label class="flex items-center cursor-pointer">
                   <input v-model="isPrVideo" type="radio" value="false" class="sr-only" required />
-                  <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
-                    :class="isPrVideo === 'false'
-                      ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300'
-                      : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
+                  <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200" :class="isPrVideo === 'false'
+                    ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300'
+                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
                     <Icon icon="mdi:video-off" class="h-5 w-5" />
                     <span class="font-medium">No</span>
                   </div>
@@ -82,10 +81,9 @@
                 <!-- Yes -->
                 <label class="flex items-center cursor-pointer">
                   <input v-model="isPrVideo" type="radio" value="true" class="sr-only" />
-                  <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200"
-                    :class="isPrVideo === 'true'
-                      ? 'border-green-500 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                      : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
+                  <div class="flex items-center gap-2 px-4 py-2 border-2 rounded-xl transition-all duration-200" :class="isPrVideo === 'true'
+                    ? 'border-green-500 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 text-gray-700 dark:text-gray-300'">
                     <Icon icon="mdi:bullhorn" class="h-5 w-5" />
                     <span class="font-medium">Yes</span>
                   </div>
@@ -602,7 +600,7 @@
               <!-- Impact Videos -->
               <div class="bg-orange-50 dark:bg-orange-900/20 px-3 py-2 rounded-lg text-center">
                 <div class="font-bold text-orange-700 dark:text-orange-400 text-lg">{{ countImpactVideos(creatorVideos)
-                  }}</div>
+                }}</div>
                 <div class="text-orange-600 dark:text-orange-300">Impact Videos</div>
               </div>
 
@@ -1784,13 +1782,13 @@ const setupGlobalHandlers = (creator: ICreator, creatorName: string) => {
         // Try all tokens
         for (const page of pageCodes) {
           try {
-            await fetchVideoData(videoId, page);
+            await fetchVideoData(videoId, page, true); // silent = true
             if (fbVideoData.value?.views) {
               fetched = true;
               break;
             }
           } catch (e) {
-            console.warn(`Failed to fetch with ${page}:`, e);
+            // checking silently, no console warn needed
           }
         }
 
