@@ -627,7 +627,7 @@
       fetchKpiHistory();
     });
     
-    definePageMeta({
-      middleware: 'auth',
-    });
+ definePageMeta({
+    middleware: ['auth','expo']
+});
     </script>

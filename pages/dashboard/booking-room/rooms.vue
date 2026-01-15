@@ -1,3 +1,4 @@
+<!-- pages/dashboard/booking-room/rooms.vue -->
 <template>
   <div class="min-h-screen ">
     <div class="bg-white shadow-lg rounded-lg overflow-hidden">

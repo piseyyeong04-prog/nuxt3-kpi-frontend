@@ -11,8 +11,9 @@ export function useFacebookVideo() {
    * Fetch Facebook video data from a selected page
    * @param videoId - Facebook video ID
    * @param page - Page code (TC | BC | HC)
+   * @param silent - If true, suppresses server-side error logging
    */
-  const fetchVideoData = async (videoId: string, page: 'TC' | 'BC' | 'HC' = 'TC') => {
+  const fetchVideoData = async (videoId: string, page: 'TC' | 'BC' | 'HC' = 'TC', silent = false) => {
     if (!videoId) {
       error.value = 'Video ID is required';
       return;
@@ -24,12 +25,14 @@ export function useFacebookVideo() {
 
     try {
       const response = await $fetch(`/api/facebook`, {
-        params: { videoId, page }
+        params: { videoId, page, silent }
       });
       videoData.value = response as FacebookVideoData;
     } catch (err: any) {
       error.value = err?.data?.message || 'Failed to fetch video data';
-      console.error('Error fetching Facebook video data:', err);
+      if (!silent) {
+        console.error('Error fetching Facebook video data:', err);
+      }
     } finally {
       loading.value = false;
     }

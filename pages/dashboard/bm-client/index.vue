@@ -1,3 +1,4 @@
+<!-- pages/dashboard/bm-client/index.vue -->
 <template>
     <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
 
@@ -809,7 +810,7 @@ const closeImportModal = () => (isImportModalOpen.value = false)
 // Define selectedClient with proper typing
 
 definePageMeta({
-    middleware: 'auth',
+    middleware: ['auth','expo']
 });
 
 // Composable

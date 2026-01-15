@@ -29,10 +29,13 @@ export default defineEventHandler(async (event) => {
 
     return response;
   } catch (error: any) {
-    console.error(`[Facebook API - ${page}]`, error);
+    // Only log if not silent
+    if (String((getQuery(event) as any).silent) !== 'true') {
+      console.error(`[Facebook API - ${page}]`, error);
 
-    if (error?.response?._data?.error?.code === 190) {
-      console.error('Access token expired or invalid');
+      if (error?.response?._data?.error?.code === 190) {
+        console.error('Access token expired or invalid');
+      }
     }
 
     throw createError({
