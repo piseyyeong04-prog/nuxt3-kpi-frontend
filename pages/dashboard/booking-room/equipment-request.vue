@@ -2187,9 +2187,8 @@ const formatTelegramMessage = (requestData: any, requestNumber: string = 'N/A') 
     equipmentList.push(`🔸 🚁 Drone: ${droneNames}`)
   }
 
-  // Get base URL from runtime config
-  const config = useRuntimeConfig()
-  const baseUrl = config.public.baseUrl
+  // Get base URL dynamically from current window location
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'undefined'
 
   // Build the formatted message
   return `🎬 ${currentUser?.first_name || 'N/A'} បានស្នើសុំថត
