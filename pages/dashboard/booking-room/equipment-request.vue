@@ -2554,6 +2554,7 @@ const sendTelegramMessage = async (text: string) => {
 // Initialize
 onMounted(() => {
   loadRequests()
+  loadEquipmentData() // Load equipment data on mount
   if (window.innerWidth <= 640) {
     changeView('dayGridWeek')
   }
