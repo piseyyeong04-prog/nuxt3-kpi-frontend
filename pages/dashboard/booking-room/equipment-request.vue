@@ -2004,12 +2004,12 @@ const formatTelegramMessage = (requestData: any, requestNumber: string = 'N/A') 
 
   // Get content creator name
   const contentCreatorName = requestData.content_creator
-    ? users.value.find(u => u.id === requestData.content_creator)?.first_name || 'N/A'
+    ? users.value.find(u => u.id === requestData.content_creator)?.first_name + ' ' + users.value.find(u => u.id === requestData.content_creator)?.last_name || 'N/A'
     : 'N/A'
 
   // Get camera man name
   const cameraManName = requestData.camera_man
-    ? users.value.find(u => u.id === requestData.camera_man)?.first_name || 'N/A'
+    ? users.value.find(u => u.id === requestData.camera_man)?.first_name + ' ' + users.value.find(u => u.id === requestData.camera_man)?.last_name || 'N/A'
     : 'N/A'
 
   // Build equipment list with actual equipment names
@@ -2075,7 +2075,7 @@ const formatTelegramMessage = (requestData: any, requestNumber: string = 'N/A') 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'undefined'
 
   // Build the formatted message
-  return `🎬 ${currentUser?.first_name || 'N/A'} បានស្នើសុំថត
+  return `🎬 ${currentUser?.first_name || 'N/A'} ${currentUser?.last_name || 'N/A'} បានស្នើសុំថត
 📄 លេខរៀងស្នើសុំ៖ ${requestNumber}
 📅 ថ្ងៃទី: ${formatDateKh(requestData.shooting_date)} ➡️ ${formatDateKh(requestData.return_date)}
 🕒 ថតពេល៖ ${shootingTimeName}
