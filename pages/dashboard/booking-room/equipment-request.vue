@@ -1924,6 +1924,7 @@ const calendarOptions = computed(() => ({
         programName: request.program_name || 'Untitled Project',
         shootingTime: shootingTimeText,
         icon: icon,
+        dateCreated: request.date_created, // Add creation date for ordering
         dateRange: (() => {
           const formatShort = (dateStr: string) => {
             const d = new Date(dateStr)
@@ -1937,6 +1938,7 @@ const calendarOptions = computed(() => ({
     }
   })
   ],
+  eventOrder: 'dateCreated', // Order events by creation date
   editable: false,
   selectable: true,
   selectMirror: true,
