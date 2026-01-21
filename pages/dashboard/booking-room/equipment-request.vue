@@ -557,6 +557,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`manual-mic-${microphone.id}`" :value="microphone.id"
                         v-model="manualRequest.microphone"
+                        :disabled="!isEquipmentAvailable(microphone.id, 'microphone').available"
                         class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded" />
                       <label :for="`manual-mic-${microphone.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -564,10 +565,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
+                      <span v-if="isEquipmentAvailable(microphone.id, 'microphone').available"
                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(microphone.id, 'microphone').shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -597,6 +609,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`manual-cam-${camera.id}`" :value="camera.id"
                         v-model="manualRequest.camera"
+                        :disabled="!isEquipmentAvailable(camera.id, 'camera').available"
                         class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
                       <label :for="`manual-cam-${camera.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -604,10 +617,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <span v-if="isEquipmentAvailable(camera.id, 'camera').available"
+                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(camera.id, 'camera').shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -637,6 +661,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`manual-tripod-${tripod.id}`" :value="tripod.id"
                         v-model="manualRequest.tripod"
+                        :disabled="!isEquipmentAvailable(tripod.id, 'tripod').available"
                         class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded" />
                       <label :for="`manual-tripod-${tripod.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -644,10 +669,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                      <span v-if="isEquipmentAvailable(tripod.id, 'tripod').available"
+                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(tripod.id, 'tripod').shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -677,6 +713,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`manual-gimbal-${gimbal.id}`" :value="gimbal.id"
                         v-model="manualRequest.gimbal"
+                        :disabled="!isEquipmentAvailable(gimbal.id, 'gimbal').available"
                         class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded" />
                       <label :for="`manual-gimbal-${gimbal.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -684,10 +721,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                      <span v-if="isEquipmentAvailable(gimbal.id, 'gimbal').available"
+                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(gimbal.id, 'gimbal').shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -719,6 +767,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`manual-lens-${lens.id}`" :value="lens.id"
                         v-model="manualRequest.camera_lens"
+                        :disabled="!isEquipmentAvailable(lens.id, 'camera_lens').available"
                         class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" />
                       <label :for="`manual-lens-${lens.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -726,10 +775,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                      <span v-if="isEquipmentAvailable(lens.id, 'camera_lens').available"
+                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(lens.id, 'camera_lens').shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -759,6 +819,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`manual-light-${light.id}`" :value="light.id"
                         v-model="manualRequest.light"
+                        :disabled="!isEquipmentAvailable(light.id, 'light').available"
                         class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded" />
                       <label :for="`manual-light-${light.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -766,10 +827,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                      <span v-if="isEquipmentAvailable(light.id, 'light').available"
+                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(light.id, 'light').shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -799,6 +871,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`manual-drone-${drone.id}`" :value="drone.id"
                         v-model="manualRequest.drone"
+                        :disabled="!isEquipmentAvailable(drone.id, 'drone').available"
                         class="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-gray-300 rounded" />
                       <label :for="`manual-drone-${drone.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -806,10 +879,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800">
+                      <span v-if="isEquipmentAvailable(drone.id, 'drone').available"
+                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(drone.id, 'drone').shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -942,6 +1026,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`edit-mic-${microphone.id}`" :value="microphone.id"
                         v-model="editRequest.microphone"
+                        :disabled="!isEquipmentAvailable(microphone.id, 'microphone', true).available"
                         class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded" />
                       <label :for="`edit-mic-${microphone.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -949,10 +1034,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
+                       <span v-if="isEquipmentAvailable(microphone.id, 'microphone', true).available"
                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(microphone.id, 'microphone', true).shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -982,6 +1078,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`edit-cam-${camera.id}`" :value="camera.id"
                         v-model="editRequest.camera"
+                        :disabled="!isEquipmentAvailable(camera.id, 'camera', true).available"
                         class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
                       <label :for="`edit-cam-${camera.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -989,10 +1086,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
+                      <span v-if="isEquipmentAvailable(camera.id, 'camera', true).available"
                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(camera.id, 'camera', true).shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1022,6 +1130,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`edit-tripod-${tripod.id}`" :value="tripod.id"
                         v-model="editRequest.tripod"
+                        :disabled="!isEquipmentAvailable(tripod.id, 'tripod', true).available"
                         class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded" />
                       <label :for="`edit-tripod-${tripod.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -1029,10 +1138,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
+                      <span v-if="isEquipmentAvailable(tripod.id, 'tripod', true).available"
                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(tripod.id, 'tripod', true).shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1062,6 +1182,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`edit-gimbal-${gimbal.id}`" :value="gimbal.id"
                         v-model="editRequest.gimbal"
+                        :disabled="!isEquipmentAvailable(gimbal.id, 'gimbal', true).available"
                         class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded" />
                       <label :for="`edit-gimbal-${gimbal.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -1069,10 +1190,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
+                      <span v-if="isEquipmentAvailable(gimbal.id, 'gimbal', true).available"
                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(gimbal.id, 'gimbal', true).shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1104,6 +1236,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`edit-lens-${lens.id}`" :value="lens.id"
                         v-model="editRequest.camera_lens"
+                        :disabled="!isEquipmentAvailable(lens.id, 'camera_lens', true).available"
                         class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" />
                       <label :for="`edit-lens-${lens.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -1111,10 +1244,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
+                      <span v-if="isEquipmentAvailable(lens.id, 'camera_lens', true).available"
                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(lens.id, 'camera_lens', true).shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1144,6 +1288,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`edit-light-${light.id}`" :value="light.id"
                         v-model="editRequest.light"
+                        :disabled="!isEquipmentAvailable(light.id, 'light', true).available"
                         class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded" />
                       <label :for="`edit-light-${light.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -1151,10 +1296,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
+                      <span v-if="isEquipmentAvailable(light.id, 'light', true).available"
                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(light.id, 'light', true).shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1184,6 +1340,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`edit-drone-${drone.id}`" :value="drone.id"
                         v-model="editRequest.drone"
+                        :disabled="!isEquipmentAvailable(drone.id, 'drone', true).available"
                         class="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-gray-300 rounded" />
                       <label :for="`edit-drone-${drone.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -1191,10 +1348,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
+                      <span v-if="isEquipmentAvailable(drone.id, 'drone', true).available"
                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(drone.id, 'drone', true).shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1490,6 +1658,84 @@ const checkEquipmentConflicts = (
   }
 
   return conflicts
+}
+
+// Helper function to check if a specific equipment is available
+const isEquipmentAvailable = (
+  equipmentId: number,
+  equipmentType: 'microphone' | 'camera' | 'tripod' | 'gimbal' | 'camera_lens' | 'light' | 'drone',
+  isEdit: boolean = false
+) => {
+  // Get the request data based on whether we're in create or edit mode
+  const requestData = isEdit ? editRequest.value : manualRequest.value
+  
+  // If dates or shooting time are not set, consider available
+  if (!requestData.shooting_date || !requestData.return_date || !requestData.shooting_time) {
+    return { available: true, bookedBy: null, bookedFor: null, shootingTime: null }
+  }
+
+  const newStartDate = new Date(requestData.shooting_date).getTime()
+  const newEndDate = new Date(requestData.return_date).getTime()
+  const newShootingTime = typeof requestData.shooting_time === 'string'
+    ? parseInt(requestData.shooting_time)
+    : requestData.shooting_time
+
+  // Equipment type to field mapping
+  const fieldMap: Record<string, string> = {
+    microphone: 'microphone_id',
+    camera: 'camera_id',
+    tripod: 'tripod_id',
+    gimbal: 'gimbal_id',
+    camera_lens: 'camera_lens_id',
+    light: 'light_id',
+    drone: 'drone_id'
+  }
+
+  const idField = fieldMap[equipmentType]
+
+  // Check all existing requests for conflicts
+  for (const existingReq of requests.value) {
+    // Skip the current request when editing
+    if (isEdit && existingReq.id?.toString() === requestData.id) continue
+
+    const existingStart = new Date(existingReq.shooting_date).getTime()
+    const existingEnd = new Date(existingReq.return_date).getTime()
+    const existingShootingTime = existingReq.shooting_time?.id || existingReq.shooting_time
+
+    // Check if dates overlap
+    const datesOverlap = newStartDate <= existingEnd && newEndDate >= existingStart
+    if (!datesOverlap) continue
+
+    // Check if shooting times conflict
+    if (!doShootingTimesConflict(newShootingTime, existingShootingTime as number)) continue
+
+    // Check if this specific equipment is in the existing request
+    const equipmentArray = (existingReq as any)[equipmentType]
+    if (!equipmentArray || !Array.isArray(equipmentArray)) continue
+
+    const hasConflict = equipmentArray.some((item: any) => {
+      const itemId = item?.[idField]?.id || item?.[idField]
+      return itemId === equipmentId
+    })
+
+    if (hasConflict) {
+      const shootingTimeNames: Record<number, string> = {
+        1: 'Morning',
+        2: 'Afternoon',
+        3: 'Evening',
+        4: 'Full Day'
+      }
+      
+      return {
+        available: false,
+        bookedBy: `${existingReq.user_created?.first_name || ''} ${existingReq.user_created?.last_name || ''}`.trim() || 'Unknown',
+        bookedFor: existingReq.program_name || 'Unknown Program',
+        shootingTime: shootingTimeNames[existingShootingTime as number] || 'Unknown'
+      }
+    }
+  }
+
+  return { available: true, bookedBy: null, bookedFor: null, shootingTime: null }
 }
 
 // ========================
@@ -2195,6 +2441,69 @@ onMounted(() => {
   loadEquipmentData() // Load equipment data on mount
 })
 
+// ✅ Watch for shooting time changes and automatically unselect unavailable equipment
+watch(() => manualRequest.value.shooting_time, (newTime, oldTime) => {
+  // Only run if shooting time actually changed and both dates are set
+  if (!manualRequest.value.shooting_date || !manualRequest.value.return_date) return
+  if (newTime === oldTime) return
+
+  // Check each equipment type and unselect any that are now unavailable
+  const equipmentTypes: Array<{ key: keyof typeof manualRequest.value, type: 'microphone' | 'camera' | 'tripod' | 'gimbal' | 'camera_lens' | 'light' | 'drone' }> = [
+    { key: 'microphone', type: 'microphone' },
+    { key: 'camera', type: 'camera' },
+    { key: 'tripod', type: 'tripod' },
+    { key: 'gimbal', type: 'gimbal' },
+    { key: 'camera_lens', type: 'camera_lens' },
+    { key: 'light', type: 'light' },
+    { key: 'drone', type: 'drone' }
+  ]
+
+  for (const eqType of equipmentTypes) {
+    const selectedItems = manualRequest.value[eqType.key] as string[]
+    if (!selectedItems || selectedItems.length === 0) continue
+
+    // Filter out equipment that is no longer available
+    const stillAvailable = selectedItems.filter(id => {
+      const availability = isEquipmentAvailable(parseInt(id), eqType.type, false)
+      return availability.available
+    })
+
+    // Update the selection if some items became unavailable
+    if (stillAvailable.length !== selectedItems.length) {
+      (manualRequest.value[eqType.key] as string[]) = stillAvailable
+    }
+  }
+})
+
+// ✅ Watch for shooting time changes in edit modal
+watch(() => editRequest.value.shooting_time, (newTime, oldTime) => {
+  if (!editRequest.value.shooting_date || !editRequest.value.return_date) return
+  if (newTime === oldTime) return
+
+  const equipmentTypes: Array<{ key: keyof typeof editRequest.value, type: 'microphone' | 'camera' | 'tripod' | 'gimbal' | 'camera_lens' | 'light' | 'drone' }> = [
+    { key: 'microphone', type: 'microphone' },
+    { key: 'camera', type: 'camera' },
+    { key: 'tripod', type: 'tripod' },
+    { key: 'gimbal', type: 'gimbal' },
+    { key: 'camera_lens', type: 'camera_lens' },
+    { key: 'light', type: 'light' },
+    { key: 'drone', type: 'drone' }
+  ]
+
+  for (const eqType of equipmentTypes) {
+    const selectedItems = editRequest.value[eqType.key] as string[]
+    if (!selectedItems || selectedItems.length === 0) continue
+
+    const stillAvailable = selectedItems.filter(id => {
+      const availability = isEquipmentAvailable(parseInt(id), eqType.type, true)
+      return availability.available
+    })
+
+    if (stillAvailable.length !== selectedItems.length) {
+      (editRequest.value[eqType.key] as string[]) = stillAvailable
+    }
+  }
+})
 
 definePageMeta({
   middleware: 'auth',
