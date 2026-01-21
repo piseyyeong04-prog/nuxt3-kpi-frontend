@@ -1426,7 +1426,7 @@
 :deep(.fc-event) {
   cursor: pointer;
   border-radius: 4px;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   white-space: nowrap !important;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1443,8 +1443,8 @@
 :deep(.fc-daygrid-event) {
   display: block !important;
   position: relative;
-  margin: 1px 0;
-  padding: 2px 4px;
+  margin: 2px 0;
+  padding: 0 4px;
   overflow: hidden;
   white-space: nowrap !important;
   text-overflow: ellipsis;
