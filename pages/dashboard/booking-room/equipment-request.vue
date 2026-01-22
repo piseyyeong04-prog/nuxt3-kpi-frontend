@@ -1427,9 +1427,9 @@
   cursor: pointer;
   border-radius: 4px;
   font-size: 0.75rem;
-  white-space: nowrap !important;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal !important;
+  overflow: visible;
+  line-height: 1.2;
 }
 
 /* Multi-day event spanning */
@@ -1444,10 +1444,11 @@
   display: block !important;
   position: relative;
   margin: 2px 0;
-  padding: 0 4px;
-  overflow: hidden;
-  white-space: nowrap !important;
-  text-overflow: ellipsis;
+  padding: 2px 4px;
+  overflow: visible;
+  white-space: normal !important;
+  line-height: 1.2;
+  min-height: auto;
 }
 
 :deep(.fc-daygrid-day-events) {
