@@ -67,39 +67,8 @@
               </span>
             </button>
           </div>
-          <!-- Updated calendar with new month view style - please hard refresh (Cmd+Shift+R / Ctrl+Shift+F5) -->
           <ClientOnly>
-            <!-- Scrollable wrapper for the calendar - scroll is contained here -->
-            <div class="calendar-scroll-wrapper"
-              style="max-width: 100%; overflow-x: auto; overflow-y: visible; -webkit-overflow-scrolling: touch;">
-              <div class="calendar-wrapper modern-theme" style="min-width: 1000px; height: 700px;">
-                <Qalendar :key="calendarKey" :events="qalendarEvents" :config="calendarOptions.config"
-                  @event-was-clicked="onEventWasClicked" @day-was-clicked="onDayWasClicked"
-                  style="height: 100%; min-width: 1000px;">
-                  <template #monthEvent="{ eventData }">
-                    <div
-                      class="w-full h-auto min-h-[40px] px-2 py-1.5 flex items-start gap-2 rounded-lg shadow-md cursor-pointer overflow-hidden text-white font-medium transition-all hover:shadow-lg hover:brightness-110"
-                      style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-left: 4px solid #1e40af;">
-                      <span class="text-[16px] mt-0.5">{{ eventData.icon }}</span>
-                      <div class="flex-1 min-w-0 flex flex-col gap-0.5 leading-tight">
-                        <span class="truncate font-bold text-[13px]">{{ eventData.programName }}</span>
-                        <div class="flex items-center gap-1.5 text-[10.5px] opacity-95">
-                          <span class="flex items-center gap-1">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            {{ eventData.dateRange }}
-                          </span>
-                        </div>
-                        <span class="text-[10px] opacity-90 bg-white/20 px-1.5 py-0.5 rounded self-start">{{
-                          eventData.shootingTime }}</span>
-                      </div>
-                    </div>
-                  </template>
-                </Qalendar>
-              </div>
-            </div>
+            <FullCalendar :options="calendarOptions" />
           </ClientOnly>
         </div>
       </div>
@@ -440,7 +409,7 @@
         <div class="space-y-3">
           <div v-for="event in moreEventsData.events" :key="event.id"
             class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100 hover:shadow-md transition-all cursor-pointer"
-            @click="handleEventClick(event)">
+            @click="selectedEvent = { extendedProps: { request: event.requestData } }; showMoreEventsModal = false">
             <div class="flex items-start gap-3">
               <span class="text-2xl">{{ event.icon }}</span>
               <div class="flex-1 min-w-0">
@@ -465,7 +434,7 @@
                   By: {{ event.requestData.user_created.first_name }} {{ event.requestData.user_created.last_name }}
                 </div>
               </div>
-              <button @click.stop="handleEventClick(event)"
+              <button @click.stop="selectedEvent = { extendedProps: { request: event.requestData } }; showMoreEventsModal = false"
                 class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors">
                 View Details
               </button>
@@ -588,6 +557,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`manual-mic-${microphone.id}`" :value="microphone.id"
                         v-model="manualRequest.microphone"
+                        :disabled="!isEquipmentAvailable(microphone.id, 'microphone').available"
                         class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded" />
                       <label :for="`manual-mic-${microphone.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -595,10 +565,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
+                      <span v-if="isEquipmentAvailable(microphone.id, 'microphone').available"
                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(microphone.id, 'microphone').shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -628,6 +609,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`manual-cam-${camera.id}`" :value="camera.id"
                         v-model="manualRequest.camera"
+                        :disabled="!isEquipmentAvailable(camera.id, 'camera').available"
                         class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
                       <label :for="`manual-cam-${camera.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -635,10 +617,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <span v-if="isEquipmentAvailable(camera.id, 'camera').available"
+                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(camera.id, 'camera').shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -668,6 +661,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`manual-tripod-${tripod.id}`" :value="tripod.id"
                         v-model="manualRequest.tripod"
+                        :disabled="!isEquipmentAvailable(tripod.id, 'tripod').available"
                         class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded" />
                       <label :for="`manual-tripod-${tripod.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -675,10 +669,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                      <span v-if="isEquipmentAvailable(tripod.id, 'tripod').available"
+                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(tripod.id, 'tripod').shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -708,6 +713,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`manual-gimbal-${gimbal.id}`" :value="gimbal.id"
                         v-model="manualRequest.gimbal"
+                        :disabled="!isEquipmentAvailable(gimbal.id, 'gimbal').available"
                         class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded" />
                       <label :for="`manual-gimbal-${gimbal.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -715,10 +721,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                      <span v-if="isEquipmentAvailable(gimbal.id, 'gimbal').available"
+                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(gimbal.id, 'gimbal').shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -750,6 +767,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`manual-lens-${lens.id}`" :value="lens.id"
                         v-model="manualRequest.camera_lens"
+                        :disabled="!isEquipmentAvailable(lens.id, 'camera_lens').available"
                         class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" />
                       <label :for="`manual-lens-${lens.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -757,10 +775,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                      <span v-if="isEquipmentAvailable(lens.id, 'camera_lens').available"
+                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(lens.id, 'camera_lens').shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -790,6 +819,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`manual-light-${light.id}`" :value="light.id"
                         v-model="manualRequest.light"
+                        :disabled="!isEquipmentAvailable(light.id, 'light').available"
                         class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded" />
                       <label :for="`manual-light-${light.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -797,10 +827,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                      <span v-if="isEquipmentAvailable(light.id, 'light').available"
+                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(light.id, 'light').shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -830,6 +871,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`manual-drone-${drone.id}`" :value="drone.id"
                         v-model="manualRequest.drone"
+                        :disabled="!isEquipmentAvailable(drone.id, 'drone').available"
                         class="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-gray-300 rounded" />
                       <label :for="`manual-drone-${drone.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -837,10 +879,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800">
+                      <span v-if="isEquipmentAvailable(drone.id, 'drone').available"
+                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(drone.id, 'drone').shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -973,6 +1026,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`edit-mic-${microphone.id}`" :value="microphone.id"
                         v-model="editRequest.microphone"
+                        :disabled="!isEquipmentAvailable(microphone.id, 'microphone', true).available"
                         class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded" />
                       <label :for="`edit-mic-${microphone.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -980,10 +1034,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
+                       <span v-if="isEquipmentAvailable(microphone.id, 'microphone', true).available"
                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(microphone.id, 'microphone', true).shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1013,6 +1078,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`edit-cam-${camera.id}`" :value="camera.id"
                         v-model="editRequest.camera"
+                        :disabled="!isEquipmentAvailable(camera.id, 'camera', true).available"
                         class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
                       <label :for="`edit-cam-${camera.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -1020,10 +1086,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
+                      <span v-if="isEquipmentAvailable(camera.id, 'camera', true).available"
                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(camera.id, 'camera', true).shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1053,6 +1130,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`edit-tripod-${tripod.id}`" :value="tripod.id"
                         v-model="editRequest.tripod"
+                        :disabled="!isEquipmentAvailable(tripod.id, 'tripod', true).available"
                         class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded" />
                       <label :for="`edit-tripod-${tripod.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -1060,10 +1138,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
+                      <span v-if="isEquipmentAvailable(tripod.id, 'tripod', true).available"
                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(tripod.id, 'tripod', true).shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1093,6 +1182,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`edit-gimbal-${gimbal.id}`" :value="gimbal.id"
                         v-model="editRequest.gimbal"
+                        :disabled="!isEquipmentAvailable(gimbal.id, 'gimbal', true).available"
                         class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded" />
                       <label :for="`edit-gimbal-${gimbal.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -1100,10 +1190,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
+                      <span v-if="isEquipmentAvailable(gimbal.id, 'gimbal', true).available"
                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(gimbal.id, 'gimbal', true).shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1135,6 +1236,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`edit-lens-${lens.id}`" :value="lens.id"
                         v-model="editRequest.camera_lens"
+                        :disabled="!isEquipmentAvailable(lens.id, 'camera_lens', true).available"
                         class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" />
                       <label :for="`edit-lens-${lens.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -1142,10 +1244,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
+                      <span v-if="isEquipmentAvailable(lens.id, 'camera_lens', true).available"
                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(lens.id, 'camera_lens', true).shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1175,6 +1288,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`edit-light-${light.id}`" :value="light.id"
                         v-model="editRequest.light"
+                        :disabled="!isEquipmentAvailable(light.id, 'light', true).available"
                         class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded" />
                       <label :for="`edit-light-${light.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -1182,10 +1296,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
+                      <span v-if="isEquipmentAvailable(light.id, 'light', true).available"
                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(light.id, 'light', true).shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1215,6 +1340,7 @@
                     <div class="flex items-center">
                       <input type="checkbox" :id="`edit-drone-${drone.id}`" :value="drone.id"
                         v-model="editRequest.drone"
+                        :disabled="!isEquipmentAvailable(drone.id, 'drone', true).available"
                         class="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-gray-300 rounded" />
                       <label :for="`edit-drone-${drone.id}`"
                         class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
@@ -1222,10 +1348,21 @@
                       </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span
+                      <span v-if="isEquipmentAvailable(drone.id, 'drone', true).available"
                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800">
                         Available
                       </span>
+                      <div v-else class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-1">
+                          Unavailable
+                        </span>
+                        <span class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100 mt-1">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ isEquipmentAvailable(drone.id, 'drone', true).shootingTime}}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1246,329 +1383,96 @@
 </template>
 
 <style scoped>
-/* Clean, Stress-Free Calendar Theme */
-:deep(.calendar-wrapper) {
-  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --qalendar-theme-color: #6366f1;
-  /* Indigo 500 */
-  --qalendar-border-color: #e5e7eb;
-  /* Gray 200 */
-}
-
-/* Header Styling - Clean and minimal */
-:deep(.calendar-header) {
-  padding: 1.25rem 1.5rem !important;
-  background: linear-gradient(to bottom, #ffffff, #f9fafb);
-  border-bottom: 2px solid var(--qalendar-border-color);
-}
-
-:deep(.calendar-header__period-name) {
-  font-weight: 700;
-  font-size: 1.5rem;
-  color: #111827;
-  letter-spacing: -0.025em;
-}
-
-:deep(.calendar-header__mode-picker) {
-  font-weight: 500;
-  color: #6b7280;
-}
-
-/* Weekday headers - subtle and clean */
-:deep(.calendar-month__weekday) {
-  text-transform: uppercase;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  color: #9ca3af;
-  padding: 0.75rem 0;
-  background: #fafbfc;
-  border-bottom: 1px solid var(--qalendar-border-color);
-}
-
-/* Outer scroll wrapper - handles the horizontal scroll */
-.calendar-scroll-wrapper {
-  border: 1px solid #e5e7eb;
-  border-radius: 0.75rem;
-  background: white;
-}
-
-/* Inner wrapper for calendar styling */
-.calendar-wrapper {
-  border-radius: 0.75rem;
-}
-
-/* Force week view to display properly on ALL devices */
-/* The inner wrapper div forces 900px min-width, these rules reinforce that */
-
-/* Force calendar container to be wide - triggers desktop/week rendering */
-:deep(.calendar-container) {
-  min-width: 1000px !important;
-  width: 100% !important;
-}
-
-/* Force week view specifically */
-:deep(.calendar-week) {
-  min-width: 1000px !important;
-}
-
-/* Force week timeline to display all 7 days */
-:deep(.week-timeline) {
-  min-width: 1000px !important;
-  display: flex !important;
-}
-
-:deep(.week-timeline__day) {
-  min-width: 130px !important;
-  flex: 1 !important;
-}
-
-/* Ensure the header shows all days */
-:deep(.calendar-week__header) {
-  min-width: 1000px !important;
-}
-
-:deep(.calendar-week__header-day) {
-  min-width: 130px !important;
-}
-
-
-
-/* Force the calendar to be wider than the screen to trigger scroll */
-:deep(.calendar-month) {
-  min-width: 1200px !important;
-  /* Ensure total width is large enough */
-}
-
-/* Day cells - clean and consistent */
-:deep(.calendar-month__day) {
-  border: 1px solid var(--qalendar-border-color);
-  border-top: none;
-  border-left: none;
-  padding: 4px !important;
-  min-height: 140px !important;
-  min-width: 140px !important;
-  background: white;
-  transition: all 0.2s ease;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  display: block !important;
-}
-
-/* Event container spacing */
-:deep(.calendar-month__day > div),
-:deep(.calendar-month__day-content) {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 2px !important;
-}
-
-/* Ensure events don't get hidden */
-:deep(.calendar-month__day > div),
-:deep(.calendar-month__day-content) {
-  min-height: 100% !important;
-  width: 100% !important;
-}
-
-/* ===== MONTH VIEW EVENTS - STYLED LIKE WEEK VIEW ===== */
-/* Make month events look like solid colored bars - contained within each day */
-:deep(.calendar-month__event),
-:deep(.calendar-month__event-wrapper),
-:deep(.month-event) {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
-  color: white !important;
-  border: none !important;
-  border-radius: 4px !important;
-  padding: 3px 8px !important;
-  margin: 2px 4px !important;
-  font-size: 11px !important;
-  font-weight: 500 !important;
-  min-height: 22px !important;
-  height: auto !important;
-  width: calc(100% - 8px) !important;
-  display: flex !important;
-  align-items: center !important;
-  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.3) !important;
-  transition: all 0.2s ease !important;
-  cursor: pointer !important;
-  overflow: hidden !important;
-}
-
-
-/* :deep(.calendar-month__event:hover),
-:deep(.month-event:hover) {
-  transform: translateY(-1px) !important;
-  box-shadow: 0 3px 6px rgba(99, 102, 241, 0.4) !important;
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
-} */
-
-/* Hide the default colored dot/indicator */
-:deep(.calendar-month__event::before),
-:deep(.calendar-month__event .is-event),
-:deep(.is-event::before),
-:deep(.event-flyout__color-icon) {
-  display: none !important;
-}
-
-/* Style all text inside month events */
-:deep(.calendar-month__event *),
-:deep(.month-event *) {
-  color: white !important;
-  font-weight: 500 !important;
-}
-
-/* Make sure event text is visible and doesn't wrap */
-:deep(.calendar-month__event span),
-:deep(.calendar-month__event-title),
-:deep(.month-event span) {
-  color: white !important;
-  background-color: rgb(0, 166, 255);
-  padding: 2px;
-  border-radius: 4px !important;
-  font-weight: 500 !important;
-  font-size: 11px !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-}
-
-/* Style the "more events" button */
-:deep(.calendar-month__more-events),
-:deep(.calendar-month__event--more),
-:deep(.is-more-events) {
-  background: #e0e7ff !important;
-  color: #4f46e5 !important;
-  border-radius: 4px !important;
-  padding: 3px 8px !important;
-  font-size: 10px !important;
-  font-weight: 600 !important;
-  margin: 2px 4px !important;
-  cursor: pointer !important;
-}
-
-:deep(.calendar-month__more-events:hover),
-:deep(.is-more-events:hover) {
-  background: #c7d2fe !important;
-}
-
-/* Styling the scrollbars for the day cell */
-:deep(.calendar-month__day)::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-:deep(.calendar-month__day)::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-
-:deep(.calendar-month__day)::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
-
-:deep(.calendar-month__day)::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* Events container within day */
-:deep(.calendar-month__day-events),
-:deep(.calendar-month__events) {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 3px !important;
-  overflow: visible !important;
-  flex: 1 !important;
-}
-
-:deep(.calendar-month__day:hover) {
-  background-color: #f9fafb;
-  box-shadow: inset 0 0 0 1px #e5e7eb;
-}
-
-/* Day numbers - clear and readable */
-:deep(.calendar-month__day-date) {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #374151;
-  margin: 0.25rem;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.2s;
-}
-
-:deep(.calendar-month__day-date:hover) {
-  background-color: #f3f4f6;
-}
-
-/* Today indicator - prominent but not overwhelming */
-:deep(.is-today) .calendar-month__day-date {
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
-  color: white !important;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
-  font-weight: 700;
-}
-
-/* Event styling - clean and organized */
-:deep(.calendar-month__event) {
-  background: transparent !important;
-  padding: 0 !important;
-  margin: 0.125rem 0 !important;
-  border-radius: 0.375rem;
-  box-shadow: none !important;
-  min-height: 28px;
-  max-height: 28px;
-}
-
-:deep(.calendar-month__event:hover) {
-  z-index: 10;
-  transform: translateY(-1px);
-}
-
-/* Hide time display in events */
-:deep(.calendar-month__event-time),
-:deep(.event-time),
-:deep(.calendar-month__event .time) {
-  display: none !important;
-}
-
-
-/* Navigation buttons - modern and clean */
-:deep(.qalendar-icon-button) {
+.calendar-container {
+  padding: 1rem;
+  background: #fff;
   border-radius: 0.5rem;
-  transition: all 0.2s;
-  padding: 0.5rem;
+  min-height: 600px;
 }
 
-:deep(.qalendar-icon-button:hover) {
-  background-color: #f3f4f6 !important;
-  color: #6366f1 !important;
-  transform: scale(1.05);
+/* FullCalendar Custom Styling */
+:deep(.fc) {
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
-/* Remove visual clutter */
-:deep(.mode-is-month) {
-  border: none !important;
+:deep(.fc-toolbar-title) {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
 }
 
-:deep(.week-timeline__day) {
-  border-right: 1px solid var(--qalendar-border-color);
-  background: white;
+:deep(.fc-button) {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+  text-transform: capitalize;
+  font-weight: 500;
 }
 
-/* Smooth animations */
-:deep(.calendar-month__day),
-:deep(.calendar-month__event),
-:deep(.qalendar-icon-button) {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+:deep(.fc-button:hover) {
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
+
+:deep(.fc-button-active) {
+  background-color: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+}
+
+:deep(.fc-day-today) {
+  background-color: #dbeafe !important;
+}
+
+/* Event styling */
+:deep(.fc-event) {
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: normal !important;
+  overflow: visible;
+  line-height: 1.2;
+}
+
+/* Multi-day event spanning */
+:deep(.fc-daygrid-event-harness) {
+  display: block !important;
+  /* width: 100% !important; */
+  height: auto !important;
+  overflow: visible !important;
+}
+
+:deep(.fc-daygrid-event) {
+  display: block !important;
+  position: relative;
+  margin: 2px 0;
+  padding: 2px 4px;
+  overflow: visible;
+  white-space: normal !important;
+  line-height: 1.2;
+  min-height: auto;
+}
+
+:deep(.fc-daygrid-day-events) {
+  overflow: visible !important;
+  max-height: none !important;
+}
+
+/* Week view styling */
+:deep(.fc-col-header-cell) {
+  font-weight: 600;
+  padding: 12px 4px;
+  background-color: #f9fafb;
+}
+
+:deep(.fc-daygrid-day-number) {
+  padding: 4px;
+  font-weight: 500;
 }
 </style>
 
 <script setup lang="ts">
-import { Qalendar } from 'qalendar'
-import "qalendar/dist/style.css"
+import FullCalendar from '@fullcalendar/vue3'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import interactionPlugin from '@fullcalendar/interaction'
 import type { EquipmentRequest } from '~/types/equipment'
 import Swal from 'sweetalert2'
 import { useAuthStore } from '~/store/useAuthStore'
@@ -1757,6 +1661,84 @@ const checkEquipmentConflicts = (
   return conflicts
 }
 
+// Helper function to check if a specific equipment is available
+const isEquipmentAvailable = (
+  equipmentId: number,
+  equipmentType: 'microphone' | 'camera' | 'tripod' | 'gimbal' | 'camera_lens' | 'light' | 'drone',
+  isEdit: boolean = false
+) => {
+  // Get the request data based on whether we're in create or edit mode
+  const requestData = isEdit ? editRequest.value : manualRequest.value
+  
+  // If dates or shooting time are not set, consider available
+  if (!requestData.shooting_date || !requestData.return_date || !requestData.shooting_time) {
+    return { available: true, bookedBy: null, bookedFor: null, shootingTime: null }
+  }
+
+  const newStartDate = new Date(requestData.shooting_date).getTime()
+  const newEndDate = new Date(requestData.return_date).getTime()
+  const newShootingTime = typeof requestData.shooting_time === 'string'
+    ? parseInt(requestData.shooting_time)
+    : requestData.shooting_time
+
+  // Equipment type to field mapping
+  const fieldMap: Record<string, string> = {
+    microphone: 'microphone_id',
+    camera: 'camera_id',
+    tripod: 'tripod_id',
+    gimbal: 'gimbal_id',
+    camera_lens: 'camera_lens_id',
+    light: 'light_id',
+    drone: 'drone_id'
+  }
+
+  const idField = fieldMap[equipmentType]
+
+  // Check all existing requests for conflicts
+  for (const existingReq of requests.value) {
+    // Skip the current request when editing
+    if (isEdit && existingReq.id?.toString() === requestData.id) continue
+
+    const existingStart = new Date(existingReq.shooting_date).getTime()
+    const existingEnd = new Date(existingReq.return_date).getTime()
+    const existingShootingTime = existingReq.shooting_time?.id || existingReq.shooting_time
+
+    // Check if dates overlap
+    const datesOverlap = newStartDate <= existingEnd && newEndDate >= existingStart
+    if (!datesOverlap) continue
+
+    // Check if shooting times conflict
+    if (!doShootingTimesConflict(newShootingTime, existingShootingTime as number)) continue
+
+    // Check if this specific equipment is in the existing request
+    const equipmentArray = (existingReq as any)[equipmentType]
+    if (!equipmentArray || !Array.isArray(equipmentArray)) continue
+
+    const hasConflict = equipmentArray.some((item: any) => {
+      const itemId = item?.[idField]?.id || item?.[idField]
+      return itemId === equipmentId
+    })
+
+    if (hasConflict) {
+      const shootingTimeNames: Record<number, string> = {
+        1: 'Morning',
+        2: 'Afternoon',
+        3: 'Evening',
+        4: 'Full Day'
+      }
+      
+      return {
+        available: false,
+        bookedBy: `${existingReq.user_created?.first_name || ''} ${existingReq.user_created?.last_name || ''}`.trim() || 'Unknown',
+        bookedFor: existingReq.program_name || 'Unknown Program',
+        shootingTime: shootingTimeNames[existingShootingTime as number] || 'Unknown'
+      }
+    }
+  }
+
+  return { available: true, bookedBy: null, bookedFor: null, shootingTime: null }
+}
+
 // ========================
 const today = computed(() => {
   const date = new Date();
@@ -1879,67 +1861,18 @@ const equipmentData = ref({
   drones: [] as Array<{ id: number; name: string }>
 })
 
-const calendarKey = ref(0) // key to force re-render
-
 const calendarOptions = computed(() => ({
-  config: {
-    week: {
-      startsOn: 'monday',
-      nDays: 28, // Show 4 weeks (28 days) for monthly overview with continuous bars
-      scrollToHour: 7
-    },
-    // Prevent switching to 'Day' view on mobile
-    isSmall: false,
-    // Qalendar might not have 'breakpoints' but let's try standard prop if available, 
-    // otherwise the CSS/Width hack is the primary fix.
-    month: {
-      showTrailingAndLeadingDates: false,
-      // Increased to show more events with new larger cards
-      nEventsPerDay: 6,
-      showMoreEventsButton: true,
-      // Prevent switching to day view when clicking more events
-      disableModes: ['day']
-    },
-    defaultMode: 'week', // Week view shows multi-day events as continuous bars
-    showCurrentTime: true,
-    // Disable mode switching on more events click
-    disableModes: ['day'],
-    eventDialog: {
-      isDisabled: true // using our own modal
-    },
-    // Hide time display in events
-    style: {
-      colorSchemes: {
-        meetings: {
-          color: '#059669',
-          backgroundColor: '#d1fae5'
-        }
-      }
-    },
-    // Disable time labels on events
-    dayBoundaries: {
-      start: 0,
-      end: 24
-    }
-  }
-}))
-
-
-const qalendarEvents = computed(() => {
-  return requests.value.map(request => {
-    // Basic Equipment Summary
-    const equipmentTypes = []
-    if (request.camera?.length) equipmentTypes.push(`📷 ${request.camera.length}`)
-    if (request.microphone?.length) equipmentTypes.push(`🎤 ${request.microphone.length}`)
-    if (request.tripod?.length) equipmentTypes.push(`📹 ${request.tripod.length}`)
-    if (request.gimbal?.length) equipmentTypes.push(`🎬 ${request.gimbal.length}`)
-    if (request.camera_lens?.length) equipmentTypes.push(`🔍 ${request.camera_lens.length}`)
-    if (request.light?.length) equipmentTypes.push(`💡 ${request.light.length}`)
-    if (request.drone?.length) equipmentTypes.push(`🚁 ${request.drone.length}`)
-
-
-
-    // Normalize and Format Dates for Qalendar (YYYY-MM-DD HH:mm)
+  plugins: [dayGridPlugin, interactionPlugin],
+  initialView: 'dayGridMonth',
+  firstDay: 1, // Start week from Monday (0 = Sunday, 1 = Monday)
+  headerToolbar: {
+    left: 'prev,next today',
+    center: 'title',
+    right: 'dayGridMonth,dayGridWeek'
+  },
+  events: [
+    ...requests.value.map(request => {
+    // Normalize dates
     const normalize = (d: string) => {
       if (!d) return ''
       return d.toString().split('T')[0]
@@ -1948,21 +1881,24 @@ const qalendarEvents = computed(() => {
     const startStr = normalize(request.shooting_date)
     const endStr = normalize(request.return_date)
 
-    // Map shooting time - handle both object and number formats
+    // Calculate end date for FullCalendar (exclusive)
+    // FullCalendar requires the end date to be the day AFTER the last day
+    // Use manual string manipulation to avoid timezone issues
+    const endParts = endStr.split('-')
+    const endYear = parseInt(endParts[0])
+    const endMonth = parseInt(endParts[1]) - 1 // JS months are 0-indexed
+    const endDay = parseInt(endParts[2])
+    
+    const endDate = new Date(endYear, endMonth, endDay)
+    endDate.setDate(endDate.getDate() + 1)
+    
+    const endStrExclusive = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`
+
+    // Map shooting time
     const shootingTimeText = request.shooting_time?.name || 'Full Day'
 
-    // Qalendar expects YYYY-MM-DD format (without time) for multi-day spanning events in month view
-    // Using date-only format allows events to span across multiple days visually
-    const time = {
-      start: startStr,  // Just YYYY-MM-DD, no time
-      end: endStr       // Just YYYY-MM-DD, no time
-    }
-
-    // Use consistent blue color scheme for all events like week view
-    let colorClass = 'bg-blue-600 text-white border-none hover:bg-blue-700'
+    // Assign icon based on primary equipment type
     let icon = '🎥'
-
-    // Assign different icons based on primary equipment type but keep blue color
     if (request.camera?.length) {
       icon = '📷'
     } else if (request.drone?.length) {
@@ -1975,118 +1911,69 @@ const qalendarEvents = computed(() => {
       icon = '🎬'
     }
 
-
-    // Safe Fallback Title: Icon + Program Name + Time
-    const title = `${icon} ${request.program_name || 'Untitled'} - ${request.shooting_time?.name || 'Full Day'}`
-
     return {
       id: request.id?.toString(),
-      title, // Keep title for internal search/tooltips if needed
-      time,
-      isEditable: true,
-      color: "blue",
-      description: request.program_name || '',
-      requestData: request,
-      // Custom Props for display - Program Name and Shooting Time
-      programName: request.program_name || 'Untitled Project',
-      shootingTime: shootingTimeText,
-      colorClass,
-      icon,
-      // Add date range for easy viewing in month view
-      dateRange: (() => {
-        const formatShort = (dateStr: string) => {
-          const d = new Date(dateStr)
-          return `${d.getMonth() + 1}/${d.getDate()}`
-        }
-        const start = formatShort(startStr)
-        const end = formatShort(endStr)
-        const range = start === end ? start : `${start} → ${end}`
-        // Debug: Verify date range is being computed
-        if (process.client) console.log('Event dateRange:', range, 'for', request.program_name)
-        return range
-      })()
+      title: `${icon} ${request.program_name || 'Untitled'} - ${shootingTimeText}`,
+      start: startStr,
+      end: endStrExclusive, // FullCalendar uses exclusive end dates
+      allDay: true, // Important: marks this as an all-day event for proper spanning
+      backgroundColor: '#3b82f6',
+      borderColor: '#3b82f6',
+      textColor: '#fff',
+      extendedProps: {
+        request: request,
+        programName: request.program_name || 'Untitled Project',
+        shootingTime: shootingTimeText,
+        icon: icon,
+        dateCreated: request.date_created, // Add creation date for ordering
+        dateRange: (() => {
+          const formatShort = (dateStr: string) => {
+            const d = new Date(dateStr)
+            return `${d.getMonth() + 1}/${d.getDate()}`
+          }
+          const start = formatShort(startStr)
+          const end = formatShort(endStr)
+          return start === end ? start : `${start} → ${end}`
+        })()
+      }
     }
   })
-})
-
-const handleEventClick = (event: any) => {
-  // Qalendar emits the event object directly, or wrapped
-  // Check structure
-  const request = event.requestData || event.clickedEvent?.requestData || requests.value.find(r => r.id?.toString() === event.id)
-
-  if (request) {
-    selectedEvent.value = { extendedProps: { request } }
-  }
-}
-
-// Emitted by Qalendar
-// Flag to prevent day click from triggering when event is clicked
-let eventJustClicked = false
-
-const onEventWasClicked = (event: any) => {
-  // Set flag to prevent day click handler
-  eventJustClicked = true
-  handleEventClick(event)
-
-  // Reset flag after a short delay
-  setTimeout(() => {
-    eventJustClicked = false
-  }, 100)
-}
-
-// 📅 Handle day click - open booking modal with clicked date pre-filled
-const onDayWasClicked = (dayData: any) => {
-  // Don't open create modal if an event was just clicked
-  if (eventJustClicked) {
-    return
-  }
-  // Extract the date from dayData
-  // Qalendar passes different structures depending on the view
-  let clickedDate: string = ''
-
-  if (typeof dayData === 'string') {
-    // Direct date string format
-    clickedDate = dayData
-  } else if (dayData?.dateTimeString) {
-    // Week view format
-    clickedDate = dayData.dateTimeString.split(' ')[0]
-  } else if (dayData?.date) {
-    // Month view format
-    clickedDate = dayData.date
-  } else if (dayData?.time?.start) {
-    // Another possible format
-    clickedDate = dayData.time.start.split(' ')[0]
-  }
-
-  // Format date to YYYY-MM-DD if needed
-  if (clickedDate) {
-    // Ensure it's in YYYY-MM-DD format
-    const dateObj = new Date(clickedDate)
-    if (!isNaN(dateObj.getTime())) {
-      clickedDate = dateObj.toISOString().split('T')[0]
+  ],
+  eventOrder: 'dateCreated', // Order events by creation date
+  editable: false,
+  selectable: true,
+  selectMirror: true,
+  dayMaxEvents: true,
+  weekends: true,
+  displayEventTime: false,
+  displayEventEnd: false,
+  eventDisplay: 'block', // This ensures events display as blocks that can span
+  height: 'auto',
+  eventMaxStack: 3, // Enable native spanning behavior
+  eventClick: (info: any) => {
+    const request = info.event.extendedProps.request
+    if (request) {
+      selectedEvent.value = { extendedProps: { request } }
     }
-  }
-
-  // Only proceed if we have a valid date and it's not in the past
-  if (clickedDate) {
+  },
+  dateClick: (info: any) => {
+    const clickedDate = info.dateStr
     const selectedDate = new Date(clickedDate)
     const todayDate = new Date()
     todayDate.setHours(0, 0, 0, 0)
 
     if (selectedDate >= todayDate) {
-      // Pre-fill the manual request form with the clicked date
       manualRequest.value.shooting_date = clickedDate
       manualRequest.value.return_date = clickedDate
-
-      // Load equipment data and open modal
       loadEquipmentData()
       showManualModal.value = true
     } else {
-      // Past date - show warning
       showMessage('Cannot book for past dates', 'error')
     }
   }
-}
+}))
+
+// Event handlers are now integrated into calendarOptions
 
 
 
@@ -2120,12 +2007,12 @@ const formatTelegramMessage = (requestData: any, requestNumber: string = 'N/A') 
 
   // Get content creator name
   const contentCreatorName = requestData.content_creator
-    ? users.value.find(u => u.id === requestData.content_creator)?.first_name || 'N/A'
+    ? users.value.find(u => u.id === requestData.content_creator)?.first_name + ' ' + users.value.find(u => u.id === requestData.content_creator)?.last_name || 'N/A'
     : 'N/A'
 
   // Get camera man name
   const cameraManName = requestData.camera_man
-    ? users.value.find(u => u.id === requestData.camera_man)?.first_name || 'N/A'
+    ? users.value.find(u => u.id === requestData.camera_man)?.first_name + ' ' + users.value.find(u => u.id === requestData.camera_man)?.last_name || 'N/A'
     : 'N/A'
 
   // Build equipment list with actual equipment names
@@ -2191,7 +2078,7 @@ const formatTelegramMessage = (requestData: any, requestNumber: string = 'N/A') 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'undefined'
 
   // Build the formatted message
-  return `🎬 ${currentUser?.first_name || 'N/A'} បានស្នើសុំថត
+  return `🎬 ${currentUser?.first_name || 'N/A'} ${currentUser?.last_name || 'N/A'} បានស្នើសុំថត
 📄 លេខរៀងស្នើសុំ៖ ${requestNumber}
 📅 ថ្ងៃទី: ${formatDateKh(requestData.shooting_date)} ➡️ ${formatDateKh(requestData.return_date)}
 🕒 ថតពេល៖ ${shootingTimeName}
@@ -2554,531 +2441,74 @@ const sendTelegramMessage = async (text: string) => {
 // Initialize
 onMounted(() => {
   loadRequests()
-  if (window.innerWidth <= 640) {
-    changeView('dayGridWeek')
-  }
-
-  // Add click handler for "MORE EVENTS" buttons to show popup instead of switching to day view
-  setTimeout(() => {
-    try {
-      const calendarEl = document.querySelector('.calendar-wrapper')
-      if (!calendarEl) {
-        console.warn('Calendar element not found')
-        return
-      }
-
-      // Event handler function
-      const handleMoreEventsClick = (e: Event) => {
-        try {
-          const target = e.target as HTMLElement
-          if (!target) return
-
-          // Check if clicked element contains "MORE" text
-          const text = target.textContent || ''
-          const isMoreButton = text.toUpperCase().includes('MORE') ||
-            text.toUpperCase().includes('+ MORE EVENTS')
-
-          if (!isMoreButton) return
-
-          // Prevent default behavior
-          e.preventDefault()
-          e.stopPropagation()
-          e.stopImmediatePropagation()
-
-          console.log('MORE EVENTS clicked - showing popup')
-
-          // Find parent day cell - need to go UP from the more events button
-          // The more events button is inside a day cell, we need its parent
-          let dayCell = target.parentElement
-
-          // Keep going up until we find a day cell or hit the calendar root
-          let attempts = 0
-          while (dayCell && attempts < 10) {
-            const className = dayCell.className || ''
-            // Look for day-related class names
-            if (className.includes('calendar-month__day') ||
-              className.includes('calendar-day') ||
-              className.includes('weekday') && className.includes('day') ||
-              dayCell.hasAttribute('data-date') ||
-              dayCell.hasAttribute('data-day')) {
-              console.log('Found day cell after', attempts, 'parent hops:', dayCell)
-              break
-            }
-            dayCell = dayCell.parentElement
-            attempts++
-          }
-
-          if (!dayCell) {
-            console.warn('Could not find day cell')
-            return
-          }
-
-          // Try to extract date
-          let dateStr = ''
-
-          // Debug: log the day cell structure
-          console.log('Day cell found:', dayCell)
-
-          // Method 1: Try data attributes first
-          dateStr = dayCell.getAttribute('data-date') ||
-            dayCell.getAttribute('data-day') ||
-            dayCell.getAttribute('data-day-date') || ''
-
-          if (dateStr) {
-            console.log('Found date from attribute:', dateStr)
-          } else {
-            // Method 2: Look for day number in various possible elements
-            const possibleSelectors = [
-              '.calendar-month__day-date',
-              '.is-day-number',
-              '.day-number',
-              '[class*="day-date"]',
-              '[class*="day-number"]',
-              'time',
-              'span'
-            ]
-
-            let dayNum = 0
-            for (const selector of possibleSelectors) {
-              const el = dayCell.querySelector(selector)
-              if (el) {
-                const num = parseInt(el.textContent || '0')
-                if (num > 0 && num <= 31) {
-                  dayNum = num
-                  console.log(`Found day number ${dayNum} using selector: ${selector}`)
-                  break
-                }
-              }
-            }
-
-            // If still no day number, try the cell's direct text content
-            if (dayNum === 0) {
-              const cellText = dayCell.textContent || ''
-              const numbers = cellText.match(/\b(\d{1,2})\b/g) || []
-              for (const num of numbers) {
-                const n = parseInt(num)
-                if (n > 0 && n <= 31) {
-                  dayNum = n
-                  console.log(`Found day number ${dayNum} from cell text`)
-                  break
-                }
-              }
-            }
-
-            if (dayNum > 0) {
-              // Get month/year from calendar
-              const headerEl = document.querySelector('.calendar-header__title') ||
-                document.querySelector('[class*="header"][class*="title"]') ||
-                document.querySelector('h1') ||
-                document.querySelector('h2')
-
-              const headerText = headerEl?.textContent || ''
-              console.log('Header text:', headerText)
-
-              // Parse year
-              const yearMatch = headerText.match(/\d{4}/)
-              const year = yearMatch ? yearMatch[0] : new Date().getFullYear().toString()
-
-              // Parse month name
-              const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                'July', 'August', 'September', 'October', 'November', 'December']
-              const monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-              let month = new Date().getMonth() + 1
-
-              // Try full month names first
-              for (let i = 0; i < monthNames.length; i++) {
-                if (headerText.includes(monthNames[i])) {
-                  month = i + 1
-                  console.log(`Found month: ${monthNames[i]} = ${month}`)
-                  break
-                }
-              }
-
-              // Try short month names
-              if (month === new Date().getMonth() + 1) {
-                for (let i = 0; i < monthNamesShort.length; i++) {
-                  if (headerText.includes(monthNamesShort[i])) {
-                    month = i + 1
-                    console.log(`Found month (short): ${monthNamesShort[i]} = ${month}`)
-                    break
-                  }
-                }
-              }
-
-              dateStr = `${year}-${String(month).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`
-              console.log('Constructed date:', dateStr)
-            }
-          }
-
-          if (!dateStr) {
-            console.warn('Could not extract date from day cell')
-            return
-          }
-
-          // Find events for this date
-          const eventsForDay = qalendarEvents.value.filter((event: any) => {
-            const eventStart = event.time?.start || ''
-            const eventEnd = event.time?.end || ''
-            return dateStr >= eventStart && dateStr <= eventEnd
-          })
-
-          console.log(`Found ${eventsForDay.length} events for ${dateStr}`)
-
-          // Update modal data and show
-          moreEventsData.value = {
-            date: dateStr,
-            events: eventsForDay
-          }
-          showMoreEventsModal.value = true
-
-          return false
-        } catch (error) {
-          console.error('Error in more events handler:', error)
-        }
-      }
-
-      // Add event listeners
-      calendarEl.addEventListener('click', handleMoreEventsClick, true)
-
-      console.log('More events click handler installed')
-    } catch (error) {
-      console.error('Error setting up more events handler:', error)
-    }
-  }, 1000) // Delay to ensure calendar is fully rendered
+  loadEquipmentData() // Load equipment data on mount
 })
 
+// ✅ Watch for shooting time changes and automatically unselect unavailable equipment
+watch(() => manualRequest.value.shooting_time, (newTime, oldTime) => {
+  // Only run if shooting time actually changed and both dates are set
+  if (!manualRequest.value.shooting_date || !manualRequest.value.return_date) return
+  if (newTime === oldTime) return
 
-// definePageMeta({
-//   middleware: 'auth',
-// })
+  // Check each equipment type and unselect any that are now unavailable
+  const equipmentTypes: Array<{ key: keyof typeof manualRequest.value, type: 'microphone' | 'camera' | 'tripod' | 'gimbal' | 'camera_lens' | 'light' | 'drone' }> = [
+    { key: 'microphone', type: 'microphone' },
+    { key: 'camera', type: 'camera' },
+    { key: 'tripod', type: 'tripod' },
+    { key: 'gimbal', type: 'gimbal' },
+    { key: 'camera_lens', type: 'camera_lens' },
+    { key: 'light', type: 'light' },
+    { key: 'drone', type: 'drone' }
+  ]
+
+  for (const eqType of equipmentTypes) {
+    const selectedItems = manualRequest.value[eqType.key] as string[]
+    if (!selectedItems || selectedItems.length === 0) continue
+
+    // Filter out equipment that is no longer available
+    const stillAvailable = selectedItems.filter(id => {
+      const availability = isEquipmentAvailable(parseInt(id), eqType.type, false)
+      return availability.available
+    })
+
+    // Update the selection if some items became unavailable
+    if (stillAvailable.length !== selectedItems.length) {
+      (manualRequest.value[eqType.key] as string[]) = stillAvailable
+    }
+  }
+})
+
+// ✅ Watch for shooting time changes in edit modal
+watch(() => editRequest.value.shooting_time, (newTime, oldTime) => {
+  if (!editRequest.value.shooting_date || !editRequest.value.return_date) return
+  if (newTime === oldTime) return
+
+  const equipmentTypes: Array<{ key: keyof typeof editRequest.value, type: 'microphone' | 'camera' | 'tripod' | 'gimbal' | 'camera_lens' | 'light' | 'drone' }> = [
+    { key: 'microphone', type: 'microphone' },
+    { key: 'camera', type: 'camera' },
+    { key: 'tripod', type: 'tripod' },
+    { key: 'gimbal', type: 'gimbal' },
+    { key: 'camera_lens', type: 'camera_lens' },
+    { key: 'light', type: 'light' },
+    { key: 'drone', type: 'drone' }
+  ]
+
+  for (const eqType of equipmentTypes) {
+    const selectedItems = editRequest.value[eqType.key] as string[]
+    if (!selectedItems || selectedItems.length === 0) continue
+
+    const stillAvailable = selectedItems.filter(id => {
+      const availability = isEquipmentAvailable(parseInt(id), eqType.type, true)
+      return availability.available
+    })
+
+    if (stillAvailable.length !== selectedItems.length) {
+      (editRequest.value[eqType.key] as string[]) = stillAvailable
+    }
+  }
+})
+
+definePageMeta({
+  middleware: 'auth',
+})
 </script>
-<style scoped>
-.calendar-container {
-  min-height: 600px;
-}
-
-/* ================================
-   EVENT VISUAL FIXES
-   ================================ */
-
-/* Make event boxes nicer */
-:deep(.fc-event) {
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 0.875rem;
-  white-space: nowrap !important;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* ⭐ REQUIRED: Force multi-day events to stretch across grid */
-:deep(.fc-daygrid-event-harness) {
-  display: block !important;
-  width: 100% !important;
-  height: auto !important;
-  overflow: visible !important;
-}
-
-/* ⭐ REQUIRED: Multi-day event full-width bar */
-:deep(.fc-daygrid-event) {
-  display: block !important;
-  position: relative;
-  margin: 1px 0;
-  padding: 2px 4px;
-  overflow: hidden;
-  white-space: nowrap !important;
-  text-overflow: ellipsis;
-}
-
-/* Prevent clipping of long multi-day bars */
-:deep(.fc-daygrid-day-events) {
-  overflow: visible !important;
-  max-height: none !important;
-}
-
-/* Event title */
-:deep(.fc-event-title) {
-  font-weight: 500;
-}
-
-/* ================================
-   TOOLBAR & BUTTONS
-   ================================ */
-
-:deep(.fc-toolbar-title) {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-/* Primary buttons */
-:deep(.fc-button-primary) {
-  background-color: #3b82f6;
-  border-color: #3b82f6;
-}
-
-:deep(.fc-button-primary:hover) {
-  background-color: #2563eb;
-  border-color: #2563eb;
-}
-
-/* Today button */
-:deep(.fc-today-button) {
-  background-color: #059669;
-  border-color: #059669;
-}
-
-:deep(.fc-today-button:hover) {
-  background-color: #047857;
-  border-color: #047857;
-}
-
-/* MORE EVENTS button styling - Completely override Qalendar's handling */
-:deep(.calendar-month__show-more),
-:deep([class*="show-more"]),
-:deep([class*="more-events"]) {
-  color: #3b82f6 !important;
-  font-weight: 600;
-  font-size: 0.75rem;
-  padding: 6px 10px;
-  cursor: pointer !important;
-  transition: all 0.2s;
-  text-decoration: none !important;
-  background-color: #eff6ff;
-  border-radius: 6px;
-  display: inline-block;
-  margin-top: 2px;
-  /* Disable Qalendar's link behavior */
-  pointer-events: auto !important;
-}
-
-:deep(.calendar-month__show-more:hover),
-:deep([class*="show-more"]:hover),
-:deep([class*="more-events"]:hover) {
-  color: #2563eb !important;
-  background-color: #dbeafe;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
-}
-
-/* Prevent any anchor/link behavior from Qalendar within more events */
-:deep(.calendar-month__show-more a),
-:deep([class*="show-more"] a),
-:deep([class*="more-events"] a) {
-  pointer-events: none !important;
-  text-decoration: none !important;
-}
-
-/* Hide Day view button to prevent accidental switching */
-:deep(.calendar-header__mode-picker button[data-mode="day"]),
-:deep([class*="mode"][class*="day"]),
-:deep(.mode-day) {
-  display: none !important;
-}
-
-/* ================================
-   MOBILE RESPONSIVE
-   ================================ */
-
-@media (max-width: 640px) {
-  .calendar-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  :deep(.fc) {
-    min-width: 600px;
-  }
-}
-</style>
-
-<style>
-/* ================================
-   QALENDAR MONTH VIEW ENHANCEMENTS
-   Match week view style from reference image
-   ================================ */
-
-/* Month view day headers (TU 16, WE 17, etc.) */
-:deep(.calendar-month__weekday) {
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: #374151;
-  padding: 0.75rem 0.5rem;
-  background-color: #f9fafb;
-  border-bottom: 2px solid #e5e7eb;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Month view day cells */
-:deep(.calendar-month__day) {
-  border: 1px solid #e5e7eb !important;
-  background-color: #ffffff;
-  min-height: 130px;
-  padding: 4px;
-}
-
-/* Today highlight */
-:deep(.calendar-month__day--is-today) {
-  background-color: #dbeafe !important;
-  border: 2px solid #3b82f6 !important;
-}
-
-/* Day number styling */
-:deep(.calendar-month__day-date) {
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: #1f2937;
-  margin-bottom: 4px;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-:deep(.calendar-month__day--is-today .calendar-month__day-date) {
-  background-color: #3b82f6;
-  color: white;
-  padding: 3px 8px;
-  border-radius: 50%;
-  display: inline-block;
-  min-width: 28px;
-  text-align: center;
-}
-
-/* Events container */
-:deep(.calendar-month__events) {
-  margin-top: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-/* Event wrapper - better spacing */
-:deep(.calendar-month__event) {
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-/* Week view enhancements for consistency */
-:deep(.calendar-week__day-hour) {
-  border-color: #e5e7eb;
-}
-
-:deep(.calendar-week__header) {
-  background-color: #f9fafb;
-  border-bottom: 2px solid #e5e7eb;
-}
-
-:deep(.calendar-week__day-name) {
-  font-weight: 600;
-  color: #374151;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.5px;
-}
-
-:deep(.calendar-week__day-date) {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1f2937;
-}
-
-:deep(.is-today .calendar-week__day-date) {
-  background-color: #3b82f6;
-  color: white;
-  border-radius: 50%;
-  width: 45px;
-  height: 45px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Better event appearance in week/day views */
-:deep(.calendar-week__event) {
-  border-radius: 6px;
-  padding: 4px 8px;
-  font-weight: 500;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s;
-}
-
-:deep(.calendar-week__event:hover) {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-  transform: translateY(-1px);
-}
-
-/* Clean grid lines */
-:deep(.calendar-month__week-row),
-:deep(.calendar-week__day) {
-  border-color: #e5e7eb;
-}
-
-/* Toolbar styling */
-:deep(.calendar-header) {
-  padding: 1rem;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-  border-radius: 8px 8px 0 0;
-}
-
-:deep(.calendar-header__title) {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1f2937;
-}
-
-/* Navigation buttons */
-:deep(.calendar-header__nav-button) {
-  background-color: #3b82f6;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-weight: 500;
-  transition: all 0.2s;
-}
-
-:deep(.calendar-header__nav-button:hover) {
-  background-color: #2563eb;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
-}
-
-/* View mode buttons */
-:deep(.mode-is-selected) {
-  background-color: #3b82f6 !important;
-  color: white !important;
-}
-
-/* Scrollbar styling for calendar */
-:deep(.calendar-month),
-:deep(.calendar-week) {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 #f1f5f9;
-}
-
-:deep(.calendar-month::-webkit-scrollbar),
-:deep(.calendar-week::-webkit-scrollbar) {
-  width: 8px;
-  height: 8px;
-}
-
-:deep(.calendar-month::-webkit-scrollbar-track),
-:deep(.calendar-week::-webkit-scrollbar-track) {
-  background: #f1f5f9;
-}
-
-:deep(.calendar-month::-webkit-scrollbar-thumb),
-:deep(.calendar-week::-webkit-scrollbar-thumb) {
-  background-color: #cbd5e1;
-  border-radius: 4px;
-  border: 2px solid #f1f5f9;
-}
-
-:deep(.calendar-month::-webkit-scrollbar-thumb:hover),
-:deep(.calendar-week::-webkit-scrollbar-thumb:hover) {
-  background-color: #94a3b8;
-}
-</style>
