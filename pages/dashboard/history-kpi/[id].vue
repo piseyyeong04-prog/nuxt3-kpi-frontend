@@ -85,7 +85,7 @@ const formatMoney = (
 // Format date as "26th /March/2025"
 const currentDate = computed(() => {
   const date = new Date();
-  const day = date.getDate();
+  const day = 24;
   const month = date.toLocaleString('en-US', { month: 'long' });
   const year = date.getFullYear();
 
@@ -96,7 +96,7 @@ const currentDate = computed(() => {
     return n + (s[(v - 20) % 10] || s[v] || s[0]);
   };
 
-  return `${getOrdinal(day)} /${month}/${year}`;
+  return `${getOrdinal(day)}/${month}/${year}`;
 });
 
 // Helper functions
@@ -395,7 +395,7 @@ definePageMeta({
               </div>
               <div class="flex">
                 <span class="font-bold w-48">{{ locale === 'en' ? 'Total Bonus Amount:' : 'ចំនួនប្រាក់រង្វាន់សរុប:'
-                }}</span>
+                  }}</span>
                 <span class="font-bold text-gray-900">{{ formatMoney(kpiDetail.totalBonusAmount, {
                   minimumFractionDigits: 2
                 }) }}$</span>
@@ -514,8 +514,8 @@ definePageMeta({
                         <div class="text-xs">
                           <p class="font-semibold">{{ formatUser(kpiDetail.requestedBy) }}</p>
                           <p class="text-gray-600">{{ formatUserPosition(kpiDetail.requestedBy) }}</p>
-                          <p class="text-gray-600 mt-1">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ' }}:
-                            ......./......./.......</p>
+                          <p class="text-gray-600 mt-1 whitespace-nowrap">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ'
+                            }}: {{ currentDate }}</p>
                         </div>
                       </div>
                     </td>
@@ -525,8 +525,8 @@ definePageMeta({
                         <div class="text-xs">
                           <p class="font-semibold">{{ formatUser(kpiDetail.checkedBy) }}</p>
                           <p class="text-gray-600">{{ formatUserPosition(kpiDetail.checkedBy) }}</p>
-                          <p class="text-gray-600 mt-1">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ' }}:
-                            ......./......./.......</p>
+                          <p class="text-gray-600 mt-1 whitespace-nowrap">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ'
+                            }}: {{ currentDate }}</p>
                         </div>
                       </div>
                     </td>
@@ -536,8 +536,8 @@ definePageMeta({
                         <div class="text-xs">
                           <p class="font-semibold">{{ formatUser(kpiDetail.verifiedBy) }}</p>
                           <p class="text-gray-600">{{ formatUserPosition(kpiDetail.verifiedBy) }}</p>
-                          <p class="text-gray-600 mt-1">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ' }}:
-                            ......./......./.......</p>
+                          <p class="text-gray-600 mt-1 whitespace-nowrap">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ'
+                            }}: {{ currentDate }}</p>
                         </div>
                       </div>
                     </td>
@@ -547,8 +547,8 @@ definePageMeta({
                         <div class="text-xs">
                           <p class="font-semibold">{{ formatUser(kpiDetail.approvedBy) }}</p>
                           <p class="text-gray-600">{{ formatUserPosition(kpiDetail.approvedBy) }}</p>
-                          <p class="text-gray-600 mt-1">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ' }}:
-                            ......./......./.......</p>
+                          <p class="text-gray-600 mt-1 whitespace-nowrap">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ'
+                            }}: {{ currentDate }}</p>
                         </div>
                       </div>
                     </td>

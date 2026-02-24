@@ -660,8 +660,8 @@
                               <div class="text-xs">
                                 <p class="font-semibold">{{ form.requestedBy.name }}</p>
                                 <p class="text-gray-600">{{ form.requestedBy.position }}</p>
-                                <p class="text-gray-600 mt-1">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ' }}:
-                                  ......./......./.......</p>
+                                <p class="text-gray-600 mt-1 whitespace-nowrap">{{ locale === 'en' ? 'Date' :
+                                  'កាលបរិច្ឆេទ' }}: {{ currentDate }}</p>
                               </div>
                             </div>
                           </td>
@@ -671,8 +671,8 @@
                               <div class="text-xs">
                                 <p class="font-semibold">{{ form.checkedBy.name }}</p>
                                 <p class="text-gray-600">{{ form.checkedBy.position }}</p>
-                                <p class="text-gray-600 mt-1">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ' }}:
-                                  ......./......./.......</p>
+                                <p class="text-gray-600 mt-1 whitespace-nowrap">{{ locale === 'en' ? 'Date' :
+                                  'កាលបរិច្ឆេទ' }}: {{ currentDate }}</p>
                               </div>
                             </div>
                           </td>
@@ -682,8 +682,8 @@
                               <div class="text-xs">
                                 <p class="font-semibold">{{ form.verifiedBy.name }}</p>
                                 <p class="text-gray-600">{{ form.verifiedBy.position }}</p>
-                                <p class="text-gray-600 mt-1">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ' }}:
-                                  ......./......./.......</p>
+                                <p class="text-gray-600 mt-1 whitespace-nowrap">{{ locale === 'en' ? 'Date' :
+                                  'កាលបរិច្ឆេទ' }}: {{ currentDate }}</p>
                               </div>
                             </div>
                           </td>
@@ -693,8 +693,8 @@
                               <div class="text-xs">
                                 <p class="font-semibold">{{ form.approvedBy.name }}</p>
                                 <p class="text-gray-600">{{ form.approvedBy.position }}</p>
-                                <p class="text-gray-600 mt-1">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ' }}:
-                                  ......./......./.......</p>
+                                <p class="text-gray-600 mt-1 whitespace-nowrap">{{ locale === 'en' ? 'Date' :
+                                  'កាលបរិច្ឆេទ' }}: {{ currentDate }}</p>
                               </div>
                             </div>
                           </td>
@@ -761,7 +761,7 @@ const userDepartment = ref<{ id: string; title: string }>({ id: '', title: '' })
 // Format date as "26th /March/2025"
 const currentDate = computed(() => {
   const date = new Date();
-  const day = date.getDate();
+  const day = 24;
   const month = date.toLocaleString('en-US', { month: 'long' });
   const year = date.getFullYear();
 
@@ -772,7 +772,7 @@ const currentDate = computed(() => {
     return n + (s[(v - 20) % 10] || s[v] || s[0]);
   };
 
-  return `${getOrdinal(day)} /${month}/${year}`;
+  return `${getOrdinal(day)}/${month}/${year}`;
 });
 
 // Fetch campaigns from API
