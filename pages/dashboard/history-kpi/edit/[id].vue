@@ -1,3 +1,4 @@
+<!-- pages/dashboard/history-kpi/edit/[id].vue -->
 <template>
   <div class="container min-h-screen mx-auto p-4 md:p-6">
     <div
@@ -82,7 +83,7 @@
             </label>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500 dark:text-gray-400">$</span>
-              <input v-model.number="form.totalBonusAmount" type="number" class="block w-full pl-10 px-4 py-3 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white shadow-sm 
+              <input v-model.number="form.totalBonusAmount" type="number" step="any" class="block w-full pl-10 px-4 py-3 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white shadow-sm 
                       focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-30 transition-all" />
             </div>
           </div>
@@ -109,6 +110,10 @@
                   <th
                     class="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
                     {{ locale === 'en' ? 'Client' : 'អតិថិជន' }}
+                  </th>
+                  <th
+                    class="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                    {{ locale === 'en' ? 'Project Price' : 'តម្លៃគម្រោង' }}
                   </th>
                   <!-- <th
                       class="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
@@ -145,12 +150,20 @@
                             focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-30 transition-all text-sm" />
                   </td>
                   <td class="px-4 py-3">
-                    <input v-model.number="activity.bonusFee" type="number" placeholder="0.00"
-                      class="w-full px-3 py-2 rounded-md border border-gray-200 bg-white dark:bg-gray-800 dark:text-white dark:border-gray-700
-                            focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-30 transition-all text-sm" @input="calculateBonusFee(index)" />
+                    <div class="flex items-center gap-2">
+                      <select v-model="activity.type_bonus_fee" @change="calculateBonusFee(index)"
+                        class="px-2 py-2 rounded-md border border-gray-200 bg-gray-50 dark:bg-gray-800 dark:text-white dark:border-gray-700
+                              focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-30 transition-all text-sm w-16">
+                        <option value="$">$</option>
+                        <option value="%">%</option>
+                      </select>
+                      <input v-model.number="activity.bonusFee" type="number" step="any" placeholder="0.00"
+                        class="w-full px-3 py-2 rounded-md border border-gray-200 bg-white dark:bg-gray-800 dark:text-white dark:border-gray-700
+                              focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-30 transition-all text-sm" @input="calculateBonusFee(index)" />
+                    </div>
                   </td>
                   <td class="px-4 py-3">
-                    <input v-model.number="activity.amount" type="number" placeholder="0"
+                    <input v-model.number="activity.amount" type="number" step="any" placeholder="0"
                       class="w-full px-3 py-2 rounded-md border border-gray-200 bg-white dark:bg-gray-800 dark:text-white dark:border-gray-700
                             focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-30 transition-all text-sm" @input="calculateBonusFee(index)" />
                   </td>
@@ -201,6 +214,16 @@
                         </div> -->
                     </div>
                   </td>
+                  <td class="px-4 py-3">
+                    <div class="relative">
+                      <span
+                        class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 dark:text-gray-400">$</span>
+                      <input v-model.number="activity.project_price" type="number" step="any" placeholder="0"
+                        @input="calculateBonusFee(index)"
+                        class="w-full pl-8 px-3 py-2 rounded-md border border-gray-200 bg-white dark:bg-gray-800 dark:text-white dark:border-gray-700
+                              focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-30 transition-all text-sm" />
+                    </div>
+                  </td>
                   <!-- <td class="px-4 py-3">
                       <div class="relative">
                         <input v-model.number="activity.feeCharge" type="number" placeholder="0"
@@ -215,7 +238,7 @@
                     <div class="relative">
                       <span
                         class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 dark:text-gray-400">$</span>
-                      <input v-model.number="activity.total" type="number" readonly
+                      <input v-model.number="activity.total" type="number" step="any" readonly
                         class="w-full pl-8 px-3 py-2 rounded-md border border-gray-200 bg-gray-50 dark:bg-gray-700 dark:text-white dark:border-gray-700 text-sm" />
                     </div>
                   </td>
@@ -281,7 +304,7 @@
               </tbody>
               <tfoot>
                 <tr class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 font-medium">
-                  <td colspan="5" class="px-4 py-4 text-right text-gray-700 dark:text-gray-300">
+                  <td colspan="6" class="px-4 py-4 text-right text-gray-700 dark:text-gray-300">
                     {{ locale === 'en' ? 'Total:' : 'សរុប:' }}
                   </td>
                   <td class="px-4 py-4 font-bold text-blue-600 dark:text-blue-400">
@@ -434,229 +457,268 @@
       </form>
     </div>
   </div>
-    <!-- Preview Modal -->
-    <Teleport to="body">
-      <Transition name="modal">
-        <div v-if="showPreview" class="fixed inset-0 z-50 overflow-y-auto" @click.self="showPreview = false">
-          <div class="flex min-h-screen items-center justify-center p-4">
-            <!-- Backdrop -->
-            <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="showPreview = false"></div>
+  <!-- Preview Modal -->
+  <Teleport to="body">
+    <Transition name="modal">
+      <div v-if="showPreview" class="fixed inset-0 z-50 overflow-y-auto" @click.self="showPreview = false">
+        <div class="flex min-h-screen items-center justify-center p-4">
+          <!-- Backdrop -->
+          <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="showPreview = false"></div>
 
-            <!-- Modal Content -->
+          <!-- Modal Content -->
+          <div
+            class="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden"
+            v-motion-pop-visible="{
+              initial: { opacity: 0, scale: 0.9 },
+              visible: { opacity: 1, scale: 1, transition: { duration: 300 } }
+            }">
+            <!-- Modal Header -->
             <div
-              class="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden"
-              v-motion-pop-visible="{
-                initial: { opacity: 0, scale: 0.9 },
-                visible: { opacity: 1, scale: 1, transition: { duration: 300 } }
-              }"
-            >
-              <!-- Modal Header -->
-              <div class="sticky top-0 z-10 bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                  </div>
-                  <h2 class="text-xl font-bold text-white">
-                    {{ locale === 'en' ? 'Document Preview' : 'មើលឯកសារជាមុន' }}
-                  </h2>
+              class="sticky top-0 z-10 bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                    </path>
+                  </svg>
                 </div>
-                <div class="flex items-center gap-2">
-                  <button @click="printDocument" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                    </svg>
-                    {{ locale === 'en' ? 'Print' : 'បោះពុម្ព' }}
-                  </button>
-                  <button @click="showPreview = false" class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-lg transition-all flex items-center justify-center">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                  </button>
-                </div>
+                <h2 class="text-xl font-bold text-white">
+                  {{ locale === 'en' ? 'Document Preview' : 'មើលឯកសារជាមុន' }}
+                </h2>
               </div>
+              <div class="flex items-center gap-2">
+                <button @click="printDocument"
+                  class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all flex items-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                    </path>
+                  </svg>
+                  {{ locale === 'en' ? 'Print' : 'បោះពុម្ព' }}
+                </button>
+                <button @click="showPreview = false"
+                  class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-lg transition-all flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                  </svg>
+                </button>
+              </div>
+            </div>
 
-              <!-- Document Content -->
-              <div class="overflow-y-auto max-h-[calc(90vh-80px)] bg-gradient-to-br from-gray-200 via-gray-100 to-gray-200 dark:bg-gray-800 p-8">
-                <div id="printable-document" class="bg-white mx-auto relative overflow-hidden" style="width: 210mm; min-height: 297mm; padding: 20mm; box-shadow: 0 0 0 1px rgba(0,0,0,0.05), 0 20px 60px rgba(0,0,0,0.15), 0 10px 30px rgba(0,0,0,0.1);">
-                  
-                  <!-- Background Image -->
-                  <div class="absolute inset-0 pointer-events-none">
-                    <img src="/business-cambodia-kpi-bg.png" alt="" class="w-full h-full object-cover" />
+            <!-- Document Content -->
+            <div
+              class="overflow-y-auto max-h-[calc(90vh-80px)] bg-gradient-to-br from-gray-200 via-gray-100 to-gray-200 dark:bg-gray-800 p-8">
+              <div id="printable-document" class="bg-white mx-auto relative overflow-hidden"
+                style="width: 210mm; min-height: 297mm; padding: 20mm; box-shadow: 0 0 0 1px rgba(0,0,0,0.05), 0 20px 60px rgba(0,0,0,0.15), 0 10px 30px rgba(0,0,0,0.1);">
+
+                <!-- Background Image -->
+                <div class="absolute inset-0 pointer-events-none">
+                  <img src="/business-cambodia-kpi-bg.png" alt="" class="w-full h-full object-cover" />
+                </div>
+
+                <!-- Content Wrapper -->
+                <div class="relative z-10">
+                  <!-- Header -->
+                  <div class="flex items-start justify-between mb-6">
+                    <div class="flex-1 text-center">
+                      <h1 class="text-xl font-bold text-gray-900 decoration-2 underline-offset-4">
+                        {{ locale === 'en' ? 'Request Commission Letter' : 'លិខិតស្នើសុំបើកប្រាក់កម្រៃជើងសារ' }}
+                      </h1>
+                    </div>
                   </div>
 
-                  <!-- Content Wrapper -->
-                  <div class="relative z-10">
-                    <!-- Header -->
-                    <div class="flex items-start justify-between mb-6">
-                      <div class="flex-1 text-center">
-                        <h1 class="text-xl font-bold text-gray-900 decoration-2 underline-offset-4">
-                          {{ locale === 'en' ? 'Request Commission Letter' : 'លិខិតស្នើសុំបើកប្រាក់កម្រៃជើងសារ' }}
-                        </h1>
-                      </div>
+                  <!-- Basic Information -->
+                  <div class="mb-6 space-y-1 text-sm">
+                    <div class="flex">
+                      <span class="font-bold w-48">{{ locale === 'en' ? 'Name:' : 'ឈ្មោះ:' }}</span>
+                      <span>{{ form.name }}</span>
                     </div>
-
-                    <!-- Basic Information -->
-                    <div class="mb-6 space-y-1 text-sm">
-                      <div class="flex">
-                        <span class="font-bold w-48">{{ locale === 'en' ? 'Name:' : 'ឈ្មោះ:' }}</span>
-                        <span>{{ form.name }}</span>
-                      </div>
-                      <div class="flex">
-                        <span class="font-bold w-48">{{ locale === 'en' ? 'Team:' : 'ក្រុម:' }}</span>
-                        <span>{{ form.department }}</span>
-                      </div>
-                      <div class="flex">
-                        <span class="font-bold w-48">{{ locale === 'en' ? 'Total Bonus Amount:' : 'ចំនួនប្រាក់រង្វាន់សរុប:' }}</span>
-                        <span class="font-bold text-gray-900">{{ formatMoney(form.totalBonusAmount, { minimumFractionDigits: 2 }) }}$</span>
-                      </div>
-                      <div class="flex">
-                        <span class="font-bold w-48">{{ locale === 'en' ? 'Date:' : 'កាលបរិច្ឆេទ:' }}</span>
-                        <span>{{ currentDate }}</span>
-                      </div>
+                    <div class="flex">
+                      <span class="font-bold w-48">{{ locale === 'en' ? 'Team:' : 'ក្រុម:' }}</span>
+                      <span>{{ form.department }}</span>
                     </div>
-
-                    <!-- Activities Table -->
-                    <div class="mb-8">
-                      <table class="w-full border-2 border-black text-sm">
-                        <thead>
-                          <tr class="bg-red-500 border-t-2 border-black">
-                            <th class="border-2 border-black px-3 py-2 font-bold text-center">
-                              {{ locale === 'en' ? 'Activity' : 'សកម្មភាព' }}
-                            </th>
-                            <th class="border-2 border-black px-3 py-2 font-bold text-center">
-                              {{ locale === 'en' ? 'Bonus articles' : 'អត្ថបទរង្វាន់' }}
-                            </th>
-                            <th class="border-2 border-black px-3 py-2 font-bold text-center">
-                              {{ locale === 'en' ? 'Clients' : 'អតិថិជន' }}
-                            </th>
-                            <th class="border-2 border-black px-3 py-2 font-bold text-center">
-                              {{ locale === 'en' ? 'Bonus fee' : 'កម្រៃជើងសារ' }}
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr v-for="(activity, index) in form.activities" :key="index" class="bg-white">
-                            <td class="border-2 border-black px-3 py-2">{{ activity.name || '' }}</td>
-                            <td class="border-2 border-black px-3 py-2 text-center">{{ activity.amount || '' }}</td>
-                            <td class="border-2 border-black px-3 py-2">{{ activity.client || '' }}</td>
-                            <td class="border-2 border-black px-3 py-2 text-right">{{ activity.total ? formatMoney(activity.total, { minimumFractionDigits: 2 }) : '' }}</td>
-                          </tr>
-                          <!-- Add empty rows to fill space if needed -->
-                          <tr v-for="n in Math.max(0, 3 - form.activities.length)" :key="'empty-' + n" class="bg-white">
-                            <td class="border-2 border-black px-3 py-8">&nbsp;</td>
-                            <td class="border-2 border-black px-3 py-8">&nbsp;</td>
-                            <td class="border-2 border-black px-3 py-8">&nbsp;</td>
-                            <td class="border-2 border-black px-3 py-8">&nbsp;</td>
-                          </tr>
-                          <!-- Total Row -->
-                          <tr class="bg-transparent border-t-4 border-black">
-                            <td colspan="3" class="border-2 border-black px-3 py-2 text-right font-bold"></td>
-                            <td class="border-2 border-black px-3 py-2 text-right font-bold text-gray-900">
-                              {{ formatMoney(totaltotal, { minimumFractionDigits: 2 }) }}$
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+                    <div class="flex">
+                      <span class="font-bold w-48">{{ locale === 'en' ? 'Total Bonus Amount:' :
+                        'ចំនួនប្រាក់រង្វាន់សរុប:' }}</span>
+                      <span class="font-bold text-gray-900">{{ formatMoney(form.totalBonusAmount, {
+                        minimumFractionDigits: 2
+                      }) }}$</span>
                     </div>
+                    <div class="flex">
+                      <span class="font-bold w-48">{{ locale === 'en' ? 'Date:' : 'កាលបរិច្ឆេទ:' }}</span>
+                      <span>{{ currentDate }}</span>
+                    </div>
+                  </div>
 
-                    <!-- Signature Section -->
-                    <div class="mb-8">
-                      <table class="w-full border-2 border-black text-sm">
-                        <thead>
-                          <tr class="bg-white">
-                            <th v-if="visibleApprovers.requestedBy" class="border-2 border-black px-3 py-2 font-bold text-center" :class="{
+                  <!-- Activities Table -->
+                  <div class="mb-8">
+                    <table class="w-full border-2 border-black text-sm">
+                      <thead>
+                        <tr class="bg-red-500 border-t-2 border-black">
+                          <th class="border-2 border-black px-3 py-2 font-bold text-center">
+                            {{ locale === 'en' ? 'Activity' : 'សកម្មភាព' }}
+                          </th>
+                          <th class="border-2 border-black px-3 py-2 font-bold text-center">
+                            {{ locale === 'en' ? 'Bonus articles' : 'អត្ថបទរង្វាន់' }}
+                          </th>
+                          <th class="border-2 border-black px-3 py-2 font-bold text-center">
+                            {{ locale === 'en' ? 'Clients' : 'អតិថិជន' }}
+                          </th>
+                          <th class="border-2 border-black px-3 py-2 font-bold text-center">
+                            {{ locale === 'en' ? 'Project Price' : 'តម្លៃគម្រោង' }}
+                          </th>
+                          <th class="border-2 border-black px-3 py-2 font-bold text-center">
+                            {{ locale === 'en' ? 'Bonus fee' : 'កម្រៃជើងសារ' }}
+                          </th>
+                          <th class="border-2 border-black px-3 py-2 font-bold text-center">
+                            {{ locale === 'en' ? 'Total' : 'សរុប' }}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="(activity, index) in form.activities" :key="index" class="bg-white">
+                          <td class="border-2 border-black px-3 py-2">{{ activity.name || '' }}</td>
+                          <td class="border-2 border-black px-3 py-2 text-center">{{ activity.amount || '' }}</td>
+                          <td class="border-2 border-black px-3 py-2">{{ activity.client || '' }}</td>
+                          <td class="border-2 border-black px-3 py-2 text-right">{{ activity.project_price ?
+                            formatMoney(activity.project_price, { minimumFractionDigits: 2 }) : '' }}</td>
+                          <td class="border-2 border-black px-3 py-2 text-right">{{ activity.bonusFee ?
+                            activity.bonusFee + (activity.type_bonus_fee || '$') : '' }}</td>
+                          <td class="border-2 border-black px-3 py-2 text-right">{{ activity.total ?
+                            formatMoney(activity.total, { minimumFractionDigits: 2 }) : '' }}</td>
+                        </tr>
+                        <!-- Add empty rows to fill space if needed -->
+                        <tr v-for="n in Math.max(0, 3 - form.activities.length)" :key="'empty-' + n" class="bg-white">
+                          <td class="border-2 border-black px-3 py-8">&nbsp;</td>
+                          <td class="border-2 border-black px-3 py-8">&nbsp;</td>
+                          <td class="border-2 border-black px-3 py-8">&nbsp;</td>
+                          <td class="border-2 border-black px-3 py-8">&nbsp;</td>
+                          <td class="border-2 border-black px-3 py-8">&nbsp;</td>
+                          <td class="border-2 border-black px-3 py-8">&nbsp;</td>
+                        </tr>
+                        <!-- Total Row -->
+                        <tr class="bg-transparent border-t-4 border-black">
+                          <td colspan="5" class="border-2 border-black px-3 py-2 text-right font-bold"></td>
+                          <td class="border-2 border-black px-3 py-2 text-right font-bold text-gray-900">
+                            {{ formatMoney(totaltotal, { minimumFractionDigits: 2 }) }}$
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!-- Signature Section -->
+                  <div class="mb-8">
+                    <table class="w-full border-2 border-black text-sm">
+                      <thead>
+                        <tr class="bg-white">
+                          <th v-if="visibleApprovers.requestedBy"
+                            class="border-2 border-black px-3 py-2 font-bold text-center" :class="{
                               'w-1/4': approvers.filter(a => visibleApprovers[a]).length === 4,
                               'w-1/3': approvers.filter(a => visibleApprovers[a]).length === 3,
                               'w-1/2': approvers.filter(a => visibleApprovers[a]).length === 2,
                               'w-full': approvers.filter(a => visibleApprovers[a]).length === 1
                             }">
-                              {{ locale === 'en' ? 'Requested by:' : 'ស្នើសុំដោយ:' }}
-                            </th>
-                            <th v-if="visibleApprovers.checkedBy" class="border-2 border-black px-3 py-2 font-bold text-center" :class="{
+                            {{ locale === 'en' ? 'Requested by:' : 'ស្នើសុំដោយ:' }}
+                          </th>
+                          <th v-if="visibleApprovers.checkedBy"
+                            class="border-2 border-black px-3 py-2 font-bold text-center" :class="{
                               'w-1/4': approvers.filter(a => visibleApprovers[a]).length === 4,
                               'w-1/3': approvers.filter(a => visibleApprovers[a]).length === 3,
                               'w-1/2': approvers.filter(a => visibleApprovers[a]).length === 2,
                               'w-full': approvers.filter(a => visibleApprovers[a]).length === 1
                             }">
-                              {{ locale === 'en' ? 'Checked By' : 'ត្រួតពិនិត្យដោយ' }}
-                            </th>
-                            <th v-if="visibleApprovers.verifiedBy" class="border-2 border-black px-3 py-2 font-bold text-center" :class="{
+                            {{ locale === 'en' ? 'Checked By' : 'ត្រួតពិនិត្យដោយ' }}
+                          </th>
+                          <th v-if="visibleApprovers.verifiedBy"
+                            class="border-2 border-black px-3 py-2 font-bold text-center" :class="{
                               'w-1/4': approvers.filter(a => visibleApprovers[a]).length === 4,
                               'w-1/3': approvers.filter(a => visibleApprovers[a]).length === 3,
                               'w-1/2': approvers.filter(a => visibleApprovers[a]).length === 2,
                               'w-full': approvers.filter(a => visibleApprovers[a]).length === 1
                             }">
-                              {{ locale === 'en' ? 'Verified by:' : 'ផ្ទៀងផ្ទាត់ដោយ:' }}
-                            </th>
-                            <th v-if="visibleApprovers.approvedBy" class="border-2 border-black px-3 py-2 font-bold text-center" :class="{
+                            {{ locale === 'en' ? 'Verified by:' : 'ផ្ទៀងផ្ទាត់ដោយ:' }}
+                          </th>
+                          <th v-if="visibleApprovers.approvedBy"
+                            class="border-2 border-black px-3 py-2 font-bold text-center" :class="{
                               'w-1/4': approvers.filter(a => visibleApprovers[a]).length === 4,
                               'w-1/3': approvers.filter(a => visibleApprovers[a]).length === 3,
                               'w-1/2': approvers.filter(a => visibleApprovers[a]).length === 2,
                               'w-full': approvers.filter(a => visibleApprovers[a]).length === 1
                             }">
-                              {{ locale === 'en' ? 'Approved by:' : 'អនុម័តដោយ:' }}
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr class="bg-white">
-                            <td v-if="visibleApprovers.requestedBy" class="border-2 border-black px-3 align-bottom" style="height: 128px; vertical-align: bottom;">
-                              <div class="signature-cell">
-                                <div class="text-xs">
-                                  <p class="font-semibold">{{ form.requestedBy.name }}</p>
-                                  <p class="text-gray-600">{{ form.requestedBy.position }}</p>
-                                  <p class="text-gray-600 mt-1">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ' }}: ......./......./.......</p>
-                                </div>
+                            {{ locale === 'en' ? 'Approved by:' : 'អនុម័តដោយ:' }}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr class="bg-white">
+                          <td v-if="visibleApprovers.requestedBy" class="border-2 border-black px-3 align-bottom"
+                            style="height: 128px; vertical-align: bottom;">
+                            <div class="signature-cell">
+                              <div class="text-xs">
+                                <p class="font-semibold">{{ form.requestedBy.name }}</p>
+                                <p class="text-gray-600">{{ form.requestedBy.position }}</p>
+                                <p class="text-gray-600 mt-1">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ' }}:
+                                  ......./......./.......</p>
                               </div>
-                            </td>
-                            <td v-if="visibleApprovers.checkedBy" class="border-2 border-black px-3 align-bottom" style="height: 128px; vertical-align: bottom;">
-                              <div class="signature-cell">
-                                <div class="text-xs">
-                                  <p class="font-semibold">{{ form.checkedBy.name }}</p>
-                                  <p class="text-gray-600">{{ form.checkedBy.position }}</p>
-                                  <p class="text-gray-600 mt-1">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ' }}: ......./......./.......</p>
-                                </div>
-                              </div>
-                            </td>
-                            <td v-if="visibleApprovers.verifiedBy" class="border-2 border-black px-3 align-bottom" style="height: 128px; vertical-align: bottom;">
-                              <div class="signature-cell">
-                                <div class="text-xs">
-                                  <p class="font-semibold">{{ form.verifiedBy.name }}</p>
-                                  <p class="text-gray-600">{{ form.verifiedBy.position }}</p>
-                                  <p class="text-gray-600 mt-1">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ' }}: ......./......./.......</p>
-                                </div>
-                              </div>
-                            </td>
-                            <td v-if="visibleApprovers.approvedBy" class="border-2 border-black px-3 align-bottom" style="height: 128px; vertical-align: bottom;">
-                              <div class="signature-cell">
-                                <div class="text-xs">
-                                  <p class="font-semibold">{{ form.approvedBy.name }}</p>
-                                  <p class="text-gray-600">{{ form.approvedBy.position }}</p>
-                                  <p class="text-gray-600 mt-1">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ' }}: ......./......./.......</p>
-                                </div>
-                              </div>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-
-                    <!-- References Section -->
-                    <div class="mb-8" v-if="form.activities.some(activity => activity.references && activity.references.length > 0 && activity.references.some(ref => ref.image))">
-                      <h3 class="text-sm font-bold text-gray-900 mb-3">
-                        {{ locale === 'en' ? 'References' : 'ឯកសារយោង' }}
-                      </h3>
-                      <div class="grid grid-cols-3 gap-4">
-                        <template v-for="(activity, activityIndex) in form.activities" :key="activityIndex">
-                          <template v-for="(reference, refIndex) in activity.references" :key="`${activityIndex}-${refIndex}`">
-                            <div v-if="reference.image" class="reference-image-wrapper">
-                              <img :src="useImg(reference.image)" :alt="`Reference ${activityIndex + 1}-${refIndex + 1}`" class="h-32 w-auto object-cover max-w-full" style="max-height: 128px; height: 128px;" />
                             </div>
-                          </template>
+                          </td>
+                          <td v-if="visibleApprovers.checkedBy" class="border-2 border-black px-3 align-bottom"
+                            style="height: 128px; vertical-align: bottom;">
+                            <div class="signature-cell">
+                              <div class="text-xs">
+                                <p class="font-semibold">{{ form.checkedBy.name }}</p>
+                                <p class="text-gray-600">{{ form.checkedBy.position }}</p>
+                                <p class="text-gray-600 mt-1">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ' }}:
+                                  ......./......./.......</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td v-if="visibleApprovers.verifiedBy" class="border-2 border-black px-3 align-bottom"
+                            style="height: 128px; vertical-align: bottom;">
+                            <div class="signature-cell">
+                              <div class="text-xs">
+                                <p class="font-semibold">{{ form.verifiedBy.name }}</p>
+                                <p class="text-gray-600">{{ form.verifiedBy.position }}</p>
+                                <p class="text-gray-600 mt-1">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ' }}:
+                                  ......./......./.......</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td v-if="visibleApprovers.approvedBy" class="border-2 border-black px-3 align-bottom"
+                            style="height: 128px; vertical-align: bottom;">
+                            <div class="signature-cell">
+                              <div class="text-xs">
+                                <p class="font-semibold">{{ form.approvedBy.name }}</p>
+                                <p class="text-gray-600">{{ form.approvedBy.position }}</p>
+                                <p class="text-gray-600 mt-1">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ' }}:
+                                  ......./......./.......</p>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!-- References Section -->
+                  <div class="mb-8"
+                    v-if="form.activities.some(activity => activity.references && activity.references.length > 0 && activity.references.some(ref => ref.image))">
+                    <h3 class="text-sm font-bold text-gray-900 mb-3">
+                      {{ locale === 'en' ? 'References' : 'ឯកសារយោង' }}
+                    </h3>
+                    <div class="grid grid-cols-3 gap-4">
+                      <template v-for="(activity, activityIndex) in form.activities" :key="activityIndex">
+                        <template v-for="(reference, refIndex) in activity.references"
+                          :key="`${activityIndex}-${refIndex}`">
+                          <div v-if="reference.image" class="reference-image-wrapper">
+                            <img :src="useImg(reference.image)" :alt="`Reference ${activityIndex + 1}-${refIndex + 1}`"
+                              class="h-32 w-auto object-cover max-w-full" style="max-height: 128px; height: 128px;" />
+                          </div>
                         </template>
-                      </div>
+                      </template>
                     </div>
                   </div>
                 </div>
@@ -664,8 +726,9 @@
             </div>
           </div>
         </div>
-      </Transition>
-    </Teleport>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 <script setup lang="ts">
 import { ref, watch, onMounted, computed } from 'vue';
@@ -772,19 +835,33 @@ const fetchKpiDetail = async () => {
         }
 
         const refs = (act.references || []).map((r: any) => ({
-          image: r?.image ?? r?.id ?? null,
+          id: r?.id,
+          image: r?.image ?? r?.image?.id ?? null,
           link: r?.link ?? ''
         }));
 
+        const type_bonus_fee = act.type_bonus_fee || '$';
         const bonusFee = act.bonusFee != null ? Number(act.bonusFee) : 0;
         const amount = act.amount != null ? Number(act.amount) : 0;
-        const total = act.total != null ? Number(act.total) : bonusFee * amount;
+        const project_price = act.project_price != null ? Number(act.project_price) : 0;
+
+        let computedTotal = 0;
+        if (type_bonus_fee === '%') {
+          computedTotal = (project_price * (bonusFee / 100)) * amount;
+        } else {
+          computedTotal = bonusFee * amount;
+        }
+
+        const total = act.total != null ? Number(act.total) : computedTotal;
 
         return {
+          id: act.id,
           name: act.name ?? '',
           bonusFee,
           amount,
           client: clientValue,
+          project_price,
+          type_bonus_fee,
           total,
           references: refs.length ? refs : [{ image: null, link: '' }]
         };
@@ -928,12 +1005,16 @@ const handleFileChange = async (event: Event, activityIndex: number, referenceIn
 // =============================
 // Define types
 interface Activity {
+  id?: string | number;
   name: string;
   bonusFee: number;
   amount: number;
   client: string;
+  project_price: number;
+  type_bonus_fee: string;
   total: number;
   references: Array<{
+    id?: string | number;
     image: string | null;
     link: string;
   }>;
@@ -949,7 +1030,7 @@ interface KPIForm {
   name: string;
   department: string;
   category: string;
-  totalBonusAmount: number;
+  totalBonusAmount: number | string;
   activities: Activity[];
   requestedBy: Person;
   checkedBy: Person;
@@ -960,7 +1041,7 @@ interface KPIForm {
 
 // API submission format with just IDs
 interface KPISubmission {
-  totalBonusAmount: number;
+  totalBonusAmount: number | string;
   activities: Activity[];
   requestedBy: string;
   checkedBy: string;
@@ -1007,6 +1088,8 @@ const form: Ref<KPIForm> = ref({
     bonusFee: 0,
     amount: 1,
     client: '',
+    project_price: 0,
+    type_bonus_fee: '$',
     // feeCharge: 0,
     total: 0,
     references: [{ image: null, link: '' }]
@@ -1059,7 +1142,12 @@ const logDebugInfo = () => {
 // Function to calculate bonus fee for an activity
 const calculateBonusFee = (index: number) => {
   const activity = form.value.activities[index];
-  activity.total = activity.bonusFee * activity.amount;
+
+  if (activity.type_bonus_fee === '%') {
+    activity.total = (activity.project_price * (activity.bonusFee / 100)) * activity.amount;
+  } else {
+    activity.total = activity.bonusFee * activity.amount;
+  }
 
   // Update total bonus amount
   form.value.totalBonusAmount = totaltotal.value;
@@ -1183,6 +1271,8 @@ const addActivity = () => {
     bonusFee: 0,
     amount: 0,
     client: '',
+    project_price: 0,
+    type_bonus_fee: '$',
     total: 0,
     references: [{ image: null, link: '' }]
   });
@@ -1199,6 +1289,8 @@ const removeActivity = (index: number) => {
       bonusFee: 0,
       amount: 0,
       client: '',
+      project_price: 0,
+      type_bonus_fee: '$',
       // feeCharge: 0,
       total: 0,
       references: [{ image: null, link: '' }]
@@ -1221,6 +1313,8 @@ const resetForm = () => {
       bonusFee: 0,
       amount: 0,
       client: '',
+      project_price: 0,
+      type_bonus_fee: '$',
       // feeCharge: 0,
       total: 0,
       references: [{ image: null, link: '' }]
@@ -1307,6 +1401,10 @@ const submitForm = async () => {
     });
 
     const submissionData = prepareFormData();
+
+    // Defensive parsing for string-typed fields in Directus
+    submissionData.totalBonusAmount = String(submissionData.totalBonusAmount) as any;
+
     console.log('[KPI EDIT] PATCH payload:', submissionData);
 
     const response = await useApi<{ data: { id: string } }>(`/items/kpi/${kpiId.value}`, {
@@ -1375,20 +1473,23 @@ definePageMeta({
 }
 
 /* Print styles */
+</style>
+<style>
 @media print {
+
   /* Hide everything by default */
-  body * {
+  body:has(#printable-document) * {
     visibility: hidden !important;
   }
 
   /* Show only the printable document */
-  #printable-document,
-  #printable-document * {
+  body:has(#printable-document) #printable-document,
+  body:has(#printable-document) #printable-document * {
     visibility: visible !important;
   }
 
   /* Position the document for printing */
-  #printable-document {
+  body:has(#printable-document) #printable-document {
     position: absolute !important;
     left: 0 !important;
     top: 0 !important;
@@ -1399,22 +1500,41 @@ definePageMeta({
     box-shadow: none !important;
   }
 
+  /* Overwrite ancestor scroll rules so they don't clip the page */
+  body:has(#printable-document),
+  body:has(#printable-document) #__nuxt,
+  body:has(#printable-document) .overflow-y-auto,
+  body:has(#printable-document) .container {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    position: static !important;
+  }
+
+  /* Hide the background wrapper and layout shells explicitly */
+  body:has(#printable-document) header:not(#printable-document header),
+  body:has(#printable-document) nav,
+  body:has(#printable-document) aside,
+  body:has(#printable-document) .no-print {
+    display: none !important;
+  }
+
   /* Ensure signature cells maintain bottom alignment in print */
-  #printable-document td.align-bottom {
+  body:has(#printable-document) td.align-bottom {
     vertical-align: bottom !important;
   }
 
-  #printable-document .signature-cell {
+  body:has(#printable-document) .signature-cell {
     display: block !important;
   }
 
   /* Constrain reference images to match preview size */
-  #printable-document .reference-image-wrapper {
+  body:has(#printable-document) .reference-image-wrapper {
     max-width: 100%;
     overflow: hidden;
   }
 
-  #printable-document .reference-image-wrapper img {
+  body:has(#printable-document) .reference-image-wrapper img {
     max-height: 128px !important;
     height: 128px !important;
     width: auto !important;
@@ -1422,19 +1542,8 @@ definePageMeta({
   }
 
   /* Ensure tables print correctly */
-  table {
+  body:has(#printable-document) table {
     page-break-inside: avoid;
-  }
-
-  /* Hide page elements that shouldn't print */
-  .no-print,
-  button,
-  nav,
-  header:not(#printable-document header),
-  .bg-gradient-to-r,
-  .bg-gradient-to-br {
-    display: none !important;
-    visibility: hidden !important;
   }
 }
 </style>

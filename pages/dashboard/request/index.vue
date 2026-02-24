@@ -83,7 +83,7 @@
             </label>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500 dark:text-gray-400">$</span>
-              <input readonly v-model.number="form.totalBonusAmount" type="number" class="block w-full pl-10 px-4 py-3 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white shadow-sm 
+              <input readonly v-model.number="form.totalBonusAmount" type="number" step="any" class="block w-full pl-10 px-4 py-3 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white shadow-sm 
                       focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-30 transition-all" />
             </div>
           </div>
@@ -110,6 +110,10 @@
                   <th
                     class="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
                     {{ locale === 'en' ? 'Client' : 'អតិថិជន' }}
+                  </th>
+                  <th
+                    class="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                    {{ locale === 'en' ? 'Project Price' : 'តម្លៃគម្រោង' }}
                   </th>
                   <!-- <th
                       class="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
@@ -146,12 +150,20 @@
                             focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-30 transition-all text-sm" />
                   </td>
                   <td class="px-4 py-3">
-                    <input v-model.number="activity.bonusFee" type="number" placeholder="0.00"
-                      class="w-full px-3 py-2 rounded-md border border-gray-200 bg-white dark:bg-gray-800 dark:text-white dark:border-gray-700
-                            focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-30 transition-all text-sm" @input="calculateBonusFee(index)" />
+                    <div class="flex items-center gap-2">
+                      <select v-model="activity.type_bonus_fee" @change="calculateBonusFee(index)"
+                        class="px-2 py-2 rounded-md border border-gray-200 bg-gray-50 dark:bg-gray-800 dark:text-white dark:border-gray-700
+                              focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-30 transition-all text-sm w-16">
+                        <option value="$">$</option>
+                        <option value="%">%</option>
+                      </select>
+                      <input v-model.number="activity.bonusFee" type="number" step="any" placeholder="0.00"
+                        class="w-full px-3 py-2 rounded-md border border-gray-200 bg-white dark:bg-gray-800 dark:text-white dark:border-gray-700
+                              focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-30 transition-all text-sm" @input="calculateBonusFee(index)" />
+                    </div>
                   </td>
                   <td class="px-4 py-3">
-                    <input v-model.number="activity.amount" type="number" placeholder="0"
+                    <input v-model.number="activity.amount" type="number" step="any" placeholder="0"
                       class="w-full px-3 py-2 rounded-md border border-gray-200 bg-white dark:bg-gray-800 dark:text-white dark:border-gray-700
                             focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-30 transition-all text-sm" @input="calculateBonusFee(index)" />
                   </td>
@@ -202,6 +214,16 @@
                         </div> -->
                     </div>
                   </td>
+                  <td class="px-4 py-3">
+                    <div class="relative">
+                      <span
+                        class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 dark:text-gray-400">$</span>
+                      <input v-model.number="activity.project_price" type="number" step="any" placeholder="0"
+                        @input="calculateBonusFee(index)"
+                        class="w-full pl-8 px-3 py-2 rounded-md border border-gray-200 bg-white dark:bg-gray-800 dark:text-white dark:border-gray-700
+                              focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-30 transition-all text-sm" />
+                    </div>
+                  </td>
                   <!-- <td class="px-4 py-3">
                       <div class="relative">
                         <input v-model.number="activity.feeCharge" type="number" placeholder="0"
@@ -216,7 +238,7 @@
                     <div class="relative">
                       <span
                         class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 dark:text-gray-400">$</span>
-                      <input v-model.number="activity.total" type="number" readonly
+                      <input v-model.number="activity.total" type="number" step="any" readonly
                         class="w-full pl-8 px-3 py-2 rounded-md border border-gray-200 bg-gray-50 dark:bg-gray-700 dark:text-white dark:border-gray-700 text-sm" />
                     </div>
                   </td>
@@ -282,7 +304,7 @@
               </tbody>
               <tfoot>
                 <tr class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 font-medium">
-                  <td colspan="5" class="px-4 py-4 text-right text-gray-700 dark:text-gray-300">
+                  <td colspan="6" class="px-4 py-4 text-right text-gray-700 dark:text-gray-300">
                     {{ locale === 'en' ? 'Total:' : 'សរុប:' }}
                   </td>
                   <td class="px-4 py-4 font-bold text-blue-600 dark:text-blue-400">
@@ -533,7 +555,13 @@
                               {{ locale === 'en' ? 'Clients' : 'អតិថិជន' }}
                             </th>
                             <th class="border-2 border-black px-3 py-2 font-bold text-center">
+                              {{ locale === 'en' ? 'Project Price' : 'តម្លៃគម្រោង' }}
+                            </th>
+                            <th class="border-2 border-black px-3 py-2 font-bold text-center">
                               {{ locale === 'en' ? 'Bonus fee' : 'កម្រៃជើងសារ' }}
+                            </th>
+                            <th class="border-2 border-black px-3 py-2 font-bold text-center">
+                              {{ locale === 'en' ? 'Total' : 'សរុប' }}
                             </th>
                           </tr>
                         </thead>
@@ -542,6 +570,10 @@
                             <td class="border-2 border-black px-3 py-2">{{ activity.name || '' }}</td>
                             <td class="border-2 border-black px-3 py-2 text-center">{{ activity.amount || '' }}</td>
                             <td class="border-2 border-black px-3 py-2">{{ activity.client || '' }}</td>
+                            <td class="border-2 border-black px-3 py-2 text-right">{{ activity.project_price ?
+                              formatMoney(activity.project_price, { minimumFractionDigits: 2 }) : '' }}</td>
+                            <td class="border-2 border-black px-3 py-2 text-right">{{ activity.bonusFee ?
+                              activity.bonusFee + (activity.type_bonus_fee || '$') : '' }}</td>
                             <td class="border-2 border-black px-3 py-2 text-right">{{ activity.total ?
                               formatMoney(activity.total, { minimumFractionDigits: 2 }) : '' }}</td>
                           </tr>
@@ -551,10 +583,12 @@
                             <td class="border-2 border-black px-3 py-8">&nbsp;</td>
                             <td class="border-2 border-black px-3 py-8">&nbsp;</td>
                             <td class="border-2 border-black px-3 py-8">&nbsp;</td>
+                            <td class="border-2 border-black px-3 py-8">&nbsp;</td>
+                            <td class="border-2 border-black px-3 py-8">&nbsp;</td>
                           </tr>
                           <!-- Total Row -->
                           <tr class="bg-transparent border-t-4 border-black">
-                            <td colspan="3" class="border-2 border-black px-3 py-2 text-right font-bold"></td>
+                            <td colspan="5" class="border-2 border-black px-3 py-2 text-right font-bold"></td>
                             <td class="border-2 border-black px-3 py-2 text-right font-bold text-gray-900">
                               {{ formatMoney(totaltotal, { minimumFractionDigits: 2 }) }}$
                             </td>
@@ -857,6 +891,8 @@ interface Activity {
   amount: number;
   client: string;
   total: number;
+  project_price: number;
+  type_bonus_fee: string;
   references: Array<{
     image: string | null;
     link: string;
@@ -888,7 +924,7 @@ interface KPISubmission {
   name: string;
   department: string;
   category: string;
-  totalBonusAmount: number;
+  totalBonusAmount: number | string; // Changed to allow string
   activities: Activity[];
   requestedBy: string;
   checkedBy: string;
@@ -935,6 +971,8 @@ const form: Ref<KPIForm> = ref({
     bonusFee: 0,
     amount: 1,
     client: '',
+    project_price: 0,
+    type_bonus_fee: '$',
     total: 0,
     references: [{ image: null, link: '' }]
   }],
@@ -1324,7 +1362,12 @@ const logDebugInfo = () => {
 // Function to calculate bonus fee for an activity
 const calculateBonusFee = (index: number) => {
   const activity = form.value.activities[index];
-  activity.total = activity.bonusFee * activity.amount;
+
+  if (activity.type_bonus_fee === '%') {
+    activity.total = (activity.project_price * (activity.bonusFee / 100)) * activity.amount;
+  } else {
+    activity.total = activity.bonusFee * activity.amount;
+  }
 
   // Update total bonus amount
   form.value.totalBonusAmount = totaltotal.value;
@@ -1432,6 +1475,8 @@ const addActivity = () => {
     bonusFee: 0,
     amount: 0,
     client: '',
+    project_price: 0,
+    type_bonus_fee: '$',
     total: 0,
     references: [{ image: null, link: '' }]
   });
@@ -1448,6 +1493,8 @@ const removeActivity = (index: number) => {
       bonusFee: 0,
       amount: 0,
       client: '',
+      project_price: 0,
+      type_bonus_fee: '$',
       // feeCharge: 0,
       total: 0,
       references: [{ image: null, link: '' }]
@@ -1469,6 +1516,8 @@ const resetForm = () => {
       bonusFee: 0,
       amount: 0,
       client: '',
+      project_price: 0,
+      type_bonus_fee: '$',
       total: 0,
       references: [{ image: null, link: '' }]
     }],
@@ -1552,8 +1601,10 @@ const submitForm = async () => {
     // Prepare data with only IDs for approvers
     const submissionData = prepareFormData();
 
-    // For debugging
-    console.log('Submitting data with ID-only approvers:', submissionData);
+    // Defensive parsing for string-typed fields in Directus
+    submissionData.totalBonusAmount = String(submissionData.totalBonusAmount) as any;
+
+    console.log('[KPI CREATE] POST payload:', submissionData);
 
     // Send data to API
     const response = await useApi<{ data: { id: string } }>('/items/kpi', {
@@ -1628,45 +1679,78 @@ definePageMeta({
 .modal-leave-to {
   opacity: 0;
 }
-
+</style>
+<style>
 /* Print styles */
 @media print {
-  body * {
-    visibility: hidden;
+
+  /* Hide everything by default */
+  body:has(#printable-document) * {
+    visibility: hidden !important;
   }
 
-  #printable-document,
-  #printable-document * {
-    visibility: visible;
+  /* Show only the printable document */
+  body:has(#printable-document) #printable-document,
+  body:has(#printable-document) #printable-document * {
+    visibility: visible !important;
   }
 
-  #printable-document {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
+  /* Position the document for printing */
+  body:has(#printable-document) #printable-document {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 210mm !important;
+    margin: 0 !important;
+    padding: 20mm !important;
+    background: white !important;
+    box-shadow: none !important;
+  }
+
+  /* Overwrite ancestor scroll rules so they don't clip the page */
+  body:has(#printable-document),
+  body:has(#printable-document) #__nuxt,
+  body:has(#printable-document) .overflow-y-auto,
+  body:has(#printable-document) .container {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    position: static !important;
+  }
+
+  /* Hide the background wrapper and layout shells explicitly */
+  body:has(#printable-document) header:not(#printable-document header),
+  body:has(#printable-document) nav,
+  body:has(#printable-document) aside,
+  body:has(#printable-document) .no-print {
+    display: none !important;
   }
 
   /* Ensure signature cells maintain bottom alignment in print */
-  #printable-document td.align-bottom {
+  body:has(#printable-document) td.align-bottom {
     vertical-align: bottom !important;
   }
 
-  #printable-document .signature-cell {
+  body:has(#printable-document) .signature-cell {
     display: block !important;
   }
 
   /* Constrain reference images to match preview size */
-  #printable-document .reference-image-wrapper {
+  body:has(#printable-document) .reference-image-wrapper {
     max-width: 100%;
     overflow: hidden;
   }
 
-  #printable-document .reference-image-wrapper img {
+  body:has(#printable-document) .reference-image-wrapper img {
     max-height: 128px !important;
     height: 128px !important;
     width: auto !important;
     object-fit: cover !important;
+  }
+
+  /* Ensure tables print correctly */
+  body:has(#printable-document) table {
+    page-break-inside: avoid;
   }
 }
 </style>
