@@ -304,13 +304,16 @@
               </tbody>
               <tfoot>
                 <tr class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 font-medium">
-                  <td colspan="6" class="px-4 py-4 text-right text-gray-700 dark:text-gray-300">
+                  <td colspan="4" class="px-4 py-4 text-right text-gray-700 dark:text-gray-300">
                     {{ locale === 'en' ? 'Total:' : 'សរុប:' }}
                   </td>
-                  <td class="px-4 py-4 font-bold text-blue-600 dark:text-blue-400">
-                    ${{ formatMoney(totaltotal, { minimumFractionDigits: 2 }) }}
+                  <td class="px-4 py-4 font-bold text-blue-600 dark:text-blue-400 text-right">
+                    ${{ formatMoney(totalProjectPrice) }}
                   </td>
-                  <td class="px-4 py-4"></td>
+                  <td class="px-4 py-4 font-bold text-blue-600 dark:text-blue-400 text-right">
+                    ${{ formatMoney(totaltotal) }}
+                  </td>
+                  <td colspan="3" class="px-4 py-4"></td>
                 </tr>
               </tfoot>
             </table>
@@ -588,7 +591,11 @@
                           </tr>
                           <!-- Total Row -->
                           <tr class="bg-transparent border-t-4 border-black">
-                            <td colspan="5" class="border-2 border-black px-3 py-2 text-right font-bold"></td>
+                            <td colspan="3" class="border-2 border-black px-3 py-2 text-right font-bold"></td>
+                            <td class="border-2 border-black px-3 py-2 text-right font-bold text-gray-900">
+                              {{ formatMoney(totalProjectPrice, { minimumFractionDigits: 2 }) }}$
+                            </td>
+                            <td class="border-2 border-black px-3 py-2 text-right font-bold"></td>
                             <td class="border-2 border-black px-3 py-2 text-right font-bold text-gray-900">
                               {{ formatMoney(totaltotal, { minimumFractionDigits: 2 }) }}$
                             </td>
@@ -1331,6 +1338,10 @@ const printDocument = () => {
 // Calculate total bonus fee
 const totaltotal = computed(() => {
   return form.value.activities.reduce((sum, activity) => sum + (activity.total || 0), 0);
+});
+
+const totalProjectPrice = computed(() => {
+  return form.value.activities.reduce((sum, activity) => sum + (Number(activity.project_price) || 0), 0);
 });
 // Create a mapping of department IDs to titles for the dropdown
 const departmentMapping = computed(() => {

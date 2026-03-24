@@ -156,6 +156,13 @@ const calculateTotal = (activities: Activity[]): number => {
   }, 0);
 };
 
+const calculateTotalProjectPrice = (activities: Activity[]): number => {
+  return activities.reduce((sum, activity) => {
+    const price = activity.project_price !== null && activity.project_price !== undefined ? Number(activity.project_price) : 0;
+    return sum + (isNaN(price) ? 0 : price);
+  }, 0);
+};
+
 // Get formatted username
 const formatUser = (user: User | null | undefined) => {
   if (!user) return '-';
@@ -454,7 +461,11 @@ definePageMeta({
                   </tr>
                   <!-- Total Row -->
                   <tr class="bg-transparent border-t-4 border-black">
-                    <td colspan="5" class="border-2 border-black px-3 py-2 text-right font-bold"></td>
+                    <td colspan="3" class="border-2 border-black px-3 py-2 text-right font-bold"></td>
+                    <td class="border-2 border-black px-3 py-2 text-right font-bold text-gray-900">
+                      {{ formatMoney(calculateTotalProjectPrice(kpiDetail.activities), { minimumFractionDigits: 2 }) }}$
+                    </td>
+                    <td class="border-2 border-black px-3 py-2 text-right font-bold"></td>
                     <td class="border-2 border-black px-3 py-2 text-right font-bold text-gray-900">
                       {{ formatMoney(calculateTotal(kpiDetail.activities), { minimumFractionDigits: 2 }) }}$
                     </td>
