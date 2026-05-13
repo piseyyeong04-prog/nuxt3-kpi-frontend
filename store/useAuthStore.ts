@@ -159,7 +159,7 @@ export const useAuthStore = defineStore('auth', () => {
       setTokenData(tokenData);
       await fetchUser();
       
-      return navigateTo('/');
+      return login.data;
     } catch (error) {
       return Promise.reject(error);
     } finally {

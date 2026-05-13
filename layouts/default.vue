@@ -537,21 +537,21 @@ const menuItems: MenuItem[] = [
     icon: 'emojione-v1:document',
     label: { en: 'History of Request KPI', km: 'ប្រវត្តិការស្នើសុំ KPI' }
   },
-  {
-    to: '/dashboard/pr-tracking',
-    icon: 'mdi:target',
-    label: { en: 'PR Tracking', km: 'ការតាមដាន PR' }
-  },
-  {
-    to: '/dashboard/monthly-ads-video-tracker',
-    icon: 'mdi:currency-usd',
-    label: { en: 'Monthly Video Ads Tracker', km: 'កម្មវិធីតាមដានការផ្សាយពាណិជ្ជកម្មវីដេអូប្រចាំខែ' }
-  },
-  {
-    to: '/dashboard/researcher-tracking',
-    icon: 'mdi:account-search',
-    label: { en: 'Researcher Tracking', km: 'ការតាមដានអ្នកស្រាវជ្រាវ' }
-  },
+  // {
+  //   to: '/dashboard/pr-tracking',
+  //   icon: 'mdi:target',
+  //   label: { en: 'PR Tracking', km: 'ការតាមដាន PR' }
+  // },
+  // {
+  //   to: '/dashboard/monthly-ads-video-tracker',
+  //   icon: 'mdi:currency-usd',
+  //   label: { en: 'Monthly Video Ads Tracker', km: 'កម្មវិធីតាមដានការផ្សាយពាណិជ្ជកម្មវីដេអូប្រចាំខែ' }
+  // },
+  // {
+  //   to: '/dashboard/researcher-tracking',
+  //   icon: 'mdi:account-search',
+  //   label: { en: 'Researcher Tracking', km: 'ការតាមដានអ្នកស្រាវជ្រាវ' }
+  // },
   {
     to: '#booking',
     icon: 'mdi:calendar-clock',
@@ -617,12 +617,12 @@ const menuItems: MenuItem[] = [
     icon: 'mdi:account-multiple',
     label: { en: 'Sale client', km: 'អតិថិជន BM' }
   },
-  {
-    to: '/dashboard/commissions',
-    icon: 'mdi:cash',
-    label: { en: 'Commissions', km: 'កម្រៃជើងសារ' },
-    role: ['admin', 'sales']
-  },
+  // {
+  //   to: '/dashboard/commissions',
+  //   icon: 'mdi:cash',
+  //   label: { en: 'Commissions', km: 'កម្រៃជើងសារ' },
+  //   role: ['admin', 'sales']
+  // },
   {
     to: '/dashboard/clients',
     icon: 'mdi:account-multiple',
@@ -656,11 +656,11 @@ const menuItems: MenuItem[] = [
       }
     ]
   },
-  {
-    to: '/dashboard/settings',
-    icon: 'mdi:cog',
-    label: { en: 'Settings', km: 'ការកំណត់' }
-  }
+  // {
+  //   to: '/dashboard/settings',
+  //   icon: 'mdi:cog',
+  //   label: { en: 'Settings', km: 'ការកំណត់' }
+  // }
 ]
 
 // Get icon color class

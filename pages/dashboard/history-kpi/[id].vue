@@ -23,6 +23,8 @@ interface Activity {
   bonusFee: number | null;
   amount: number | null;
   client: string;
+  project_price: number | null;
+  type_bonus_fee: string | null;
   total: number | null;
   references: Reference[];
 }
@@ -83,7 +85,7 @@ const formatMoney = (
 // Format date as "26th /March/2025"
 const currentDate = computed(() => {
   const date = new Date();
-  const day = date.getDate();
+  const day = 24;
   const month = date.toLocaleString('en-US', { month: 'long' });
   const year = date.getFullYear();
 
@@ -94,7 +96,7 @@ const currentDate = computed(() => {
     return n + (s[(v - 20) % 10] || s[v] || s[0]);
   };
 
-  return `${getOrdinal(day)} /${month}/${year}`;
+  return `${getOrdinal(day)}/${month}/${year}`;
 });
 
 // Helper functions
@@ -154,6 +156,13 @@ const calculateTotal = (activities: Activity[]): number => {
   }, 0);
 };
 
+const calculateTotalProjectPrice = (activities: Activity[]): number => {
+  return activities.reduce((sum, activity) => {
+    const price = activity.project_price !== null && activity.project_price !== undefined ? Number(activity.project_price) : 0;
+    return sum + (isNaN(price) ? 0 : price);
+  }, 0);
+};
+
 // Get formatted username
 const formatUser = (user: User | null | undefined) => {
   if (!user) return '-';
@@ -196,6 +205,8 @@ const fetchKpiDetail = async () => {
           ...activity,
           bonusFee: activity.bonusFee !== null ? Number(activity.bonusFee) : 0,
           amount: activity.amount !== null ? Number(activity.amount) : 0,
+          project_price: activity.project_price !== null ? Number(activity.project_price) : 0,
+          type_bonus_fee: activity.type_bonus_fee || '$',
           total: activity.total !== null ? Number(activity.total) : 0
         }));
       }
@@ -330,7 +341,8 @@ definePageMeta({
             <div class="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
             <div>
               <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ kpiDetail.category }}</h1>
-              <p class="text-sm text-gray-500 dark:text-gray-400">{{ kpiDetail.department?.title }}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ kpiDetail.department?.title || kpiDetail.department
+                || '' }}</p>
             </div>
           </div>
           <div class="flex items-center gap-3">
@@ -381,15 +393,16 @@ definePageMeta({
             <div class="mb-6 space-y-1 text-sm">
               <div class="flex">
                 <span class="font-bold w-48">{{ locale === 'en' ? 'Name:' : 'ឈ្មោះ:' }}</span>
-                <span>{{ kpiDetail.name }}</span>
+                <span>{{ kpiDetail.name || (kpiDetail.requestedBy ? formatUser(kpiDetail.requestedBy) : '') }}</span>
               </div>
               <div class="flex">
                 <span class="font-bold w-48">{{ locale === 'en' ? 'Team:' : 'ក្រុម:' }}</span>
-                <span>{{ kpiDetail.department?.title }}</span>
+                <span>{{ kpiDetail.department?.title || (typeof kpiDetail.department === 'string' ? kpiDetail.department
+                  : '') }}</span>
               </div>
               <div class="flex">
                 <span class="font-bold w-48">{{ locale === 'en' ? 'Total Bonus Amount:' : 'ចំនួនប្រាក់រង្វាន់សរុប:'
-                }}</span>
+                  }}</span>
                 <span class="font-bold text-gray-900">{{ formatMoney(kpiDetail.totalBonusAmount, {
                   minimumFractionDigits: 2
                 }) }}$</span>
@@ -415,7 +428,13 @@ definePageMeta({
                       {{ locale === 'en' ? 'Clients' : 'អតិថិជន' }}
                     </th>
                     <th class="border-2 border-black px-3 py-2 font-bold text-center">
+                      {{ locale === 'en' ? 'Project Price' : 'តម្លៃគម្រោង' }}
+                    </th>
+                    <th class="border-2 border-black px-3 py-2 font-bold text-center">
                       {{ locale === 'en' ? 'Bonus fee' : 'កម្រៃជើងសារ' }}
+                    </th>
+                    <th class="border-2 border-black px-3 py-2 font-bold text-center">
+                      {{ locale === 'en' ? 'Total' : 'សរុប' }}
                     </th>
                   </tr>
                 </thead>
@@ -424,6 +443,10 @@ definePageMeta({
                     <td class="border-2 border-black px-3 py-2">{{ activity.name || '' }}</td>
                     <td class="border-2 border-black px-3 py-2 text-center">{{ activity.amount || '' }}</td>
                     <td class="border-2 border-black px-3 py-2">{{ activity.client || '' }}</td>
+                    <td class="border-2 border-black px-3 py-2 text-right">{{ activity.project_price ?
+                      formatMoney(activity.project_price, { minimumFractionDigits: 2 }) : '' }}</td>
+                    <td class="border-2 border-black px-3 py-2 text-right">{{ activity.bonusFee ? activity.bonusFee +
+                      (activity.type_bonus_fee || '$') : '' }}</td>
                     <td class="border-2 border-black px-3 py-2 text-right">{{ activity.total ?
                       formatMoney(activity.total, { minimumFractionDigits: 2 }) : '' }}</td>
                   </tr>
@@ -433,10 +456,16 @@ definePageMeta({
                     <td class="border-2 border-black px-3 py-8">&nbsp;</td>
                     <td class="border-2 border-black px-3 py-8">&nbsp;</td>
                     <td class="border-2 border-black px-3 py-8">&nbsp;</td>
+                    <td class="border-2 border-black px-3 py-8">&nbsp;</td>
+                    <td class="border-2 border-black px-3 py-8">&nbsp;</td>
                   </tr>
                   <!-- Total Row -->
                   <tr class="bg-transparent border-t-4 border-black">
                     <td colspan="3" class="border-2 border-black px-3 py-2 text-right font-bold"></td>
+                    <td class="border-2 border-black px-3 py-2 text-right font-bold text-gray-900">
+                      {{ formatMoney(calculateTotalProjectPrice(kpiDetail.activities), { minimumFractionDigits: 2 }) }}$
+                    </td>
+                    <td class="border-2 border-black px-3 py-2 text-right font-bold"></td>
                     <td class="border-2 border-black px-3 py-2 text-right font-bold text-gray-900">
                       {{ formatMoney(calculateTotal(kpiDetail.activities), { minimumFractionDigits: 2 }) }}$
                     </td>
@@ -496,8 +525,8 @@ definePageMeta({
                         <div class="text-xs">
                           <p class="font-semibold">{{ formatUser(kpiDetail.requestedBy) }}</p>
                           <p class="text-gray-600">{{ formatUserPosition(kpiDetail.requestedBy) }}</p>
-                          <p class="text-gray-600 mt-1">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ' }}:
-                            ......./......./.......</p>
+                          <p class="text-gray-600 mt-1 whitespace-nowrap">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ'
+                            }}: {{ currentDate }}</p>
                         </div>
                       </div>
                     </td>
@@ -507,8 +536,8 @@ definePageMeta({
                         <div class="text-xs">
                           <p class="font-semibold">{{ formatUser(kpiDetail.checkedBy) }}</p>
                           <p class="text-gray-600">{{ formatUserPosition(kpiDetail.checkedBy) }}</p>
-                          <p class="text-gray-600 mt-1">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ' }}:
-                            ......./......./.......</p>
+                          <p class="text-gray-600 mt-1 whitespace-nowrap">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ'
+                            }}: {{ currentDate }}</p>
                         </div>
                       </div>
                     </td>
@@ -518,8 +547,8 @@ definePageMeta({
                         <div class="text-xs">
                           <p class="font-semibold">{{ formatUser(kpiDetail.verifiedBy) }}</p>
                           <p class="text-gray-600">{{ formatUserPosition(kpiDetail.verifiedBy) }}</p>
-                          <p class="text-gray-600 mt-1">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ' }}:
-                            ......./......./.......</p>
+                          <p class="text-gray-600 mt-1 whitespace-nowrap">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ'
+                            }}: {{ currentDate }}</p>
                         </div>
                       </div>
                     </td>
@@ -529,8 +558,8 @@ definePageMeta({
                         <div class="text-xs">
                           <p class="font-semibold">{{ formatUser(kpiDetail.approvedBy) }}</p>
                           <p class="text-gray-600">{{ formatUserPosition(kpiDetail.approvedBy) }}</p>
-                          <p class="text-gray-600 mt-1">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ' }}:
-                            ......./......./.......</p>
+                          <p class="text-gray-600 mt-1 whitespace-nowrap">{{ locale === 'en' ? 'Date' : 'កាលបរិច្ឆេទ'
+                            }}: {{ currentDate }}</p>
                         </div>
                       </div>
                     </td>
@@ -563,23 +592,24 @@ definePageMeta({
   </div>
 </template>
 
-<style scoped>
+<style scoped></style>
+<style>
 /* Print styles */
 @media print {
 
   /* Hide everything by default */
-  body * {
+  body:has(#printable-document) * {
     visibility: hidden !important;
   }
 
   /* Show only the printable document */
-  #printable-document,
-  #printable-document * {
+  body:has(#printable-document) #printable-document,
+  body:has(#printable-document) #printable-document * {
     visibility: visible !important;
   }
 
   /* Position the document for printing */
-  #printable-document {
+  body:has(#printable-document) #printable-document {
     position: absolute !important;
     left: 0 !important;
     top: 0 !important;
@@ -587,35 +617,44 @@ definePageMeta({
     margin: 0 !important;
     padding: 20mm !important;
     background: white !important;
-  }
-
-  /* Hide the background wrapper */
-  #printable-document~*,
-  .bg-gradient-to-br {
-    display: none !important;
-  }
-
-  /* Remove shadows and backgrounds for print */
-  #printable-document {
     box-shadow: none !important;
   }
 
+  /* Overwrite ancestor scroll rules so they don't clip the page */
+  body:has(#printable-document),
+  body:has(#printable-document) #__nuxt,
+  body:has(#printable-document) .overflow-y-auto,
+  body:has(#printable-document) .container {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    position: static !important;
+  }
+
+  /* Hide the background wrapper and layout shells explicitly */
+  body:has(#printable-document) header:not(#printable-document header),
+  body:has(#printable-document) nav,
+  body:has(#printable-document) aside,
+  body:has(#printable-document) .no-print {
+    display: none !important;
+  }
+
   /* Ensure signature cells maintain bottom alignment in print */
-  #printable-document td.align-bottom {
+  body:has(#printable-document) td.align-bottom {
     vertical-align: bottom !important;
   }
 
-  #printable-document .signature-cell {
+  body:has(#printable-document) .signature-cell {
     display: block !important;
   }
 
   /* Constrain reference images to match preview size */
-  #printable-document .reference-image-wrapper {
+  body:has(#printable-document) .reference-image-wrapper {
     max-width: 100%;
     overflow: hidden;
   }
 
-  #printable-document .reference-image-wrapper img {
+  body:has(#printable-document) .reference-image-wrapper img {
     max-height: 128px !important;
     height: 128px !important;
     width: auto !important;
@@ -623,18 +662,8 @@ definePageMeta({
   }
 
   /* Ensure tables print correctly */
-  table {
+  body:has(#printable-document) table {
     page-break-inside: avoid;
-  }
-
-  /* Hide page elements that shouldn't print */
-  .no-print,
-  button,
-  nav,
-  header:not(#printable-document header),
-  .bg-gradient-to-r {
-    display: none !important;
-    visibility: hidden !important;
   }
 }
 </style>
