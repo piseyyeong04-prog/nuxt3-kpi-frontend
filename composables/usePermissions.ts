@@ -12,29 +12,36 @@ export function usePermissions() {
   const writerRoleId = 'bb5d4a67-a17e-4cdf-9d59-c8f95518797b'
   // hrRoleId
   const hrRoleId = '90feab0a-4641-44bc-91ea-806387b95230'
+  // editor roleID
+  const editorRoleId = 'af115dbc-3aad-4879-8c1e-5ed0059ec576'
 
   const isAdmin = computed(() => {
     return auth.user?.role?.id === adminRoleId
   })
-    const isSale = computed(() => {
-        return auth.user?.role?.id === saleRoleId
-    })
-  const isHr = computed(() =>{
+  const isSale = computed(() => {
+    return auth.user?.role?.id === saleRoleId
+  })
+  const isHr = computed(() => {
     return auth.user?.role?.id === hrRoleId
   })
-    const isCreator = computed(() => {
+  const isCreator = computed(() => {
     return auth.user?.role?.id === creatorRoleId
   })
-  
+
   const isWriter = computed(() => {
     return auth.user?.role?.id === writerRoleId
   })
-  
-  return { 
-    isAdmin, 
-    isSale, 
-    isHr, 
-    isCreator, 
-    isWriter 
+
+  const isEditor = computed(() => {
+    return auth.user?.role?.id === editorRoleId
+  })
+
+  return {
+    isAdmin,
+    isSale,
+    isHr,
+    isCreator,
+    isWriter,
+    isEditor
   }
 }
