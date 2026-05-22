@@ -342,7 +342,7 @@ import { usePermissions } from '~/composables/usePermissions'
 import type { IResponse } from '~/types/api'
 import type { INotification } from '~/types/notification'
 
-const { isSale, isAdmin, isHr } = usePermissions()
+const { isSale, isAdmin, isHr, isCreator, isWriter, isEditor } = usePermissions()
 const auth = useAuthStore()
 const router = useRouter()
 const route = useRoute()
@@ -537,11 +537,12 @@ const menuItems: MenuItem[] = [
     icon: 'emojione-v1:document',
     label: { en: 'History of Request KPI', km: 'ប្រវត្តិការស្នើសុំ KPI' }
   },
-  // {
-  //   to: '/dashboard/pr-tracking',
-  //   icon: 'mdi:target',
-  //   label: { en: 'PR Tracking', km: 'ការតាមដាន PR' }
-  // },
+  {
+    to: '/dashboard/pr-tracking',
+    icon: 'mdi:target',
+    label: { en: 'PR Tracking', km: 'ការតាមដាន PR' },
+    role: ['admin', 'sales', 'creator', 'writer', 'editor'],
+  },
   // {
   //   to: '/dashboard/monthly-ads-video-tracker',
   //   icon: 'mdi:currency-usd',
@@ -697,9 +698,12 @@ const localizedMenuItems = computed(() =>
         if (item.role === 'hr') return isHr.value
       } else if (Array.isArray(item.role)) {
         return item.role.some(role => {
-          if (role === 'sales') return isSale.value
-          if (role === 'admin') return isAdmin.value
-          if (role === 'hr') return isHr.value
+          if (role === 'sales')   return isSale.value
+          if (role === 'admin')   return isAdmin.value
+          if (role === 'hr')      return isHr.value
+          if (role === 'creator') return isCreator.value
+          if (role === 'writer')  return isWriter.value
+          if (role === 'editor')  return isEditor.value
           return false
         })
       }
