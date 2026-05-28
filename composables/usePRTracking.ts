@@ -14,6 +14,8 @@ export interface PRTracking {
   start_pr?: string;
   deadline_pr?: string;
   attach_document?: string | null;
+  create_to?: string | null;
+  id_in_sale_cms?: number | null;
 }
 
 export interface DirectusUser {
@@ -39,9 +41,10 @@ export interface DirectusResponse<T> {
 export const CREATOR_ROLE_ID = '487171a6-b731-4d96-b350-3481868c8f92';
 export const WRITER_ROLE_ID  = 'bb5d4a67-a17e-4cdf-9d59-c8f95518797b';
 export const EDITOR_ROLE_ID  = 'af115dbc-3aad-4879-8c1e-5ed0059ec576';
+export const ADMIN_ROLE_ID   = '3a5cb98e-02f8-4f09-afd9-dcd43288c756';
 
 const COLLECTION   = '/items/pr_tracking';
-const USER_SUBS    = ['id', 'first_name', 'last_name', 'email', 'avatar', 'role'];
+const USER_SUBS    = ['id', 'first_name', 'last_name', 'email', 'avatar', 'role', 'department.id', 'department.title'];
 const relFields    = (rel: string) => USER_SUBS.map(f => `${rel}.${f}`).join(',');
 const FIELDS       = [
   'id', 'sort', 'status',
@@ -49,6 +52,7 @@ const FIELDS       = [
   relFields('creator_or_writer'),
   relFields('editor'),
   'client', 'title', 'description', 'start_pr', 'deadline_pr', 'attach_document',
+  'create_to', 'id_in_sale_cms',
 ].join(',');
 
 export const usePRTracking = () => {
@@ -82,7 +86,7 @@ export const usePRTracking = () => {
   };
 
   const fetchCreatorsOrWriters = () =>
-    paginatedUsers(`${CREATOR_ROLE_ID},${WRITER_ROLE_ID}`);
+    paginatedUsers(`${CREATOR_ROLE_ID},${WRITER_ROLE_ID},${ADMIN_ROLE_ID}`);
 
   const fetchEditors = () =>
     paginatedUsers(EDITOR_ROLE_ID);

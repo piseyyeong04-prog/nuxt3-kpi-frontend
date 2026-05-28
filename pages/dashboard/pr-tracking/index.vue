@@ -377,13 +377,15 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { Icon } from '@iconify/vue'
-import { usePRTracking, type PRTrackingExpanded, type DirectusUser, CREATOR_ROLE_ID, WRITER_ROLE_ID, EDITOR_ROLE_ID } from '~/composables/usePRTracking'
+import { usePRTracking, type PRTrackingExpanded, type DirectusUser, CREATOR_ROLE_ID, WRITER_ROLE_ID, EDITOR_ROLE_ID, ADMIN_ROLE_ID } from '~/composables/usePRTracking'
+import { useTelegramNotify } from '~/composables/useTelegramNotify'
 import { useAuthStore } from '~/store/useAuthStore'
 
 definePageMeta({ middleware: 'auth' })
 
 const authStore = useAuthStore()
 const { fetchAll, fetchCreatorsOrWriters, fetchEditors, create, update, remove, uploadFile } = usePRTracking()
+const { notifyPR } = useTelegramNotify()
 
 // toast
 const toasts = ref<{id:number,type:string,message:string}[]>([])
@@ -434,7 +436,7 @@ const form = ref<Form>(blank())
 const fullName = (u?: DirectusUser|null) => u ? (`${u.first_name??''} ${u.last_name??''}`).trim() || u.email || '' : ''
 const fmtDate = (d: string) => new Date(d).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})
 const toDateInput = (d?:string|null) => d ? d.slice(0,10) : ''
-const roleLabel = (r?: string) => r === CREATOR_ROLE_ID ? 'Creator' : r === WRITER_ROLE_ID ? 'Writer' : 'Editor'
+const roleLabel = (r?: string) => r === CREATOR_ROLE_ID ? 'Creator' : r === WRITER_ROLE_ID ? 'Writer' : r === ADMIN_ROLE_ID ? 'Admin' : 'Editor'
 
 /** True when the selected creator/writer is a Writer role user */
 const isWriterSelected = computed(() => {
@@ -467,7 +469,7 @@ const isAdminOrSale = computed(() => [
 const statusCls = (s: string) => ({
   'Plan':              'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300',
   'Processing':        'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
-  'Shooting / Writing':'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  'Shooting / Writing':'bg-orange-500 text-white dark:bg-orange-600 font-semibold ring-2 ring-orange-300/50 dark:ring-orange-500/30 animate-pulse',
   'Editing':           'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
   'Checking':          'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
   'Compleated':        'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
@@ -580,10 +582,50 @@ const submitForm = async () => {
       const idx = records.value.findIndex(r => r.id === editingId.value)
       if (idx !== -1) records.value[idx] = updated
       toast('Record updated')
+      // ── Telegram notify on update ────────────────────────────────────────
+      const creatorUser2 = creatorList.value.find(u => u.id === form.value.creator_or_writer)
+      const deptName = creatorUser2?.department?.title ?? authStore.user?.department?.title ?? undefined
+
+      const apiBase = useRuntimeConfig().public.API_BASE_URL || 'http://46.250.231.152:8056'
+      const attachUrl = form.value.attach_document ? `${apiBase}/assets/${form.value.attach_document}` : undefined
+
+      const editorUser2  = editorList.value.find(u  => u.id === form.value.editor)
+      notifyPR({
+        action: 'updated',
+        title:  form.value.title,
+        client: form.value.client,
+        status: form.value.status,
+        departmentName: deptName,
+        creatorName: creatorUser2 ? `${creatorUser2.first_name ?? ''} ${creatorUser2.last_name ?? ''}`.trim() : undefined,
+        editorName:  editorUser2  ? `${editorUser2.first_name  ?? ''} ${editorUser2.last_name  ?? ''}`.trim() : undefined,
+        startDate: form.value.start_pr    || undefined,
+        deadline:  form.value.deadline_pr || undefined,
+        attachDocumentUrl: attachUrl,
+      })
     } else {
       const created = await create(payload)
       records.value.unshift(created)
       toast('Record created')
+      // ── Telegram notify on create ────────────────────────────────────────
+      const creatorUser3 = creatorList.value.find(u => u.id === form.value.creator_or_writer)
+      const deptName = creatorUser3?.department?.title ?? authStore.user?.department?.title ?? undefined
+
+      const apiBase = useRuntimeConfig().public.API_BASE_URL || 'http://46.250.231.152:8056'
+      const attachUrl = form.value.attach_document ? `${apiBase}/assets/${form.value.attach_document}` : undefined
+
+      const editorUser3  = editorList.value.find(u  => u.id === form.value.editor)
+      notifyPR({
+        action: 'created',
+        title:  form.value.title,
+        client: form.value.client,
+        status: form.value.status,
+        departmentName: deptName,
+        creatorName: creatorUser3 ? `${creatorUser3.first_name ?? ''} ${creatorUser3.last_name ?? ''}`.trim() : undefined,
+        editorName:  editorUser3  ? `${editorUser3.first_name  ?? ''} ${editorUser3.last_name  ?? ''}`.trim() : undefined,
+        startDate: form.value.start_pr    || undefined,
+        deadline:  form.value.deadline_pr || undefined,
+        attachDocumentUrl: attachUrl,
+      })
     }
     showForm.value = false
   } catch (e: any) {
@@ -595,10 +637,26 @@ const doDelete = async () => {
   if (!delTarget.value) return
   isDeleting.value = true
   try {
+    const t = delTarget.value as any
+
+    // ── Fetch department name from creator/writer BEFORE deleting the record ──
+    const creatorId = typeof t.creator_or_writer === 'object' ? t.creator_or_writer?.id : t.creator_or_writer
+    const creatorUser = creatorList.value.find(u => u.id === creatorId)
+    const deptName = creatorUser?.department?.title ?? (typeof t.creator_or_writer === 'object' ? t.creator_or_writer?.department?.title : undefined) ?? authStore.user?.department?.title ?? undefined
+
     await remove(delTarget.value.id!)
     records.value = records.value.filter(r => r.id !== delTarget.value!.id)
     toast('Record deleted')
     showDel.value = false
+
+    // ── Telegram notify on delete ────────────────────────────────────────
+    notifyPR({
+      action: 'deleted',
+      title:  t.title  ?? '',
+      client: t.client ?? '',
+      status: t.status ?? '',
+      departmentName: deptName,
+    })
   } catch (e: any) {
     toast(e?.message || 'Delete failed', 'error')
   } finally { isDeleting.value = false }
