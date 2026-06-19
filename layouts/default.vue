@@ -527,10 +527,49 @@ const menuItems: MenuItem[] = [
     icon: 'mdi:view-dashboard',
     label: { en: 'Dashboard', km: 'ផ្ទាំងគ្រប់គ្រង' }
   },
+  // {
+  //   to: '/dashboard/request',
+  //   icon: 'material-symbols:edit-document',
+  //   label: { en: 'Form Request KPI', km: 'ទម្រង់ស្នើសុំ KPI' }
+  // },
+  // Form Request with submenu
   {
-    to: '/dashboard/request',
-    icon: 'material-symbols:edit-document',
-    label: { en: 'Form Request KPI', km: 'ទម្រង់ស្នើសុំ KPI' }
+    to: '#formrequest',
+    icon: 'material-symbols:folder-copy-outline',
+    label: { en: 'Form Request', km: 'ទម្រង់ស្នើសុំ' },
+    hasSubmenu: true,
+    submenu: [
+      {
+        to: '/dashboard/kpi-bc-request',
+        icon: 'material-symbols:leaderboard-outline',
+        label: { en: 'Form Request KPI BC', km: 'ទម្រង់ស្នើសុំ KPI BC' }
+      },
+      {
+        to: '/dashboard/request',
+        icon: 'material-symbols:leaderboard-outline',
+        label: { en: 'Form Request KPI', km: 'ទម្រង់ស្នើសុំ KPI' }
+      },
+      {
+        to: '/dashboard/bm/salary-request/',
+        icon: 'material-symbols:payments-outline',
+        label: { en: 'Salary Request', km: 'ស្នើសុំប្រាក់ខែ' },
+      },
+      {
+        to: '/dashboard/bm/impact-income-bonus-request/',
+        icon: 'material-symbols:workspace-premium-outline',
+        label: { en: 'Impact Income Bonus Request', km: 'ប្រាក់រង្វាន់លើកទឹកចិត្តផ្អែកលើលទ្ធផលការងារ' },
+      },
+      {
+        to: '/dashboard/bm/kpi-bc-request/',
+        icon: 'material-symbols:receipt-long-outline',
+        label: { en: 'BC Commission Request', km: 'ស្នើសុំកម្រៃ BC' },
+      },
+      {
+        to: '/dashboard/bm/kpi-hc-request/',
+        icon: 'material-symbols:receipt-long-outline',
+        label: { en: 'HC Commission Request', km: 'ស្នើសុំកម្រៃ HC' },
+      }
+    ]
   },
   {
     to: '/dashboard/history-kpi/',
@@ -698,12 +737,12 @@ const localizedMenuItems = computed(() =>
         if (item.role === 'hr') return isHr.value
       } else if (Array.isArray(item.role)) {
         return item.role.some(role => {
-          if (role === 'sales')   return isSale.value
-          if (role === 'admin')   return isAdmin.value
-          if (role === 'hr')      return isHr.value
+          if (role === 'sales') return isSale.value
+          if (role === 'admin') return isAdmin.value
+          if (role === 'hr') return isHr.value
           if (role === 'creator') return isCreator.value
-          if (role === 'writer')  return isWriter.value
-          if (role === 'editor')  return isEditor.value
+          if (role === 'writer') return isWriter.value
+          if (role === 'editor') return isEditor.value
           return false
         })
       }

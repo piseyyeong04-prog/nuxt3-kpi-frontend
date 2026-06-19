@@ -119,7 +119,7 @@ export default defineNuxtConfig({
       globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
     },
     devOptions: {
-      enabled: true,
+      enabled: false,
     },
   },
 });
