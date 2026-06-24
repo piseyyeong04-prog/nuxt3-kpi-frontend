@@ -1,0 +1,145 @@
+                    <!-- Header with Logo and Title -->
+                    <div class="flex items-start justify-between mb-6">
+                      <div class="flex-shrink-0">
+                        <img src="/logo.png" alt="Baksey Media" class="h-20 w-auto" />
+                      </div>
+                      <div class="flex-1 text-center">
+                        <h1 class="text-xl font-bold text-gray-900 underline decoration-2 underline-offset-4">
+                          {{ locale === 'en' ? 'Request Commission Letter' : 'លិខិតស្នើសុំកម្រៃជើងសារ' }}
+                        </h1>
+                      </div>
+                    </div>
+
+                    <!-- Basic Information -->
+                    <div class="mb-6 space-y-1 text-sm">
+                      <div class="flex">
+                        <span class="font-bold w-48">{{ locale === 'en' ? 'Name:' : 'ឈ្មោះ:' }}</span>
+                        <span>{{ form.name }}</span>
+                      </div>
+                      <div class="flex">
+                        <span class="font-bold w-48">{{ locale === 'en' ? 'Team:' : 'ក្រុម:' }}</span>
+                        <span>{{ form.departmentTitle }}</span>
+                      </div>
+                      <div class="flex">
+                        <span class="font-bold w-48">{{ locale === 'en' ? 'Total Bonus Amount:' : 'ចំនួនប្រាក់រង្វាន់សរុប:' }}</span>
+                        <span class="font-bold text-red-600">{{ form.totalBonusAmount.toFixed(3) }}$</span>
+                      </div>
+                      <div class="flex">
+                        <span class="font-bold w-48">{{ locale === 'en' ? 'Date:' : 'កាលបរិច្ឆេទ:' }}</span>
+                        <span>{{ currentDate }}</span>
+                      </div>
+                    </div>
+
+                    <!-- Activities Table -->
+                    <div class="mb-8">
+                      <table class="w-full border-2 border-black text-sm">
+                        <thead>
+                          <tr class="bg-red-600 text-white">
+                            <th class="border-2 border-black px-3 py-2 font-bold text-center">
+                              {{ locale === 'en' ? 'Activity' : 'សកម្មភាព' }}
+                            </th>
+                            <th class="border-2 border-black px-3 py-2 font-bold text-center">
+                              {{ locale === 'en' ? 'Bonus articles' : 'អត្ថបទរង្វាន់' }}
+                            </th>
+                            <th class="border-2 border-black px-3 py-2 font-bold text-center">
+                              {{ locale === 'en' ? 'Clients' : 'អតិថិជន' }}
+                            </th>
+                            <th class="border-2 border-black px-3 py-2 font-bold text-center">
+                              {{ locale === 'en' ? 'Bonus fee' : 'កម្រៃជើងសារ' }}
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(activity, index) in form.activities" :key="index" class="bg-white">
+                            <td class="border-2 border-black px-3 py-2">{{ activity.name || '' }}</td>
+                            <td class="border-2 border-black px-3 py-2 text-center">{{ activity.amount || '' }}</td>
+                            <td class="border-2 border-black px-3 py-2">{{ activity.client || '' }}</td>
+                            <td class="border-2 border-black px-3 py-2 text-right">{{ activity.total ? activity.total.toFixed(2) : '' }}</td>
+                          </tr>
+                          <!-- Add empty rows to fill space if needed -->
+                          <tr v-for="n in Math.max(0, 3 - form.activities.length)" :key="'empty-' + n" class="bg-white">
+                            <td class="border-2 border-black px-3 py-8">&nbsp;</td>
+                            <td class="border-2 border-black px-3 py-8">&nbsp;</td>
+                            <td class="border-2 border-black px-3 py-8">&nbsp;</td>
+                            <td class="border-2 border-black px-3 py-8">&nbsp;</td>
+                          </tr>
+                          <!-- Total Row -->
+                          <tr class="bg-red-200">
+                            <td colspan="3" class="border-2 border-black px-3 py-2 text-right font-bold"></td>
+                            <td class="border-2 border-black px-3 py-2 text-right font-bold text-red-600">
+                              {{ totaltotal.toFixed(3) }}$
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <!-- Signature Section -->
+                    <div class="mb-8">
+                      <table class="w-full border-2 border-black text-sm">
+                        <thead>
+                          <tr class="bg-white">
+                            <th class="border-2 border-black px-3 py-2 font-bold text-center w-1/4">
+                              {{ locale === 'en' ? 'Requested by:' : 'ស្នើសុំដោយ:' }}
+                            </th>
+                            <th class="border-2 border-black px-3 py-2 font-bold text-center w-1/4">
+                              {{ locale === 'en' ? 'Checked By' : 'ត្រួតពិនិត្យដោយ' }}
+                            </th>
+                            <th class="border-2 border-black px-3 py-2 font-bold text-center w-1/4">
+                              {{ locale === 'en' ? 'Verified by:' : 'ផ្ទៀងផ្ទាត់ដោយ:' }}
+                            </th>
+                            <th class="border-2 border-black px-3 py-2 font-bold text-center w-1/4">
+                              {{ locale === 'en' ? 'Approved by:' : 'អនុម័តដោយ:' }}
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr class="bg-white">
+                            <td class="border-2 border-black px-3 h-32 align-top">
+                              <div class="text-xs mt-2">
+                                <p class="font-semibold">{{ form.requestedBy.name }}</p>
+                                <p class="text-gray-600">{{ form.requestedBy.position }}</p>
+                              </div>
+                            </td>
+                            <td class="border-2 border-black px-3 h-32 align-top">
+                              <div class="text-xs mt-2">
+                                <p class="font-semibold">{{ form.checkedBy.name }}</p>
+                                <p class="text-gray-600">{{ form.checkedBy.position }}</p>
+                              </div>
+                            </td>
+                            <td class="border-2 border-black px-3 h-32 align-top">
+                              <div class="text-xs mt-2">
+                                <p class="font-semibold">{{ form.verifiedBy.name }}</p>
+                                <p class="text-gray-600">{{ form.verifiedBy.position }}</p>
+                              </div>
+                            </td>
+                            <td class="border-2 border-black px-3 h-32 align-top">
+                              <div class="text-xs mt-2">
+                                <p class="font-semibold">{{ form.approvedBy.name }}</p>
+                                <p class="text-gray-600">{{ form.approvedBy.position }}</p>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="mt-auto pt-8">
+                      <div class="bg-red-600 text-white px-4 py-3 text-xs">
+                        <div class="flex justify-between items-start">
+                          <div class="flex-1">
+                            <p class="font-bold mb-1">www.business-cambodia.com</p>
+                          </div>
+                          <div class="flex-1 text-right">
+                            <p class="font-semibold">Address: ATTWOOD BUSINESS CENTER Building, Unit 29#E1</p>
+                            <p>St. Russian Federation Blvd, Phnom Penh</p>
+                            <p>Working Hours: Monday-Friday 8:00 AM-5:00 PM</p>
+                            <p>Website: business-cambodia.com</p>
+                            <p>Email: sm.businesscambodia@gmail.com</p>
+                            <p>Telegram: Business Cambodia</p>
+                            <p>Tel: +855 (0)17 300 732 / +855 (0)92 575 321</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>

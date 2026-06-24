@@ -229,6 +229,61 @@
                   </div>
                 </div>
 
+                <!-- Word Count Result Card (shown after fetch, single mode only) -->
+                <div v-if="importMode === 'single' && article_word_count !== null" class="mt-2">
+                  <div class="flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-300"
+                    :class="article_word_count >= 350
+                      ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-300 dark:border-emerald-700'
+                      : 'bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700'">
+
+                    <!-- Icon -->
+                    <div class="flex items-center justify-center w-12 h-12 rounded-xl flex-shrink-0"
+                      :class="article_word_count >= 350
+                        ? 'bg-emerald-100 dark:bg-emerald-800/40'
+                        : 'bg-amber-100 dark:bg-amber-800/40'">
+                      <Icon :icon="article_word_count >= 350 ? 'mdi:check-circle' : 'mdi:alert-circle'"
+                        class="h-7 w-7"
+                        :class="article_word_count >= 350 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'" />
+                    </div>
+
+                    <!-- Word count info -->
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-baseline gap-2 flex-wrap">
+                        <span class="text-2xl font-bold"
+                          :class="article_word_count >= 350 ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-700 dark:text-amber-300'">
+                          {{ article_word_count.toLocaleString() }}
+                        </span>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">words / 350 target</span>
+                        <!-- Status badge -->
+                        <span v-if="article_word_count >= 350"
+                          class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-800/40 dark:text-emerald-300">
+                          ✅ Target Reached
+                        </span>
+                        <span v-else
+                          class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-800/40 dark:text-amber-300">
+                          ⚠️ Need {{ 350 - article_word_count }} more words
+                        </span>
+                      </div>
+                      <!-- Progress bar -->
+                      <div class="mt-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div class="h-2 rounded-full transition-all duration-500"
+                          :class="article_word_count >= 350 ? 'bg-emerald-500' : 'bg-amber-400'"
+                          :style="`width: ${Math.min((article_word_count / 350) * 100, 100)}%`">
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Percent -->
+                    <div class="text-right flex-shrink-0">
+                      <span class="text-xl font-bold"
+                        :class="article_word_count >= 350 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'">
+                        {{ Math.min(Math.round((article_word_count / 350) * 100), 100) }}%
+                      </span>
+                      <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">of target</p>
+                    </div>
+                  </div>
+                </div>
+
                 <!-- Writer Selection for Bulk Import -->
                 <div v-if="importMode === 'bulk'" class="space-y-3">
                   <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
@@ -362,7 +417,38 @@
         </div>
 
         <!-- Performance Table -->
-        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden">
+        <!-- Tab Navigation -->
+        <div class="flex gap-2 mb-0">
+          <button
+            @click="activeTab = 'performance'"
+            :class="activeTab === 'performance'
+              ? 'bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-500 font-semibold shadow'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'"
+            class="px-6 py-3 rounded-t-xl text-sm transition-all duration-200 flex items-center gap-2">
+            <Icon icon="fluent:people-team-16-filled" class="h-4 w-4" />
+            Staff Performance
+          </button>
+          <button
+            @click="activeTab = 'checkwords'"
+            :class="activeTab === 'checkwords'
+              ? 'bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 border-b-2 border-emerald-500 font-semibold shadow'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'"
+            class="px-6 py-3 rounded-t-xl text-sm transition-all duration-200 flex items-center gap-2">
+            <Icon icon="mdi:text-box-check-outline" class="h-4 w-4" />
+            Check Words
+          </button>
+          <button
+            @click="activeTab = 'directcheck'"
+            :class="activeTab === 'directcheck'
+              ? 'bg-white dark:bg-gray-800 text-violet-600 dark:text-violet-400 border-b-2 border-violet-500 font-semibold shadow'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'"
+            class="px-6 py-3 rounded-t-xl text-sm transition-all duration-200 flex items-center gap-2">
+            <Icon icon="mdi:typewriter" class="h-4 w-4" />
+            Direct Check
+          </button>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-b-xl rounded-tr-xl overflow-hidden">
           <div class="p-5 border-b border-gray-200 dark:border-gray-700">
             <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Staff Performance</h2>
             <p class="text-sm text-gray-500 dark:text-gray-400">Track article engagement metrics for each team member
@@ -390,7 +476,7 @@
             </button>
           </div> -->
 
-          <div class="overflow-x-auto">
+          <div v-show="activeTab === 'performance'" class="overflow-x-auto">
             <table class="w-full text-sm text-left">
               <thead
                 class="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-xs tracking-wider">
@@ -501,6 +587,278 @@
               </tbody>
             </table>
           </div>
+
+          <!-- ===== CHECK WORDS TAB ===== -->
+          <div v-show="activeTab === 'checkwords'" class="p-6">
+            <!-- Header -->
+            <div class="flex items-center gap-3 mb-6">
+              <div class="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl">
+                <Icon icon="mdi:text-box-check-outline" class="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h2 class="text-lg font-bold text-gray-900 dark:text-white">Check Words</h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Count words per article in the KPI period — Target: 350 words</p>
+              </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <!-- Writer select -->
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-1">Writer</label>
+                <select v-model="wcSelectedWriter"
+                  class="w-full h-11 px-3 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all text-sm appearance-none cursor-pointer">
+                  <option value="">-- Select Writer --</option>
+                  <option v-for="creator in creatorsList" :key="creator.id" :value="creator.id">
+                    {{ getUserName(creator.staff) || (auth.user?.first_name + ' ' + auth.user?.last_name) }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Period select -->
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-1">KPI Period</label>
+                <select v-model="wcSelectedPeriod"
+                  :disabled="!wcSelectedWriter || Object.keys(wcWriterPeriods).length === 0"
+                  class="w-full h-11 px-3 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all text-sm appearance-none cursor-pointer disabled:opacity-50">
+                  <option v-if="Object.keys(wcWriterPeriods).length === 0" value="">-- Select writer first --</option>
+                  <option v-for="(period, key) in wcWriterPeriods" :key="key" :value="key">
+                    {{ period.label }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Check button -->
+              <div class="flex items-end">
+                <button @click="fetchWordCheckData"
+                  :disabled="wcLoading || !wcSelectedWriter || !wcSelectedPeriod"
+                  class="w-full h-11 px-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+                  <Icon v-if="wcLoading" icon="line-md:loading-twotone-loop" class="h-4 w-4" />
+                  <Icon v-else icon="mdi:magnify" class="h-4 w-4" />
+                  {{ wcLoading ? 'Checking...' : 'Check Words' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Summary Stats -->
+            <div v-if="wcArticles.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/30 dark:to-indigo-800/30 rounded-2xl p-4 text-center border border-indigo-100 dark:border-indigo-700/30">
+                <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-300">{{ wcArticles.length }}</p>
+                <p class="text-xs text-indigo-500 dark:text-indigo-400 font-medium uppercase tracking-wide mt-1">Total Articles</p>
+              </div>
+              <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/30 dark:to-emerald-800/30 rounded-2xl p-4 text-center border border-emerald-100 dark:border-emerald-700/30">
+                <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-300">{{ wcGoodCount }}</p>
+                <p class="text-xs text-emerald-500 dark:text-emerald-400 font-medium uppercase tracking-wide mt-1">✅ Target Met</p>
+              </div>
+              <div class="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/30 rounded-2xl p-4 text-center border border-amber-100 dark:border-amber-700/30">
+                <p class="text-2xl font-bold text-amber-600 dark:text-amber-300">{{ wcNeedMoreCount }}</p>
+                <p class="text-xs text-amber-500 dark:text-amber-400 font-medium uppercase tracking-wide mt-1">⚠️ Need More</p>
+              </div>
+              <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-2xl p-4 text-center border border-blue-100 dark:border-blue-700/30">
+                <p class="text-2xl font-bold text-blue-600 dark:text-blue-300">{{ Math.round(wcAvgWords) }}</p>
+                <p class="text-xs text-blue-500 dark:text-blue-400 font-medium uppercase tracking-wide mt-1">Avg Words</p>
+              </div>
+            </div>
+
+            <!-- Table -->
+            <div v-if="wcArticles.length > 0" class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+              <table class="w-full text-sm text-left">
+                <thead class="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs uppercase tracking-wider">
+                  <tr>
+                    <th class="px-4 py-3">#</th>
+                    <th class="px-4 py-3">Date</th>
+                    <th class="px-4 py-3">Title</th>
+                    <th class="px-4 py-3 text-center">Word Count</th>
+                    <th class="px-4 py-3 text-center">Target</th>
+                    <th class="px-4 py-3 text-center">Status</th>
+                    <th class="px-4 py-3 text-center">Progress</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                  <tr v-for="(item, idx) in wcArticles" :key="item.id"
+                    class="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors"
+                    :class="item.wordCount >= 350 ? 'bg-emerald-50/30 dark:bg-emerald-900/10' : 'bg-white dark:bg-gray-800'">
+                    <td class="px-4 py-3 text-gray-400 text-xs">{{ idx + 1 }}</td>
+                    <td class="px-4 py-3 text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                      {{ formatDate(item.date_created) }}
+                    </td>
+                    <td class="px-4 py-3">
+                      <a :href="item.url" target="_blank"
+                        class="text-gray-900 dark:text-white font-medium hover:text-indigo-600 dark:hover:text-indigo-400 line-clamp-2 text-sm">
+                        {{ item.title || 'Untitled' }}
+                      </a>
+                    </td>
+                    <!-- Word Count -->
+                    <td class="px-4 py-3 text-center">
+                      <span class="text-lg font-bold"
+                        :class="item.wordCount >= 350 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'">
+                        {{ item.wordCount.toLocaleString() }}
+                      </span>
+                    </td>
+                    <!-- Target -->
+                    <td class="px-4 py-3 text-center">
+                      <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">350</span>
+                    </td>
+                    <!-- Status -->
+                    <td class="px-4 py-3 text-center">
+                      <span v-if="item.wordCount >= 350 && item.wordCount <= 600"
+                        class="wc-badge wc-badge-good">
+                        ✅ Good
+                      </span>
+                      <span v-else-if="item.wordCount > 600"
+                        class="wc-badge wc-badge-toolong">
+                        📝 Very Long
+                      </span>
+                      <span v-else
+                        class="wc-badge wc-badge-need">
+                        Need {{ 350 - item.wordCount }} more
+                      </span>
+                    </td>
+                    <!-- Progress bar -->
+                    <td class="px-4 py-3">
+                      <div class="flex items-center gap-2 min-w-[100px]">
+                        <div class="flex-1 bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                          <div class="h-2 rounded-full transition-all duration-500"
+                            :class="item.wordCount >= 350 ? 'bg-emerald-500' : 'bg-amber-400'"
+                            :style="`width: ${Math.min((item.wordCount / 350) * 100, 100)}%`">
+                          </div>
+                        </div>
+                        <span class="text-xs font-medium whitespace-nowrap"
+                          :class="item.wordCount >= 350 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'">
+                          {{ Math.min(Math.round((item.wordCount / 350) * 100), 100) }}%
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Empty state -->
+            <div v-else-if="!wcLoading" class="flex flex-col items-center justify-center py-16 text-gray-400 dark:text-gray-500">
+              <Icon icon="mdi:text-box-search-outline" class="h-14 w-14 mb-4 opacity-40" />
+              <p class="text-base font-medium">No data yet</p>
+              <p class="text-sm mt-1">Select a writer and KPI period, then click "Check Words"</p>
+            </div>
+
+            <!-- Loading state -->
+            <div v-if="wcLoading" class="flex flex-col items-center justify-center py-16">
+              <Icon icon="line-md:loading-twotone-loop" class="h-10 w-10 text-emerald-500 mb-3" />
+              <p class="text-sm text-gray-500 dark:text-gray-400">Fetching articles and counting words...</p>
+              <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ wcProgress }}</p>
+            </div>
+          </div>
+
+          <!-- ===== DIRECT CHECK TAB ===== -->
+          <div v-show="activeTab === 'directcheck'" class="p-6">
+            <!-- Header -->
+            <div class="flex items-center gap-3 mb-6">
+              <div class="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-violet-500 to-purple-600 rounded-xl">
+                <Icon icon="mdi:typewriter" class="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h2 class="text-lg font-bold text-gray-900 dark:text-white">Direct Check</h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Paste any text to count words instantly — Target: 350 words</p>
+              </div>
+            </div>
+
+            <!-- Live Stats Row -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
+              <!-- Word Count -->
+              <div class="bg-gradient-to-br rounded-2xl p-4 text-center border transition-all duration-300"
+                :class="dcWordCount >= 350
+                  ? 'from-emerald-50 to-emerald-100 dark:from-emerald-900/30 dark:to-emerald-800/30 border-emerald-200 dark:border-emerald-700/50'
+                  : 'from-violet-50 to-violet-100 dark:from-violet-900/30 dark:to-violet-800/30 border-violet-200 dark:border-violet-700/50'">
+                <p class="text-3xl font-bold transition-all duration-300"
+                  :class="dcWordCount >= 350 ? 'text-emerald-600 dark:text-emerald-300' : 'text-violet-600 dark:text-violet-300'">
+                  {{ dcWordCount.toLocaleString() }}
+                </p>
+                <p class="text-xs font-medium uppercase tracking-wide mt-1"
+                  :class="dcWordCount >= 350 ? 'text-emerald-500 dark:text-emerald-400' : 'text-violet-500 dark:text-violet-400'">
+                  Words
+                </p>
+              </div>
+
+              <!-- Target -->
+              <div class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-700/30 rounded-2xl p-4 text-center border border-gray-200 dark:border-gray-600">
+                <p class="text-3xl font-bold text-gray-600 dark:text-gray-300">350</p>
+                <p class="text-xs text-gray-400 dark:text-gray-400 font-medium uppercase tracking-wide mt-1">Target</p>
+              </div>
+
+              <!-- Remaining / Over -->
+              <div class="bg-gradient-to-br rounded-2xl p-4 text-center border transition-all duration-300"
+                :class="dcWordCount >= 350
+                  ? 'from-emerald-50 to-teal-100 dark:from-teal-900/30 dark:to-emerald-800/30 border-teal-200 dark:border-teal-700/50'
+                  : 'from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/30 border-amber-200 dark:border-amber-700/50'">
+                <p class="text-3xl font-bold transition-all duration-300"
+                  :class="dcWordCount >= 350 ? 'text-teal-600 dark:text-teal-300' : 'text-amber-600 dark:text-amber-300'">
+                  {{ dcWordCount >= 350 ? '+' + (dcWordCount - 350) : (350 - dcWordCount) }}
+                </p>
+                <p class="text-xs font-medium uppercase tracking-wide mt-1"
+                  :class="dcWordCount >= 350 ? 'text-teal-500 dark:text-teal-400' : 'text-amber-500 dark:text-amber-400'">
+                  {{ dcWordCount >= 350 ? 'Over target' : 'Remaining' }}
+                </p>
+              </div>
+
+              <!-- Characters -->
+              <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-2xl p-4 text-center border border-blue-200 dark:border-blue-700/50">
+                <p class="text-3xl font-bold text-blue-600 dark:text-blue-300">{{ dcCharCount.toLocaleString() }}</p>
+                <p class="text-xs text-blue-500 dark:text-blue-400 font-medium uppercase tracking-wide mt-1">Characters</p>
+              </div>
+            </div>
+
+            <!-- Progress bar + Status badge -->
+            <div class="mb-5 p-4 rounded-2xl border transition-all duration-300"
+              :class="dcWordCount >= 350
+                ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700/40'
+                : dcWordCount > 0
+                  ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-700/40'
+                  : 'bg-gray-50 dark:bg-gray-700/30 border-gray-200 dark:border-gray-600'">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-semibold"
+                  :class="dcWordCount >= 350 ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-700 dark:text-amber-300'">
+                  {{ dcWordCount === 0 ? 'Paste your text below to start counting' :
+                     dcWordCount >= 350 ? '✅ Target Reached!' :
+                     `⚠️ Need ${350 - dcWordCount} more words` }}
+                </span>
+                <span class="text-sm font-bold"
+                  :class="dcWordCount >= 350 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'">
+                  {{ Math.min(Math.round((dcWordCount / 350) * 100), 100) }}%
+                </span>
+              </div>
+              <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
+                <div class="h-3 rounded-full transition-all duration-500 ease-out"
+                  :class="dcWordCount >= 350 ? 'bg-gradient-to-r from-emerald-400 to-teal-500' : dcWordCount > 0 ? 'bg-gradient-to-r from-amber-400 to-orange-400' : 'bg-gray-300 dark:bg-gray-600'"
+                  :style="`width: ${Math.min((dcWordCount / 350) * 100, 100)}%`">
+                </div>
+              </div>
+            </div>
+
+            <!-- Textarea + Clear button -->
+            <div class="relative">
+              <textarea
+                v-model="dcText"
+                rows="12"
+                class="w-full px-4 py-3 bg-white dark:bg-gray-900 border-2 rounded-2xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-4 transition-all duration-200 resize-none text-sm leading-relaxed"
+                :class="dcWordCount >= 350
+                  ? 'border-emerald-300 dark:border-emerald-700 focus:border-emerald-500 focus:ring-emerald-500/20'
+                  : 'border-gray-200 dark:border-gray-700 focus:border-violet-500 focus:ring-violet-500/20'"
+                placeholder="Paste or type your Khmer / English article here..."
+              />
+              <!-- Clear button -->
+              <button v-if="dcText.length > 0"
+                @click="dcText = ''"
+                class="absolute top-3 right-3 px-3 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400 rounded-lg transition-all duration-200">
+                ✕ Clear
+              </button>
+            </div>
+
+            <!-- Helper note -->
+            <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">
+              Supports Khmer (ភាសាខ្មែរ) and English. Word count updates live as you type.
+            </p>
+          </div>
+
         </div>
       </div>
     </div>
@@ -1084,6 +1442,27 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
+
+// ===== Word Count Utility (Intl.Segmenter) =====
+function countWords(text: string): number {
+  const cleanText = text
+    .replace(/<[^>]*>/g, ' ')             // strip HTML tags
+    .replace(/&[a-z]+;/gi, ' ')           // strip HTML entities
+    .replace(/[\u200B-\u200D\uFEFF]/g, '') // strip zero-width chars
+    .replace(/\n/g, ' ')                   // newlines → space
+    .trim();
+
+  if (!cleanText) return 0;
+
+  // Split by whitespace, then only count tokens that contain at least one
+  // letter or digit (Unicode-aware). This skips punctuation-only tokens
+  // like ¶ | — ។ which Word doesn't count — matching MS Word behavior.
+  return cleanText
+    .split(/\s+/)
+    .filter(s => /[\p{L}\p{N}]/u.test(s))
+    .length;
+}
+
 import Swal from 'sweetalert2';
 import { useAuthStore } from '~/store/useAuthStore';
 import type { IResponse } from '~/types/api';
@@ -1115,6 +1494,7 @@ const article_link = ref('');
 const article_title = ref('');
 const article_view = ref(0);
 const article_date = ref('');
+const article_word_count = ref<number | null>(null); // word count after fetch
 // Writers and staff data
 const creators = ref<IWriter[]>([]);
 const staffMembers = ref<Record<string, string>>({});
@@ -1151,6 +1531,7 @@ const fetchArticleData = async () => {
     let slug;
     let selectedApi;
     let apiPath = '/items/articles'; // default path
+    let bodyField = 'body'; // field name for article body content
 
     try {
       const url = new URL(article_link.value);
@@ -1161,12 +1542,15 @@ const fetchArticleData = async () => {
       if (url.hostname.includes('tech-cambodia.com')) {
         selectedApi = techCambodiaApi;
         apiPath = '/items/articles';
+        bodyField = 'body';
       } else if (url.hostname.includes('business-cambodia.com')) {
         selectedApi = businessCambodiaApi;
         apiPath = '/items/articles';
+        bodyField = 'body';
       } else if (url.hostname.includes('healthy-cambodia.com')) {
         selectedApi = healthyCambodiaApi;
         apiPath = '/items/article'; // Note: singular for healthy-cambodia
+        bodyField = 'description';
       } else {
         Swal.fire({
           title: 'Unsupported Domain',
@@ -1195,7 +1579,9 @@ const fetchArticleData = async () => {
           slug: {
             _eq: slug
           }
-        })
+        }),
+        // Also fetch body/description field for word count
+        fields: `title,views,date_created,${bodyField}`
       }
     });
 
@@ -1212,6 +1598,10 @@ const fetchArticleData = async () => {
     article_title.value = articleData.title || '';
     article_view.value = articleData.views || 0;
     article_date.value = articleData.date_created || '';
+
+    // Count words from the body/description
+    const bodyText: string = articleData.body || articleData.description || '';
+    article_word_count.value = countWords(bodyText);
 
     Swal.fire({
       toast: true,
@@ -1359,6 +1749,7 @@ const addArticleData = async () => {
     article_title.value = '';
     article_date.value = '';
     article_view.value = 0;
+    article_word_count.value = null;
 
     // Refresh creator data
     await fetchCreators();
@@ -2318,6 +2709,202 @@ const deleteArticle = async (articleId: number) => {
 // Add these reactive variables after your existing refs
 const importMode = ref('single'); // 'single' or 'bulk'
 
+// ===== Tab state =====
+const activeTab = ref<'performance' | 'checkwords' | 'directcheck'>('performance');
+
+// ===== Direct Check state =====
+const dcText = ref('');
+const dcWordCount = computed(() => countWords(dcText.value));
+const dcCharCount = computed(() => dcText.value.replace(/\s/g, '').length);
+
+
+// ===== Check Words state =====
+const wcSelectedWriter = ref('');
+const wcSelectedPeriod = ref('');
+const wcLoading = ref(false);
+const wcProgress = ref('');
+const wcArticles = ref<{ id: number; title: string; date_created: string; url: string; wordCount: number }[]>([]);
+
+const wcGoodCount = computed(() => wcArticles.value.filter(a => a.wordCount >= 350).length);
+const wcNeedMoreCount = computed(() => wcArticles.value.filter(a => a.wordCount < 350).length);
+const wcAvgWords = computed(() => {
+  if (!wcArticles.value.length) return 0;
+  return wcArticles.value.reduce((s, a) => s + a.wordCount, 0) / wcArticles.value.length;
+});
+
+// KPI periods for the selected writer in Check Words tab
+const wcWriterPeriods = computed(() => {
+  if (!wcSelectedWriter.value) return {};
+  const writer = creatorsList.value.find(c => String(c.id) === String(wcSelectedWriter.value));
+  if (!writer) return {};
+  const remarks = (writer.remarks || []).map(r => ({
+    ...r,
+    date_created: typeof r.date_created === 'string' ? r.date_created : r.date_created?.toISOString?.() || ''
+  }));
+  return getKpiPeriodsFromArticles(remarks);
+});
+
+// Auto-select latest period when writer changes
+watch(wcSelectedWriter, () => {
+  wcArticles.value = [];
+  wcSelectedPeriod.value = '';
+  const periods = wcWriterPeriods.value;
+  const sortedKeys = Object.keys(periods).sort((a, b) =>
+    new Date(periods[b].from).getTime() - new Date(periods[a].from).getTime()
+  );
+  if (sortedKeys.length > 0) {
+    wcSelectedPeriod.value = sortedKeys[0];
+  }
+});
+
+// Site config map (still used for fetching body by domain)
+const wcSiteConfig = {
+  tech: {
+    api: () => techCambodiaApi,
+    basePath: '/items/articles',
+    bodyField: 'body'
+  },
+  business: {
+    api: () => businessCambodiaApi,
+    basePath: '/items/articles',
+    bodyField: 'body'
+  },
+  healthy: {
+    api: () => healthyCambodiaApi,
+    basePath: '/items/article',
+    bodyField: 'description'
+  }
+};
+
+// Detect which site config to use based on article_link domain
+const getSiteConfigForUrl = (articleLink: string) => {
+  try {
+    const u = new URL(articleLink);
+    if (u.hostname.includes('tech-cambodia.com')) return wcSiteConfig.tech;
+    if (u.hostname.includes('business-cambodia.com')) return wcSiteConfig.business;
+    if (u.hostname.includes('healthy-cambodia.com')) return wcSiteConfig.healthy;
+  } catch {}
+  return null;
+};
+
+const fetchWordCheckData = async () => {
+  if (!wcSelectedWriter.value || !wcSelectedPeriod.value) return;
+
+  const writer = creatorsList.value.find(c => String(c.id) === String(wcSelectedWriter.value));
+  if (!writer) return;
+
+  // ✅ Filter writer's remarks by the selected KPI period
+  const period = wcWriterPeriods.value[wcSelectedPeriod.value];
+  if (!period) return;
+
+  const { from, to } = period;
+  const periodRemarks = (writer.remarks || []).filter(r => {
+    if (!r.article_link) return false;
+    const date = new Date(r.date_created);
+    return date >= from && date < to;
+  });
+
+  if (periodRemarks.length === 0) {
+    Swal.fire({
+      icon: 'info',
+      title: 'No Articles in This Period',
+      text: 'This writer has no articles in the selected KPI period.'
+    });
+    return;
+  }
+
+  wcLoading.value = true;
+  wcProgress.value = `Checking ${periodRemarks.length} articles in period...`;
+  wcArticles.value = [];
+
+  try {
+    const results: { id: number; title: string; date_created: string; url: string; wordCount: number }[] = [];
+
+    for (let i = 0; i < periodRemarks.length; i++) {
+      const remark = periodRemarks[i];
+      wcProgress.value = `Fetching body (${i + 1}/${periodRemarks.length}): ${remark.title || '...'}`;
+
+      try {
+        // Auto-detect which CMS to call based on the article_link domain
+        const siteConfig = getSiteConfigForUrl(remark.article_link);
+
+        if (!siteConfig) {
+          // Unknown domain — just record with 0 words
+          results.push({
+            id: remark.id,
+            title: remark.title || 'Untitled',
+            date_created: remark.date_created || '',
+            url: remark.article_link,
+            wordCount: 0
+          });
+          continue;
+        }
+
+        // Extract slug from the stored article_link
+        const u = new URL(remark.article_link);
+        const pathParts = u.pathname.split('/');
+        const slug = pathParts[pathParts.length - 1];
+
+        if (!slug) {
+          results.push({
+            id: remark.id,
+            title: remark.title || 'Untitled',
+            date_created: remark.date_created || '',
+            url: remark.article_link,
+            wordCount: 0
+          });
+          continue;
+        }
+
+        // Fetch the body/description from the correct CMS
+        const res = await siteConfig.api().get(siteConfig.basePath, {
+          params: {
+            filter: JSON.stringify({ slug: { _eq: slug } }),
+            fields: `title,date_created,${siteConfig.bodyField}`
+          }
+        });
+
+        const articleData = res.data?.data?.[0];
+        const bodyText: string = articleData?.[siteConfig.bodyField] || '';
+        const wordCount = countWords(bodyText);
+
+        results.push({
+          id: remark.id,
+          title: remark.title || articleData?.title || 'Untitled',
+          date_created: remark.date_created || '',
+          url: remark.article_link,
+          wordCount
+        });
+
+      } catch (err) {
+        results.push({
+          id: remark.id,
+          title: remark.title || 'Untitled',
+          date_created: remark.date_created || '',
+          url: remark.article_link,
+          wordCount: 0
+        });
+      }
+    }
+
+    // Sort by date descending
+    results.sort((a, b) => new Date(b.date_created).getTime() - new Date(a.date_created).getTime());
+    wcArticles.value = results;
+    wcProgress.value = '';
+
+  } catch (err) {
+    console.error('Word check error:', err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Failed to check word counts. Please try again.'
+    });
+  } finally {
+    wcLoading.value = false;
+    wcProgress.value = '';
+  }
+};
+
 // Add these functions to your script section
 
 // Toggle between single article and bulk import modes
@@ -2748,6 +3335,42 @@ onMounted(async () => {
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer&display=swap');
+
+/* Word Count badges */
+.wc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.wc-badge-good {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+.dark .wc-badge-good {
+  background-color: rgba(6, 95, 70, 0.3);
+  color: #6ee7b7;
+}
+.wc-badge-need {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+.dark .wc-badge-need {
+  background-color: rgba(146, 64, 14, 0.3);
+  color: #fcd34d;
+}
+.wc-badge-toolong {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+.dark .wc-badge-toolong {
+  background-color: rgba(30, 64, 175, 0.3);
+  color: #93c5fd;
+}
 
 .khmer-font {
   font-family: 'Noto Sans Khmer', sans-serif;
