@@ -1072,7 +1072,7 @@ const isSubmitting = ref(false);
 const submitSuccess = ref(false);
 const submitError = ref<string | null>(null);
 
-const FORM_API_BASE = 'http://localhost:4000';
+const FORM_API_BASE = useRuntimeConfig().public.FORM_API_BASE_URL || 'http://localhost:4000';
 
 const handleSubmit = async () => {
   if (isSubmitting.value) return;

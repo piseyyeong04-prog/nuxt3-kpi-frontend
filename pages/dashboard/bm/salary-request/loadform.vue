@@ -504,7 +504,7 @@ const { locale } = useI18n();
 const auth = useAuthStore();
 const route = useRoute();
 
-const FORM_API_BASE = 'http://localhost:4000';
+const FORM_API_BASE = useRuntimeConfig().public.FORM_API_BASE_URL || 'http://localhost:4000';
 
 // ── Loading state ──────────────────────────────────────────────────
 const loading = ref(true);
