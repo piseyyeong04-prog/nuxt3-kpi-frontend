@@ -407,7 +407,7 @@ import { useImg } from '~/composables/useImg';
 const { locale } = useI18n();
 const auth = useAuthStore();
 
-const FORM_API_BASE = 'http://localhost:4000';
+const FORM_API_BASE = useRuntimeConfig().public.FORM_API_BASE_URL || 'http://localhost:4000';
 
 // ── Form State ─────────────────────────────────────────────────────────────
 const form = reactive({
