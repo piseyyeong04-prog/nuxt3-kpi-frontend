@@ -239,7 +239,7 @@
                           <div class="flex items-center gap-2">
                             <Icon v-if="sub.icon" :icon="sub.icon" class="text-base flex-shrink-0"
                               :class="getIconColorClass(sub.icon)" />
-                            <span class="text-left">{{ sub.label[locale as 'en' | 'km'] }}</span>
+                            <span class="text-left">{{ sub.label }}</span>
                           </div>
                           <Icon :icon="openNestedSubmenus[sub.to] ? 'mdi:chevron-up' : 'mdi:chevron-down'"
                             class="text-xs transition-transform flex-shrink-0" />
@@ -257,7 +257,7 @@
                               ]">
                                 <Icon v-if="nested.icon" :icon="nested.icon" class="text-sm flex-shrink-0"
                                   :class="getIconColorClass(nested.icon)" />
-                                <span>{{ nested.label[locale as 'en' | 'km'] }}</span>
+                                <span>{{ nested.label }}</span>
                               </NuxtLink>
                             </li>
                           </ul>
@@ -273,7 +273,7 @@
                       ]">
                         <Icon v-if="sub.icon" :icon="sub.icon" class="text-base flex-shrink-0"
                           :class="getIconColorClass(sub.icon)" />
-                        <span>{{ sub.label[locale as 'en' | 'km'] }}</span>
+                        <span>{{ sub.label }}</span>
                       </NuxtLink>
                     </li>
                   </ul>
@@ -340,7 +340,6 @@ import { useAuthStore } from '~/store/useAuthStore'
 import { useRouter, useRoute } from 'vue-router'
 import { usePermissions } from '~/composables/usePermissions'
 import type { IResponse } from '~/types/api'
-import type { INotification } from '~/types/notification'
 
 const { isSale, isAdmin, isHr, isCreator, isWriter, isEditor } = usePermissions()
 const auth = useAuthStore()
@@ -647,6 +646,44 @@ const menuItems: MenuItem[] = [
     ]
   },
   {
+    to: '/dashboard/engagement',
+    icon: 'mdi:chart-line',
+    label: { en: 'Engagement', km: 'ការចូលរួម' }
+  },
+  // Video
+  {
+    to: '#video',
+    icon: 'mdi:video-account',
+    label: { en: 'Video', km: 'វីដេអូ' },
+    role: ['admin', 'sales', 'creator', 'writer', 'editor'],
+    hasSubmenu: true,
+    submenu: [
+      {
+        to: '#evaluate',
+        icon: 'mdi:clipboard-check-outline',
+        label: { en: 'Evaluate', km: 'វាយតម្លៃ' },
+        hasNestedSubmenu: true,
+        nestedSubmenu: [
+          {
+            to: '/dashboard/video/evaluate/technology-cambodia',  
+            icon: 'mdi:laptop',
+            label: { en: 'Technology Cambodia', km: 'បច្ចេកវិទ្យាកម្ពុជា' }
+          },
+          {
+            to: '/dashboard/video/evaluate/healthy-cambodia',
+            icon: 'mdi:heart-pulse',
+            label: { en: 'Healthy Cambodia', km: 'សុខភាពកម្ពុជា' }
+          },
+          {
+            to: '/dashboard/video/evaluate/business-cambodia',
+            icon: 'mdi:briefcase',
+            label: { en: 'Business Cambodia', km: 'ធុរកិច្ចកម្ពុជា' }
+          }
+        ]
+      }
+    ]
+  },
+  {
     to: '/dashboard/ads',
     icon: 'hugeicons:advertisement',
     label: { en: 'Ads', km: 'ការផ្សាយពាណិជ្ជកម្ម' },
@@ -720,6 +757,9 @@ const getIconColorClass = (icon: string): string => {
   if (['mdi:account-circle', 'mdi:history'].includes(icon)) {
     return 'text-purple-500 dark:text-purple-400'
   }
+  if (['mdi:chart-line'].includes(icon)) {
+    return 'text-indigo-500 dark:text-indigo-400'
+  }
   if (['mdi:cog'].includes(icon)) {
     return 'text-gray-500 dark:text-gray-400'
   }
@@ -750,7 +790,15 @@ const localizedMenuItems = computed(() =>
     })
     .map(item => ({
       ...item,
-      label: item.label[locale.value as LocaleKey]
+      label: item.label[locale.value as LocaleKey],
+      submenu: item.submenu?.map(sub => ({
+        ...sub,
+        label: sub.label[locale.value as LocaleKey],
+        nestedSubmenu: sub.nestedSubmenu?.map(nested => ({
+          ...nested,
+          label: nested.label[locale.value as LocaleKey]
+        }))
+      }))
     }))
 )
 
