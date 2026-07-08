@@ -680,6 +680,11 @@ const menuItems: MenuItem[] = [
             label: { en: 'Business Cambodia', km: 'ធុរកិច្ចកម្ពុជា' }
           }
         ]
+      },
+      {
+        to: '/dashboard/video/training',
+        icon: 'mdi:school-outline',
+        label: { en: 'Staff Training', km: 'បណ្តុះបណ្តាល' }
       }
     ]
   },
