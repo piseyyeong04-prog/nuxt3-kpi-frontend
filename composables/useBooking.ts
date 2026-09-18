@@ -8,7 +8,16 @@ export const useBooking = () => {
         data: bookingData
       });
       return response;
-    } catch (error) {
+    } catch (error: any) {
+      if (bookingData.room && (error?.response?.data?.errors?.[0]?.message?.includes('room') || error?.response?.status === 400)) {
+        console.warn('Directus booking_room may lack "room" column, retrying without room field:', error);
+        const { room, ...fallbackData } = bookingData;
+        const response = await useApi<Booking>('/items/booking_room', {
+          method: 'POST',
+          data: fallbackData
+        });
+        return response;
+      }
       throw error;
     }
   };
@@ -35,7 +44,16 @@ export const useBooking = () => {
         data: bookingData
       });
       return response;
-    } catch (error) {
+    } catch (error: any) {
+      if (bookingData.room && (error?.response?.data?.errors?.[0]?.message?.includes('room') || error?.response?.status === 400)) {
+        console.warn('Directus booking_room may lack "room" column, retrying update without room field:', error);
+        const { room, ...fallbackData } = bookingData;
+        const response = await useApi<Booking>(`/items/booking_room/${id}`, {
+          method: 'PATCH',
+          data: fallbackData
+        });
+        return response;
+      }
       throw error;
     }
   };
