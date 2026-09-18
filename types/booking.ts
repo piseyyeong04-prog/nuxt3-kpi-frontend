@@ -6,6 +6,7 @@ export interface Booking {
   start: string;
   end: string;
   purpose: string;
+  room?: string;
   status: string;
   date_created?: string;
   updated_at?: string;
@@ -18,4 +19,5 @@ export interface ParsedBookingData {
   date_created: string;
   start_time: string;
   end_time: string;
+  room?: string;
 }

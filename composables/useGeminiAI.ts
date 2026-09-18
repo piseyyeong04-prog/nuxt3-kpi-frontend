@@ -15,7 +15,7 @@ export const useGeminiAI = () => {
         body: {
           contents: [{
             parts: [{
-              text: `Extract date, start time, end time, and purpose from this sentence. Respond only in raw JSON (no markdown). Use format: {\"date\":\"2025-06-05\", \"start_time\":\"17:00\", \"end_time\":\"19:00\", \"purpose\":\"team meeting\"}. Sentence: ${text}`
+              text: `Extract date, start time, end time, room ("Large Room" or "Small Room", default to "Large Room" if not mentioned), and purpose from this sentence. If "morning" is mentioned without specific hours, use start_time: "08:00" and end_time: "12:00". If "afternoon" is mentioned without specific hours, use start_time: "13:00" and end_time: "17:00". If "full day" is mentioned, use start_time: "08:00" and end_time: "17:00". Respond only in raw JSON (no markdown). Use format: {\"date\":\"2025-06-05\", \"start_time\":\"17:00\", \"end_time\":\"19:00\", \"room\":\"Large Room\", \"purpose\":\"team meeting\"}. Sentence: ${text}`
             }]
           }]
         }

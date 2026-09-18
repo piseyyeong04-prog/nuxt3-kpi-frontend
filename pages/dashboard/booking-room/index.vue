@@ -1,90 +1,91 @@
+<!-- pages/dashboard/booking-room/rooms.vue -->
 <template>
   <div class="min-h-screen ">
-      <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-        <!-- Calendar View -->
-        <div class="p-6">
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-            <div class="flex items-center space-x-3">
-              <div class="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg shadow-blue-500/25">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div>
-                <h2
-                  class="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                  Room Bookings Calendar
-                </h2>
-              </div>
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+      <!-- Calendar View -->
+      <div class="p-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div class="flex items-center space-x-3">
+            <div class="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg shadow-blue-500/25">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
             </div>
-            <div class="flex items-center space-x-2">
-              <!-- View Toggle Buttons -->
-              <div class="inline-flex bg-slate-100 rounded-xl p-1 shadow-inner">
+            <div>
+              <h2 class="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                Room Bookings Calendar
+              </h2>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2">
+            <!-- View Toggle Buttons -->
+            <div class="inline-flex bg-slate-100 rounded-xl p-1 shadow-inner">
 
-                <button @click="changeView('dayGridMonth')" :class="currentView === 'dayGridMonth'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-800'"
-                  class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ease-out">
-                  <span class="flex items-center space-x-1.5">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <span>Month</span>
-                  </span>
-                </button>
-
-                <button @click="changeView('dayGridWeek')" :class="currentView === 'dayGridWeek'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-800'"
-                  class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ease-out">
-                  <span class="flex items-center space-x-1.5">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
-                    <span>Week</span>
-                  </span>
-                </button>
-              </div>
-
-              <!-- Refresh Button -->
-              <button @click="loadBookings" class="group relative bg-white hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 
-               border border-slate-200 hover:border-emerald-300 text-slate-700 hover:text-emerald-700 
-               font-medium px-4 py-2 rounded-xl shadow-sm hover:shadow-md 
-               transition-all duration-200 ease-out transform hover:scale-105">
-                <span class="flex items-center space-x-2">
-                  <svg class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
+              <button @click="changeView('dayGridMonth')" :class="currentView === 'dayGridMonth'
+                ? 'bg-white text-blue-600 shadow-sm'
+                : 'text-slate-600 hover:text-slate-800'"
+                class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ease-out">
+                <span class="flex items-center space-x-1.5">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  <span>Refresh</span>
+                  <span>Month</span>
+                </span>
+              </button>
+
+              <button @click="changeView('dayGridWeek')" :class="currentView === 'dayGridWeek'
+                ? 'bg-white text-blue-600 shadow-sm'
+                : 'text-slate-600 hover:text-slate-800'"
+                class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ease-out">
+                <span class="flex items-center space-x-1.5">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  <span>Week</span>
                 </span>
               </button>
             </div>
-          </div>
 
-          <!-- Loading State -->
-          <div v-if="loading" class="flex items-center justify-center py-16">
-            <div class="text-center">
-              <div class="relative">
-                <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto">
-                </div>
-                <div
-                  class="absolute inset-0 w-12 h-12 border-4 border-transparent border-r-blue-400 rounded-full animate-spin mx-auto"
-                  style="animation-delay: -0.15s; animation-duration: 1s;"></div>
+            <!-- Refresh Button -->
+            <button @click="loadBookings" class="group relative bg-white hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 
+               border border-slate-200 hover:border-emerald-300 text-slate-700 hover:text-emerald-700 
+               font-medium px-4 py-2 rounded-xl shadow-sm hover:shadow-md 
+               transition-all duration-200 ease-out transform hover:scale-105">
+              <span class="flex items-center space-x-2">
+                <svg class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" fill="none"
+                  stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span>Refresh</span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div v-if="loading" class="flex items-center justify-center py-16">
+          <div class="text-center">
+            <div class="relative">
+              <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto">
               </div>
-              <p class="text-slate-600 font-medium mt-4">Loading bookings...</p>
-              <p class="text-slate-400 text-sm mt-1">Please wait while we fetch your calendar data</p>
+              <div
+                class="absolute inset-0 w-12 h-12 border-4 border-transparent border-r-blue-400 rounded-full animate-spin mx-auto"
+                style="animation-delay: -0.15s; animation-duration: 1s;"></div>
             </div>
+            <p class="text-slate-600 font-medium mt-4">Loading bookings...</p>
+            <p class="text-slate-400 text-sm mt-1">Please wait while we fetch your calendar data</p>
           </div>
+        </div>
 
-          <div v-else class="calendar-container">
-            <div class="py-2 flex items-center gap-x-2 mb-4">
+        <div v-else class="calendar-container">
+          <div class="py-2 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+            <div class="flex items-center gap-x-2">
               <button @click="showManualModal = true"
-                class=" sm:w-auto px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl font-medium shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-200 flex-shrink-0">
+                class="sm:w-auto px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl font-medium shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-200 flex-shrink-0">
                 <span class="flex items-center justify-center sm:justify-start space-x-2">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -92,148 +93,193 @@
                   <span>Book Manual</span>
                 </span>
               </button>
-              <button @click="showBookingDialog = true" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Open AI Booking
-                Modal</button>
+              <button @click="showBookingDialog = true" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors duration-200">
+                Open AI Booking Modal
+              </button>
             </div>
-            <FullCalendar ref="fullCalendar" :options="calendarOptions" />
+
+            <!-- Room Filter Tabs -->
+            <div class="inline-flex flex-wrap bg-slate-100 rounded-xl p-1 shadow-inner self-start md:self-auto gap-1">
+              <button @click="selectedRoomFilter = 'all'" :class="selectedRoomFilter === 'all'
+                ? 'bg-white text-blue-600 shadow-sm font-semibold'
+                : 'text-slate-600 hover:text-slate-800 font-medium'"
+                class="px-3.5 py-1.5 rounded-lg text-sm transition-all duration-200">
+                All Rooms
+              </button>
+              <button @click="selectedRoomFilter = 'Large Room'" :class="selectedRoomFilter === 'Large Room'
+                ? 'bg-white text-emerald-600 shadow-sm font-semibold'
+                : 'text-slate-600 hover:text-slate-800 font-medium'"
+                class="px-3.5 py-1.5 rounded-lg text-sm transition-all duration-200 flex items-center space-x-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <span>Large Room</span>
+              </button>
+              <button @click="selectedRoomFilter = 'Small Room'" :class="selectedRoomFilter === 'Small Room'
+                ? 'bg-white text-indigo-600 shadow-sm font-semibold'
+                : 'text-slate-600 hover:text-slate-800 font-medium'"
+                class="px-3.5 py-1.5 rounded-lg text-sm transition-all duration-200 flex items-center space-x-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+                <span>Small Room</span>
+              </button>
+            </div>
           </div>
+          <FullCalendar ref="fullCalendar" :options="calendarOptions" />
         </div>
       </div>
-      <!-- Event Details Modal -->
-      <div v-if="selectedEvent" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4" data-aos="fade-down">
-          <div class="flex justify-between items-start mb-4">
-            <h3 class="text-lg font-semibold text-gray-900">Booking Details</h3>
-            <button @click="selectedEvent = null" class="text-gray-400 hover:text-gray-600">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
-          </div>
+    </div>
+    <!-- Event Details Modal -->
+    <div v-if="selectedEvent" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4" data-aos="fade-down">
+        <div class="flex justify-between items-start mb-4">
+          <h3 class="text-lg font-semibold text-gray-900">Booking Details</h3>
+          <button @click="selectedEvent = null" class="text-gray-400 hover:text-gray-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
 
-          <div class="space-y-6">
-            <!-- User Created Info -->
-            <div
-              v-if="selectedEvent.extendedProps.booking.user_created && typeof selectedEvent.extendedProps.booking.user_created === 'object'"
-              class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
-              <div class="flex items-center space-x-3">
-                <div
-                  class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
-                  <!-- <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="space-y-6">
+          <!-- User Created Info -->
+          <div
+            v-if="selectedEvent.extendedProps.booking.user_created && typeof selectedEvent.extendedProps.booking.user_created === 'object'"
+            class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+            <div class="flex items-center space-x-3">
+              <div
+                class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                <!-- <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                   </svg> -->
-                  <img v-if="selectedEvent.extendedProps.booking.user_created.avatar"
-                    :src="useImg(selectedEvent.extendedProps.booking.user_created.avatar)" alt="User Avatar"
-                    class="w-8 h-8 rounded-full object-cover">
-                </div>
-                <div>
-                  <p class="font-semibold text-gray-900 leading-tight">
-                    {{ selectedEvent.extendedProps.booking.user_created.first_name }}
-                    {{ selectedEvent.extendedProps.booking.user_created.last_name }}
-                  </p>
-                  <p v-if="selectedEvent.extendedProps.booking.user_created.department?.title"
-                    class="text-sm text-blue-600 font-medium">
-                    {{ selectedEvent.extendedProps.booking.user_created.department.title }}
-                  </p>
-                </div>
+                <img v-if="selectedEvent.extendedProps.booking.user_created.avatar"
+                  :src="useImg(selectedEvent.extendedProps.booking.user_created.avatar)" alt="User Avatar"
+                  class="w-8 h-8 rounded-full object-cover">
+              </div>
+              <div>
+                <p class="font-semibold text-gray-900 leading-tight">
+                  {{ selectedEvent.extendedProps.booking.user_created.first_name }}
+                  {{ selectedEvent.extendedProps.booking.user_created.last_name }}
+                </p>
+                <p v-if="selectedEvent.extendedProps.booking.user_created.department?.title"
+                  class="text-sm text-blue-600 font-medium">
+                  {{ selectedEvent.extendedProps.booking.user_created.department.title }}
+                </p>
               </div>
             </div>
+          </div>
 
-            <!-- Booking Purpose -->
-            <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
-              <div class="flex items-start space-x-3">
-                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <!-- Booking Purpose -->
+          <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+            <div class="flex items-start space-x-3">
+              <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                  </path>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <h4 class="text-sm font-medium text-gray-700 mb-1">Purpose</h4>
+                <p class="text-gray-900 font-medium leading-relaxed">{{ selectedEvent.title }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Date & Time Grid -->
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Booking Date -->
+            <div class="bg-orange-50 rounded-xl p-4 border border-orange-100">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
                     </path>
                   </svg>
                 </div>
-                <div class="flex-1">
-                  <h4 class="text-sm font-medium text-gray-700 mb-1">Purpose</h4>
-                  <p class="text-gray-900 font-medium leading-relaxed">{{ selectedEvent.title }}</p>
+                <div>
+                  <h4 class="text-xs font-medium text-orange-700 uppercase tracking-wide">Date</h4>
+                  <p class="text-sm font-semibold text-gray-900 mt-0.5">
+                    {{ formatDate(selectedEvent.extendedProps.booking.date) }}
+                  </p>
                 </div>
               </div>
             </div>
 
-            <!-- Date & Time Grid -->
-            <div class="grid grid-cols-2 gap-4">
-              <!-- Booking Date -->
-              <div class="bg-orange-50 rounded-xl p-4 border border-orange-100">
-                <div class="flex items-center space-x-3">
-                  <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                      </path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="text-xs font-medium text-orange-700 uppercase tracking-wide">Date</h4>
-                    <p class="text-sm font-semibold text-gray-900 mt-0.5">
-                      {{ formatDate(selectedEvent.extendedProps.booking.date) }}
-                    </p>
-                  </div>
+            <!-- Booking Time -->
+            <div class="bg-purple-50 rounded-xl p-4 border border-purple-100">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="text-xs font-medium text-purple-700 uppercase tracking-wide">Time</h4>
+                  <p class="text-sm font-semibold text-gray-900 mt-0.5">
+                    {{ selectedEvent.extendedProps.booking.start }} - {{ selectedEvent.extendedProps.booking.end }}
+                  </p>
                 </div>
               </div>
+            </div>
+          </div>
 
-              <!-- Booking Time -->
-              <div class="bg-purple-50 rounded-xl p-4 border border-purple-100">
-                <div class="flex items-center space-x-3">
-                  <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="text-xs font-medium text-purple-700 uppercase tracking-wide">Time</h4>
-                    <p class="text-sm font-semibold text-gray-900 mt-0.5">
-                      {{ selectedEvent.extendedProps.booking.start }} - {{ selectedEvent.extendedProps.booking.end }}
-                    </p>
-                  </div>
+          <!-- Room & Status Grid -->
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Room Info -->
+            <div :class="selectedEvent.extendedProps.booking.room === 'Small Room' ? 'bg-indigo-50 border-indigo-100' : 'bg-emerald-50 border-emerald-100'" class="rounded-xl p-4 border">
+              <div class="flex items-center space-x-3">
+                <div :class="selectedEvent.extendedProps.booking.room === 'Small Room' ? 'bg-indigo-100 text-indigo-600' : 'bg-emerald-100 text-emerald-600'" class="w-8 h-8 rounded-lg flex items-center justify-center">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 :class="selectedEvent.extendedProps.booking.room === 'Small Room' ? 'text-indigo-700' : 'text-emerald-700'" class="text-xs font-medium uppercase tracking-wide">Room</h4>
+                  <p class="text-sm font-semibold text-gray-900 mt-0.5">
+                    {{ selectedEvent.extendedProps.booking.room || 'Large Room' }}
+                  </p>
                 </div>
               </div>
             </div>
 
             <!-- Booking Status -->
-            <div class="bg-white rounded-xl p-4 border-2 border-gray-100 shadow-sm">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                  <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                  </div>
-                  <h4 class="text-sm font-medium text-gray-700">Status</h4>
+            <div class="bg-white rounded-xl p-4 border-2 border-gray-100 shadow-sm flex flex-col justify-between">
+              <div class="flex items-center space-x-2">
+                <div class="w-6 h-6 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <svg class="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
                 </div>
-                <span :class="getEnhancedStatusClass(selectedEvent.extendedProps.booking.status)">
-                  <span class="flex items-center space-x-1">
-                    <span class="w-2 h-2 rounded-full"
-                      :class="getStatusDotClass(selectedEvent.extendedProps.booking.status)"></span>
-                    <span class="capitalize font-medium">{{ selectedEvent.extendedProps.booking.status }}</span>
-                  </span>
-                </span>
+                <h4 class="text-xs font-medium text-gray-700 uppercase tracking-wide">Status</h4>
               </div>
+              <span :class="getEnhancedStatusClass(selectedEvent.extendedProps.booking.status)" class="mt-2 text-center text-xs py-1">
+                <span class="flex items-center justify-center space-x-1">
+                  <span class="w-2 h-2 rounded-full"
+                    :class="getStatusDotClass(selectedEvent.extendedProps.booking.status)"></span>
+                  <span class="capitalize font-medium">{{ selectedEvent.extendedProps.booking.status }}</span>
+                </span>
+              </span>
             </div>
           </div>
+        </div>
 
 
-          <div class="flex space-x-3 mt-6">
-            <button @click="editBookingFromEvent(selectedEvent.extendedProps.booking)"
-              class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
-              Edit Booking
-            </button>
-            <button @click="confirmDeleteBookingFromEvent(selectedEvent.extendedProps.booking)"
-              class="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
-              Delete Booking
-            </button>
-          </div>
+        <div class="flex space-x-3 mt-6">
+          <button @click="editBookingFromEvent(selectedEvent.extendedProps.booking)"
+            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+            Edit Booking
+          </button>
+          <button @click="confirmDeleteBookingFromEvent(selectedEvent.extendedProps.booking)"
+            class="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+            Delete Booking
+          </button>
         </div>
       </div>
     </div>
+  </div>
 
   <!-- Manual Booking Modal -->
   <div v-if="showManualModal"
@@ -249,25 +295,46 @@
       </div>
 
       <form @submit.prevent="handleManualBooking" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
+        <div>
+          <label for="modal-room" class="block text-sm font-medium text-gray-700 mb-1">Room</label>
+          <select id="modal-room" v-model="manualBooking.room" required
+            class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <option value="Large Room">Large Room</option>
+            <option value="Small Room">Small Room</option>
+          </select>
+        </div>
         <div>
           <label for="modal-date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
           <input type="date" id="modal-date" v-model="manualBooking.date" required
             class="w-full px-3 py-2 border border-gray-300 rounded-md" />
         </div>
-        <div>
+        <div class="md:col-span-2">
+          <label for="modal-time-slot" class="block text-sm font-medium text-gray-700 mb-1 flex items-center justify-between">
+            <span>Time Slot / ជម្រើសម៉ោង</span>
+            <span class="text-xs text-gray-500 font-normal">ជ្រើសរើសម៉ោងកំណត់ ឬ Custom</span>
+          </label>
+          <select id="modal-time-slot" v-model="manualTimeSlot" @change="onManualTimeSlotChange"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium text-gray-800">
+            <option v-for="slot in PRESET_TIME_SLOTS" :key="slot.value" :value="slot.value">
+              {{ slot.label }}
+            </option>
+          </select>
+        </div>
+        <template v-if="manualTimeSlot === 'custom'">
+          <div>
+            <label for="modal-start" class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+            <input type="time" id="modal-start" v-model="manualBooking.start" required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+          </div>
+          <div>
+            <label for="modal-end" class="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+            <input type="time" id="modal-end" v-model="manualBooking.end" required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+          </div>
+        </template>
+        <div class="md:col-span-2">
           <label for="modal-purpose" class="block text-sm font-medium text-gray-700 mb-1">Purpose</label>
           <input type="text" id="modal-purpose" v-model="manualBooking.purpose" required
-            class="w-full px-3 py-2 border border-gray-300 rounded-md" />
-        </div>
-        <div>
-          <label for="modal-start" class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
-          <input type="time" id="modal-start" v-model="manualBooking.start" required 
-            class="w-full px-3 py-2 border border-gray-300 rounded-md" />
-        </div>
-        <div>
-          <label for="modal-end" class="block text-sm font-medium text-gray-700 mb-1">End Time</label>
-          <input type="time" id="modal-end" v-model="manualBooking.end" required
             class="w-full px-3 py-2 border border-gray-300 rounded-md" />
         </div>
         <div class="md:col-span-2 flex justify-end space-x-3 mt-4">
@@ -296,23 +363,45 @@
 
       <form @submit.prevent="updateBookingData" class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
+          <label for="edit-room" class="block text-sm font-medium text-gray-700 mb-1">Room</label>
+          <select id="edit-room" v-model="editBooking.room" required
+            class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="Large Room">Large Room</option>
+            <option value="Small Room">Small Room</option>
+          </select>
+        </div>
+        <div>
           <label for="edit-date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
           <input type="date" id="edit-date" v-model="editBooking.date" required
             class="w-full px-3 py-2 border border-gray-300 rounded-md" />
         </div>
-        <div>
+        <div class="md:col-span-2">
+          <label for="edit-time-slot" class="block text-sm font-medium text-gray-700 mb-1 flex items-center justify-between">
+            <span>Time Slot / ជម្រើសម៉ោង</span>
+            <span class="text-xs text-gray-500 font-normal">ជ្រើសរើសម៉ោងកំណត់ ឬ Custom</span>
+          </label>
+          <select id="edit-time-slot" v-model="editTimeSlot" @change="onEditTimeSlotChange"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-gray-800">
+            <option v-for="slot in PRESET_TIME_SLOTS" :key="slot.value" :value="slot.value">
+              {{ slot.label }}
+            </option>
+          </select>
+        </div>
+        <template v-if="editTimeSlot === 'custom'">
+          <div>
+            <label for="edit-start" class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+            <input type="time" id="edit-start" v-model="editBooking.start" required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+          </div>
+          <div>
+            <label for="edit-end" class="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+            <input type="time" id="edit-end" v-model="editBooking.end" required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+          </div>
+        </template>
+        <div class="md:col-span-2">
           <label for="edit-purpose" class="block text-sm font-medium text-gray-700 mb-1">Purpose</label>
           <input type="text" id="edit-purpose" v-model="editBooking.purpose" required
-            class="w-full px-3 py-2 border border-gray-300 rounded-md" />
-        </div>
-        <div>
-          <label for="edit-start" class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
-          <input type="time" id="edit-start" v-model="editBooking.start" required
-            class="w-full px-3 py-2 border border-gray-300 rounded-md" />
-        </div>
-        <div>
-          <label for="edit-end" class="block text-sm font-medium text-gray-700 mb-1">End Time</label>
-          <input type="time" id="edit-end" v-model="editBooking.end" required
             class="w-full px-3 py-2 border border-gray-300 rounded-md" />
         </div>
         <div class="md:col-span-2 flex justify-end space-x-3 mt-4">
@@ -381,6 +470,18 @@
               </div>
 
               <form @submit.prevent="handleAIBooking" class="space-y-4 sm:space-y-6">
+                <!-- Room Selector -->
+                <div>
+                  <label for="ai-room" class="block text-sm font-semibold text-slate-700 mb-1 flex items-center space-x-1.5">
+                    <span>🚪</span>
+                    <span>Target Room</span>
+                  </label>
+                  <select id="ai-room" v-model="aiBookingRoom" class="w-full sm:w-64 px-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500">
+                    <option value="Large Room">Large Room</option>
+                    <option value="Small Room">Small Room</option>
+                  </select>
+                </div>
+
                 <!-- Text input with enhanced styling -->
                 <div class="group">
                   <label for="booking-text"
@@ -482,6 +583,10 @@ import type { Booking, ParsedBookingData } from '~/types/booking'
 import Swal from 'sweetalert2'
 import { useAuthStore } from '~/store/useAuthStore'
 import { Dialog, DialogOverlay, DialogTitle } from '@headlessui/vue'
+// ✅ Place this once near the top (global in script scope)
+const isForbiddenError = (error: any) => {
+  return error?.response?.status === 403 || error?.data?.errors?.some((e: any) => e.extensions?.code === 'FORBIDDEN')
+}
 
 const showBookingDialog = ref(false)
 const { extractBookingInfo } = useGeminiAI()
@@ -514,11 +619,93 @@ const currentView = ref('dayGridMonth')
 const fullCalendar = ref()
 const showManualModal = ref(false)
 
+const selectedRoomFilter = ref<'all' | 'Large Room' | 'Small Room'>('all')
+const aiBookingRoom = ref<'Large Room' | 'Small Room'>('Large Room')
+
+// Preset time slots
+const PRESET_TIME_SLOTS = [
+  { value: '08:00-10:00', label: '08:00 AM - 10:00 AM', start: '08:00', end: '10:00' },
+  { value: '10:00-12:00', label: '10:00 AM - 12:00 PM', start: '10:00', end: '12:00' },
+  { value: '13:00-15:00', label: '01:00 PM - 03:00 PM', start: '13:00', end: '15:00' },
+  { value: '15:00-17:00', label: '03:00 PM - 05:00 PM', start: '15:00', end: '17:00' },
+  { value: '08:00-12:00', label: 'Morning (08:00 AM - 12:00 PM)', start: '08:00', end: '12:00' },
+  { value: '13:00-17:00', label: 'Afternoon (01:00 PM - 05:00 PM)', start: '13:00', end: '17:00' },
+  { value: '08:00-17:00', label: 'Full Day (08:00 AM - 05:00 PM)', start: '08:00', end: '17:00' },
+  { value: 'custom', label: 'Custom Time (កំណត់ម៉ោងផ្ទាល់ខ្លួន)', start: '', end: '' },
+] as const
+
+const normalizeTimeSlot = (time?: string) => {
+  if (!time) return ''
+  const parts = time.trim().split(':')
+  if (parts.length >= 2) {
+    return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`
+  }
+  return time
+}
+
+const findMatchingSlot = (start: string, end: string) => {
+  const normStart = normalizeTimeSlot(start)
+  const normEnd = normalizeTimeSlot(end)
+  const matched = PRESET_TIME_SLOTS.find(
+    slot => slot.value !== 'custom' && slot.start === normStart && slot.end === normEnd
+  )
+  return matched ? matched.value : 'custom'
+}
+
+const manualTimeSlot = ref('08:00-10:00')
+const editTimeSlot = ref('custom')
+
 const manualBooking = ref({
+  room: 'Large Room',
   date: '',
-  start: '',
-  end: '',
+  start: '08:00',
+  end: '10:00',
   purpose: ''
+})
+
+const onManualTimeSlotChange = () => {
+  if (manualTimeSlot.value !== 'custom') {
+    const slot = PRESET_TIME_SLOTS.find(s => s.value === manualTimeSlot.value)
+    if (slot && slot.start && slot.end) {
+      manualBooking.value.start = slot.start
+      manualBooking.value.end = slot.end
+    }
+  } else {
+    if (!manualBooking.value.start || !manualBooking.value.end) {
+      manualBooking.value.start = '08:00'
+      manualBooking.value.end = '10:00'
+    }
+  }
+}
+
+const onEditTimeSlotChange = () => {
+  if (editTimeSlot.value !== 'custom') {
+    const slot = PRESET_TIME_SLOTS.find(s => s.value === editTimeSlot.value)
+    if (slot && slot.start && slot.end) {
+      editBooking.value.start = slot.start
+      editBooking.value.end = slot.end
+    }
+  } else {
+    if (!editBooking.value.start || !editBooking.value.end) {
+      editBooking.value.start = '08:00'
+      editBooking.value.end = '10:00'
+    }
+  }
+}
+
+watch(showManualModal, (isOpen) => {
+  if (isOpen) {
+    if (!manualBooking.value.date) {
+      manualBooking.value.date = new Date().toISOString().split('T')[0]
+    }
+    if (!manualBooking.value.start || !manualBooking.value.end) {
+      manualBooking.value.start = '08:00'
+      manualBooking.value.end = '10:00'
+      manualTimeSlot.value = '08:00-10:00'
+    } else {
+      manualTimeSlot.value = findMatchingSlot(manualBooking.value.start, manualBooking.value.end)
+    }
+  }
 })
 
 const handleEventClick = (clickInfo: EventClickArg) => {
@@ -528,6 +715,9 @@ const handleEventClick = (clickInfo: EventClickArg) => {
 const handleDateSelect = (selectInfo: DateSelectArg) => {
   // Auto-fill manual booking form with selected date
   manualBooking.value.date = selectInfo.startStr
+  if (selectedRoomFilter.value !== 'all') {
+    manualBooking.value.room = selectedRoomFilter.value
+  }
   showManualModal.value = true
 }
 
@@ -537,27 +727,48 @@ const messageClass = computed(() => ({
   'bg-red-100 border border-red-400 text-red-700': messageType.value === 'error'
 }))
 
-const calendarEvents = computed(() => {
-  return bookings.value.map(booking => ({
-    id: booking.id?.toString(),
-    title: booking.purpose,
-    start: `${booking.date}T${booking.start}`,
-    end: `${booking.date}T${booking.end}`,
-    backgroundColor: getEventColor(booking.status),
-    borderColor: getEventBorderColor(booking.status),
-    extendedProps: {
-      booking: booking
-    }
-  }))
+const filteredBookings = computed(() => {
+  if (selectedRoomFilter.value === 'all') {
+    return bookings.value
+  }
+  return bookings.value.filter(b => (b.room || 'Large Room') === selectedRoomFilter.value)
 })
+
+const calendarEvents = computed(() => {
+  return filteredBookings.value.map(booking => {
+    const room = booking.room || 'Large Room'
+    return {
+      id: booking.id?.toString(),
+      title: `[${room}] ${booking.purpose}`,
+      start: `${booking.date}T${booking.start}`,
+      end: `${booking.date}T${booking.end}`,
+      backgroundColor: getEventColor(booking.status, room),
+      borderColor: getEventBorderColor(booking.status, room),
+      extendedProps: {
+        booking: booking
+      }
+    }
+  })
+})
+
 const eventContent = (info: any) => {
+  const room = info.event.extendedProps.booking?.room || 'Large Room'
+  const isSmall = room === 'Small Room'
+  const badgeClass = isSmall ? 'bg-indigo-900/40 text-indigo-100' : 'bg-emerald-900/40 text-emerald-100'
+  const shortTag = isSmall ? 'Small' : 'Large'
   return {
-    html: `<div title="${info.event.title}" class="text-xs truncate">• ${info.event.title}</div>`
+    html: `<div title="[${room}] ${info.event.extendedProps.booking?.purpose || info.event.title}" class="text-xs truncate flex items-center space-x-1 py-0.5 px-1">
+      <span class="text-[10px] font-bold px-1 rounded ${badgeClass}">${shortTag}</span>
+      <span class="truncate font-medium">${info.event.extendedProps.booking?.purpose || info.event.title}</span>
+    </div>`
   }
 }
 
 const handleDateClick = (arg: { dateStr: string }) => {
   manualBooking.value.date = arg.dateStr
+  if (selectedRoomFilter.value !== 'all') {
+    manualBooking.value.room = selectedRoomFilter.value
+  }
   showManualModal.value = true
 }
 
@@ -581,10 +792,17 @@ const calendarOptions = computed<CalendarOptions>(() => ({
   select: handleDateSelect,
   eventContent, // ✅ include here
   eventDidMount(info) {
-    const status = info.event.extendedProps.booking?.status
+    const booking = info.event.extendedProps.booking
+    const status = booking?.status
+    const room = booking?.room || 'Large Room'
     if (status === 'published') {
-      info.el.style.backgroundColor = '#059669'
-      info.el.style.borderColor = '#047857'
+      if (room === 'Small Room') {
+        info.el.style.backgroundColor = '#4f46e5'
+        info.el.style.borderColor = '#4338ca'
+      } else {
+        info.el.style.backgroundColor = '#059669'
+        info.el.style.borderColor = '#047857'
+      }
     } else if (status === 'draft') {
       info.el.style.backgroundColor = '#d97706'
       info.el.style.borderColor = '#b45309'
@@ -596,18 +814,24 @@ const calendarOptions = computed<CalendarOptions>(() => ({
 }))
 
 
-const getEventColor = (status: string) => {
+const getEventColor = (status: string, room?: string) => {
+  if (status === 'published') {
+    if (room === 'Small Room') return '#4f46e5'
+    return '#059669'
+  }
   switch (status) {
-    case 'published': return '#059669'
     case 'draft': return '#d97706'
     case 'cancelled': return '#dc2626'
     default: return '#6b7280'
   }
 }
 
-const getEventBorderColor = (status: string) => {
+const getEventBorderColor = (status: string, room?: string) => {
+  if (status === 'published') {
+    if (room === 'Small Room') return '#4338ca'
+    return '#047857'
+  }
   switch (status) {
-    case 'published': return '#047857'
     case 'draft': return '#b45309'
     case 'cancelled': return '#b91c1c'
     default: return '#4b5563'
@@ -628,6 +852,7 @@ const askAvailability = async () => {
   isProcessing.value = true;
   try {
     const parsed: ParsedBookingData = await extractBookingInfo(bookingText.value);
+    const targetRoom = parsed.room || aiBookingRoom.value || 'Large Room';
 
     const bufferMs = 60 * 1000; // 1 minute
     const slotDuration = 30 * 60 * 1000; // 30 minutes
@@ -649,7 +874,7 @@ const askAvailability = async () => {
     }
 
     const dayBookings = bookings.value
-      .filter(b => b.date === parsed.date)
+      .filter(b => b.date === parsed.date && (b.room || 'Large Room') === targetRoom)
       .map(b => ({
         start: new Date(`${b.date}T${b.start}`).getTime(),
         end: new Date(`${b.date}T${b.end}`).getTime(),
@@ -679,20 +904,20 @@ const askAvailability = async () => {
 
       Swal.fire({
         icon: 'error',
-        title: 'Time Conflict!',
+        title: `Time Conflict in ${targetRoom}!`,
         html: `
           <div style="text-align: left; font-size: 14px;">
-            That time overlaps with existing bookings:<br><br>
+            That time overlaps with existing bookings in <b>${targetRoom}</b>:<br><br>
             ${details}
             <br><br>
-            👉 <b>Next available slot:</b><br>${nextSlotStr}
+            👉 <b>Next available slot in ${targetRoom}:</b><br>${nextSlotStr}
           </div>
         `,
         confirmButtonText: 'OK',
         width: '34em'
       });
     } else {
-      showMessage('✅ That time is available!', 'success');
+      showMessage(`✅ That time is available in ${targetRoom}!`, 'success');
     }
 
   } catch (error) {
@@ -707,12 +932,14 @@ const formatTime = (timestamp: number) => {
   const date = new Date(timestamp);
   return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 };
+
 const handleAIBooking = async () => {
   if (!bookingText.value.trim()) return;
 
   isProcessing.value = true;
   try {
     const parsed: ParsedBookingData = await extractBookingInfo(bookingText.value);
+    const targetRoom = parsed.room || aiBookingRoom.value || 'Large Room';
 
     const bufferMs = 60 * 1000;
     const slotDuration = 30 * 60 * 1000;
@@ -734,7 +961,7 @@ const handleAIBooking = async () => {
     }
 
     const dayBookings = bookings.value
-      .filter(b => b.date === parsed.date)
+      .filter(b => b.date === parsed.date && (b.room || 'Large Room') === targetRoom)
       .map(b => ({
         start: new Date(`${b.date}T${b.start}`).getTime(),
         end: new Date(`${b.date}T${b.end}`).getTime(),
@@ -763,13 +990,13 @@ const handleAIBooking = async () => {
 
       Swal.fire({
         icon: 'error',
-        title: 'Time Conflict!',
+        title: `Time Conflict in ${targetRoom}!`,
         html: `
           <div style="text-align: left; font-size: 14px;">
-            That time overlaps with existing bookings:<br><br>
+            That time overlaps with existing bookings in <b>${targetRoom}</b>:<br><br>
             ${details}
             <br><br>
-            👉 <b>Next available slot:</b><br>${nextSlotStr}
+            👉 <b>Next available slot in ${targetRoom}:</b><br>${nextSlotStr}
           </div>
         `,
         confirmButtonText: 'OK',
@@ -785,21 +1012,23 @@ const handleAIBooking = async () => {
       start: parsed.start_time,
       end: parsed.end_time,
       purpose: bookingText.value,
-
+      room: targetRoom,
       status: 'published'
     };
 
     await createBooking(booking);
     showMessage('✅ Booking created successfully using AI!', 'success');
     bookingText.value = '';
+    showBookingDialog.value = false;
     await loadBookings();
     const auth = useAuthStore();
     const currentUser = auth.user;
 
-     await sendTelegramMessage(
+    await sendTelegramMessage(
       `📅 <b>មានការកក់បន្ទប់ស្ទូឌីយ៉ូ</b>\n\n` +
       `<b>Full Name:</b> ${currentUser?.first_name ?? 'N/A'} ${currentUser?.last_name ?? ''}\n` +
       `<b>Department:</b> ${currentUser?.department?.title ?? 'N/A'}\n` +
+      `<b>បន្ទប់ (Room):</b> ${booking.room}\n` +
       `<b>Purpose:</b> ${booking.purpose}\n` +
       `<b>Date:</b> ${booking.date}\n` +
       `<b>Time:</b> ${formatTime12Hour(booking.date, booking.start)} – ${formatTime12Hour(booking.date, booking.end)}\n` +
@@ -808,7 +1037,11 @@ const handleAIBooking = async () => {
 
   } catch (error) {
     console.error('AI Booking error:', error);
-    showMessage('❌ Failed to create booking.', 'error');
+     if (isForbiddenError(error)) {
+      showMessage("🚫 You don't have permission to create booking. Please login first.", 'error')
+    } else {
+      showMessage('❌ Failed to create booking.', 'error');
+    }
   } finally {
     isProcessing.value = false;
   }
@@ -828,6 +1061,8 @@ const handleManualBooking = async () => {
     const bufferMs = 60 * 1000;
     const slotDuration = 30 * 60 * 1000;
 
+    const targetRoom = manualBooking.value.room || 'Large Room';
+
     const requestedStart = new Date(`${manualBooking.value.date}T${manualBooking.value.start}`).getTime();
     const requestedEnd = new Date(`${manualBooking.value.date}T${manualBooking.value.end}`).getTime();
     const now = Date.now();
@@ -845,7 +1080,7 @@ const handleManualBooking = async () => {
     }
 
     const dayBookings = bookings.value
-      .filter(b => b.date === manualBooking.value.date)
+      .filter(b => b.date === manualBooking.value.date && (b.room || 'Large Room') === targetRoom)
       .map(b => ({
         start: new Date(`${b.date}T${b.start}`).getTime(),
         end: new Date(`${b.date}T${b.end}`).getTime(),
@@ -873,13 +1108,13 @@ const handleManualBooking = async () => {
 
       Swal.fire({
         icon: 'error',
-        title: 'Time Conflict!',
+        title: `Time Conflict in ${targetRoom}!`,
         html: `
           <div style="text-align: left; font-size: 14px;">
-            That time overlaps with existing bookings:<br><br>
+            That time overlaps with existing bookings in <b>${targetRoom}</b>:<br><br>
             ${details}
             <br><br>
-            👉 <b>Next available slot:</b><br>${nextSlotStr}
+            👉 <b>Next available slot in ${targetRoom}:</b><br>${nextSlotStr}
           </div>
         `,
         confirmButtonText: 'OK',
@@ -892,35 +1127,44 @@ const handleManualBooking = async () => {
 
     const booking: Omit<Booking, 'id' | 'created_at' | 'updated_at'> = {
       ...manualBooking.value,
+      room: targetRoom,
       status: 'published'
     };
 
     await createBooking(booking);
     showMessage('✅ Booking created successfully!', 'success');
-    manualBooking.value = { date: '', start: '', end: '', purpose: '' };
+    manualBooking.value = { room: targetRoom, date: '', start: '08:00', end: '10:00', purpose: '' };
+    manualTimeSlot.value = '08:00-10:00';
     showManualModal.value = false;
     await loadBookings();
     const auth = useAuthStore();
     const currentUser = auth.user;
-      await sendTelegramMessage(
+    await sendTelegramMessage(
       `📅 <b>មានការកក់បន្ទប់ស្ទូឌីយ៉ូ</b>\n\n` +
       `<b>កក់ដោយ:</b> ${currentUser?.first_name ?? 'N/A'} ${currentUser?.last_name ?? ''}\n` +
       `<b>Department:</b> ${currentUser?.department?.title ?? 'N/A'}\n` +
+      `<b>បន្ទប់ (Room):</b> ${booking.room}\n` +
       `<b>គោលបំណង:</b> ${booking.purpose}\n` +
       `<b>កាលបរិច្ឆេទ:</b> ${booking.date}\n` +
-     `<b>ចាប់ពីម៉ោង</b> ${formatTime12Hour(booking.date, booking.start)} ដល់ ${formatTime12Hour(booking.date, booking.end)}\n` +
+      `<b>ចាប់ពីម៉ោង</b> ${formatTime12Hour(booking.date, booking.start)} ដល់ ${formatTime12Hour(booking.date, booking.end)}\n` +
       `<b>ស្ថានភាព:</b> ${booking.status}` +
       `\n\n` +
-      `<b>📌 មើលកាលវិភាគកក់:</b> <a href="https://baksey.vercel.app/dashboard/booking-room">ចូលមើលនៅទីនេះ</a>`
+      `<b>📌 មើលកាលវិភាគកក់:</b> <a href="https://baksey.vercel.app/dashboard/booking-room/rooms">ចូលមើលនៅទីនេះ</a>`
     );
 
   } catch (error) {
     console.error('Manual booking error:', error);
-    showMessage('❌ Failed to create booking.', 'error');
+    if (isForbiddenError(error)) {
+      showMessage("🚫 You don't have permission to create booking. Please login first.", 'error')
+    } else {
+      showMessage('❌ Failed to create booking.', 'error');
+    }
+
   } finally {
     isProcessing.value = false;
   }
 };
+
 const loadBookings = async () => {
   loading.value = true
   try {
@@ -996,6 +1240,7 @@ const getStatusDotClass = (status: string) => {
 const showEditModal = ref(false)
 const editBooking = ref({
   id: '',
+  room: 'Large Room',
   date: '',
   start: '',
   end: '',
@@ -1006,6 +1251,7 @@ const updateBookingData = async () => {
   try {
     const bufferMs = 60 * 1000;
     const slotDuration = 30 * 60 * 1000;
+    const targetRoom = editBooking.value.room || 'Large Room';
 
     const requestedStart = new Date(`${editBooking.value.date}T${editBooking.value.start}`).getTime();
     const requestedEnd = new Date(`${editBooking.value.date}T${editBooking.value.end}`).getTime();
@@ -1024,7 +1270,7 @@ const updateBookingData = async () => {
     }
 
     const dayBookings = bookings.value
-      .filter(b => b.date === editBooking.value.date && b.id !== editBooking.value.id) // Exclude current booking
+      .filter(b => b.date === editBooking.value.date && (b.room || 'Large Room') === targetRoom && b.id !== editBooking.value.id) // Exclude current booking
       .map(b => ({
         start: new Date(`${b.date}T${b.start}`).getTime(),
         end: new Date(`${b.date}T${b.end}`).getTime(),
@@ -1053,13 +1299,13 @@ const updateBookingData = async () => {
 
       Swal.fire({
         icon: 'error',
-        title: 'Time Conflict!',
+        title: `Time Conflict in ${targetRoom}!`,
         html: `
           <div style="text-align: left; font-size: 14px;">
-            That time overlaps with existing bookings:<br><br>
+            That time overlaps with existing bookings in <b>${targetRoom}</b>:<br><br>
             ${details}
             <br><br>
-            👉 <b>Next available slot:</b><br>${nextSlotStr}
+            👉 <b>Next available slot in ${targetRoom}:</b><br>${nextSlotStr}
           </div>
         `,
         confirmButtonText: 'OK',
@@ -1071,6 +1317,7 @@ const updateBookingData = async () => {
     }
 
     const updatedData = {
+      room: targetRoom,
       date: editBooking.value.date,
       start: editBooking.value.start,
       end: editBooking.value.end,
@@ -1090,13 +1337,17 @@ const updateBookingData = async () => {
 };
 
 const editBookingFromEvent = (booking: Booking) => {
+  const normStart = normalizeTimeSlot(booking.start)
+  const normEnd = normalizeTimeSlot(booking.end)
   editBooking.value = {
     id: booking.id!,
+    room: booking.room || 'Large Room',
     date: booking.date,
-    start: booking.start,
-    end: booking.end,
+    start: normStart,
+    end: normEnd,
     purpose: booking.purpose
   }
+  editTimeSlot.value = findMatchingSlot(normStart, normEnd)
   selectedEvent.value = null
   showEditModal.value = true
 }
@@ -1109,18 +1360,22 @@ const showBookingHelp = () => {
     title: '🤖 How to Use Booking System',
     html: `
       <div style="text-align: left; font-size: 15px; line-height: 1.6;">
+        <b>🚪 2 Rooms Available</b><br>
+        • <b>Large Room</b><br>
+        • <b>Small Room</b><br><br>
+
         <b>🔍 Check Availability</b><br>
         Ask something like:<br>
-        <code>Is the room free on June 1st 2025 from 10am to 11am?</code><br><br>
+        <code>Is Large Room free on June 1st 2025 from 10am to 11am?</code><br><br>
 
         <b>📅 Book with AI</b><br>
         Just type:<br>
-        <code>Book a room on June 5th 2025 from 5PM to 7PM for brainstorming session</code><br><br>
+        <code>Book Small Room on June 5th 2025 from 5PM to 7PM for brainstorming session</code><br><br>
 
         <b>📝 Manual Booking</b><br>
-        Click "Booking Manual" to enter details yourself.<br><br>
+        Click "Book Manual" to choose Large Room or Small Room and enter details.<br><br>
 
-        ⚠️ The system will help avoid overlaps and suggest the next available time slot if your request conflicts with existing bookings.
+        ⚠️ Conflict checking only checks the selected room so both rooms can be booked concurrently without conflicts.
       </div>
     `,
     confirmButtonText: 'Got it!',
@@ -1156,9 +1411,10 @@ onMounted(() => {
     changeView('dayGridWeek')
   }
 })
-definePageMeta({
-  middleware: 'auth',
-});
+
+// definePageMeta({
+//   middleware: 'auth',
+// });
 </script>
 
 <style scoped>
