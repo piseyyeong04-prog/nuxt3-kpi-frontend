@@ -1,8 +1,8 @@
 // composables/usePdfReport.ts
+// Opens the report in a new window and triggers window.print() so the browser
+// handles all Khmer shaping natively — no jsPDF, no html2canvas.
 
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
-import '~/utils/fonts/NotoSansKhmer-normal.js'
+import NotoSansKhmerBase64 from '~/utils/fonts/NotoSansKhmerBase64'
 
 interface CreatorData {
   id: number
@@ -33,514 +33,405 @@ interface ReportOptions {
   subtitle?: string
   includeSummary?: boolean
   includeVideoDetails?: boolean
-  includeCharts?: boolean
   logoUrl?: string
 }
 
 export const usePdfReport = () => {
-  // Font loading flag
-  let fontLoaded = false
 
+  // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const loadKhmerFont = async (): Promise<void> => {
-  if (fontLoaded) return
-  fontLoaded = true
-  console.log('Khmer font loaded successfully (registered globally)')
-}
+  const getTotalViews = (remarks: VideoRemark[] = []): string =>
+    remarks.reduce((sum, r) => sum + parseInt(r.view || '0'), 0).toString()
 
-
-  // Set appropriate font based on text content
-  const setFont = (doc: jsPDF, text: string, style: 'normal' | 'bold' = 'normal'): void => {
-    // Check if text contains Khmer characters (Unicode range U+1780–U+17FF)
-    const hasKhmerText = /[\u1780-\u17FF]/.test(text)
-    
-    if (hasKhmerText && fontLoaded) {
-      doc.setFont('NotoSansKhmer-Regular', style)
-    } else {
-      doc.setFont('helvetica', style)
-    }
-  }
-
-  // Enhanced text rendering with font detection
-  const renderText = (doc: jsPDF, text: string, x: number, y: number, options?: any): void => {
-    setFont(doc, text, options?.fontStyle || 'normal')
-    doc.text(text, x, y, options)
-  }
-
-  // Helper functions from your existing code
-  const getTotalViews = (remarks: VideoRemark[] = []): string => {
-    return remarks.reduce((sum, remark) => sum + parseInt(remark.view || '0'), 0).toString()
-  }
-
-  const countBigVideos = (remarks: VideoRemark[] = []): number => {
-    return remarks.filter(r => r.big_video === 'yes').length
-  }
-
-  const getBigVideoViews = (remarks: VideoRemark[] = []): string => {
-    return remarks
-      .filter(r => r.big_video === 'yes')
-      .reduce((sum, remark) => sum + parseInt(remark.view || '0'), 0)
-      .toString()
-  }
+  const countBigVideos = (remarks: VideoRemark[] = []): number =>
+    remarks.filter(r => r.big_video === 'yes').length
 
   const formatNumber = (num: string | number): string => {
-    const value = typeof num === 'string' ? parseInt(num) : num
-    if (value >= 1000000) {
-      return (value / 1000000).toFixed(1) + 'M'
-    } else if (value >= 1000) {
-      return (value / 1000).toFixed(1) + 'K'
+    const v = typeof num === 'string' ? parseInt(num) : num
+    if (v >= 1_000_000) return (v / 1_000_000).toFixed(1) + 'M'
+    if (v >= 1_000) return (v / 1_000).toFixed(1) + 'K'
+    return v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  }
+
+  const formatDate = (d: string): string =>
+    new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+
+  const isCompleted = (c: CreatorData): boolean =>
+    parseInt(getTotalViews(c.remarks)) >= c.target
+
+  const calcPct = (c: CreatorData): number => {
+    const t = parseInt(getTotalViews(c.remarks))
+    return Math.round((t / c.target) * 100)
+  }
+
+  const getName = (id: string, map: Record<string, string>): string =>
+    map[id] || id || 'Unknown'
+
+  // ─── HTML builder ─────────────────────────────────────────────────────────────
+
+  const buildHtml = (
+    creators: CreatorData[],
+    staffMembers: Record<string, string>,
+    periodLabel: string,
+    options: ReportOptions = {}
+  ): string => {
+    const {
+      title = 'Staff Performance Report',
+      subtitle = periodLabel,
+      includeSummary = true,
+      includeVideoDetails = true,
+    } = options
+
+    const totalCreators = creators.length
+    const totalVideos = creators.reduce((s, c) => s + (c.remarks?.length || 0), 0)
+    const totalViews = creators.reduce((s, c) => s + parseInt(getTotalViews(c.remarks)), 0)
+    const totalBig = creators.reduce((s, c) => s + countBigVideos(c.remarks || []), 0)
+    const done = creators.filter(isCompleted).length
+
+    // ── CSS (embedded @font-face = no CORS issues) ──────────────────────────
+    const css = `
+      @font-face {
+        font-family: 'KhmerFont';
+        font-style: normal;
+        font-weight: 400;
+        src: url('data:font/truetype;base64,${NotoSansKhmerBase64}') format('truetype');
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        font-family: 'KhmerFont', Arial, sans-serif;
+        font-size: 11pt;
+        color: #1f2937;
+        background: #fff;
+        padding: 0;
+      }
+
+      .page {
+        width: 210mm;
+        min-height: 297mm;
+        padding: 14mm 12mm;
+        margin: 0 auto;
+        background: #fff;
+      }
+
+      /* ── Header ── */
+      .header { text-align: center; margin-bottom: 14pt; }
+      .header h1 { font-size: 20pt; font-weight: 700; color: #1d4ed8; margin-bottom: 3pt; }
+      .header .sub { font-size: 11pt; color: #6b7280; }
+      .divider { border: none; border-top: 1.5px solid #e5e7eb; margin: 10pt 0; }
+
+      /* ── Section title ── */
+      .section-title {
+        font-size: 13pt;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 6pt;
+        padding-bottom: 4pt;
+        border-bottom: 2px solid #3b82f6;
+      }
+
+      /* ── Summary cards ── */
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8pt;
+        margin-bottom: 16pt;
+      }
+      .card {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 6px;
+        padding: 10pt;
+        text-align: center;
+      }
+      .card .val { font-size: 18pt; font-weight: 700; color: #1d4ed8; }
+      .card .lbl { font-size: 8pt; color: #6b7280; margin-top: 2pt; }
+
+      /* ── Tables ── */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 16pt;
+        page-break-inside: auto;
+      }
+      tr { page-break-inside: avoid; page-break-after: auto; }
+      thead { display: table-header-group; }
+
+      th {
+        background: #2563eb;
+        color: #fff;
+        font-size: 9pt;
+        font-weight: 700;
+        padding: 6pt 7pt;
+        text-align: left;
+        font-family: Arial, 'KhmerFont', sans-serif;
+      }
+      th.c { text-align: center; }
+      th.r { text-align: right; }
+
+      td {
+        padding: 5pt 7pt;
+        border-bottom: 1px solid #e5e7eb;
+        font-size: 9.5pt;
+        font-family: 'KhmerFont', Arial, sans-serif;
+        vertical-align: top;
+      }
+      tr:nth-child(even) td { background: #f9fafb; }
+      td.c { text-align: center; }
+      td.r { text-align: right; }
+
+      .name  { font-weight: 700; }
+      .small { font-size: 8pt; color: #6b7280; margin-top: 1pt; }
+
+      .green  { color: #15803d; font-weight: 700; }
+      .yellow { color: #b45309; font-weight: 700; }
+      .red    { color: #dc2626; font-weight: 700; }
+
+      /* ── Creator section header ── */
+      .creator-hdr { margin-top: 14pt; margin-bottom: 4pt; page-break-inside: avoid; }
+      .creator-hdr h3 { font-size: 12pt; font-weight: 700; }
+      .creator-hdr p  { font-size: 9pt; color: #6b7280; margin-top: 2pt; }
+
+      .video-th { background: #4338ca; }
+
+      /* ── Footer ── */
+      .footer {
+        margin-top: 16pt;
+        font-size: 8pt;
+        color: #9ca3af;
+        text-align: center;
+        border-top: 1px solid #e5e7eb;
+        padding-top: 6pt;
+      }
+
+      @page {
+        size: A4;
+        margin: 0;
+      }
+
+      /* ── Print tweaks ── */
+      @media print {
+        body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .page { padding: 10mm 10mm; width: 100%; }
+        .no-break { page-break-inside: avoid; }
+        .page-break { page-break-before: always; break-before: page; }
+      }
+    `
+
+    // ── Build HTML ─────────────────────────────────────────────────────────────
+    let h = `<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8">
+  <title>${title} — ${periodLabel}</title>
+  <style>${css}</style>
+</head>
+<body>
+<div class="page">`
+
+    // Header
+    h += `
+  <div class="header">
+    <h1>${title}</h1>
+    <div class="sub">${subtitle}</div>
+    <div class="sub" style="font-size:9pt;margin-top:3pt;color:#9ca3af">Generated: ${new Date().toLocaleDateString()}</div>
+  </div>
+  <hr class="divider">`
+
+    // Summary
+    if (includeSummary) {
+      h += `
+  <div class="section-title">Performance Summary</div>
+  <div class="summary-grid">
+    <div class="card"><div class="val">${totalCreators}</div><div class="lbl">Total Creators</div></div>
+    <div class="card"><div class="val">${totalVideos}</div><div class="lbl">Total Videos</div></div>
+    <div class="card"><div class="val">${formatNumber(totalViews)}</div><div class="lbl">Total Views</div></div>
+    <div class="card"><div class="val">${totalBig}</div><div class="lbl">Big Videos</div></div>
+    <div class="card"><div class="val">${done}/${totalCreators}</div><div class="lbl">Targets Done</div></div>
+    <div class="card"><div class="val">${Math.round((done / totalCreators) * 100)}%</div><div class="lbl">Completion Rate</div></div>
+  </div>`
     }
-    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+
+    // Performance table
+    h += `
+  <div class="section-title">Individual Performance</div>
+  <table>
+    <thead><tr>
+      <th style="width:34%">Name &amp; Details</th>
+      <th class="r" style="width:12%">Target</th>
+      <th class="c" style="width:14%">Status</th>
+      <th class="c" style="width:9%">Videos</th>
+      <th class="r" style="width:13%">Total Views</th>
+      <th class="c" style="width:9%">Big</th>
+      <th class="c" style="width:9%">Progress</th>
+    </tr></thead>
+    <tbody>`
+
+    for (const creator of creators) {
+      const name = getName(creator.staff, staffMembers)
+      const pos = creator.user_created?.title || ''
+      const dept = creator.user_created?.department?.title || ''
+      const completed = isCompleted(creator)
+      const pct = calcPct(creator)
+      const statusCls = completed ? 'green' : 'yellow'
+      const pctCls = pct >= 100 ? 'green' : pct >= 75 ? 'yellow' : 'red'
+
+      h += `
+      <tr>
+        <td>
+          <div class="name">${name}</div>
+          ${pos ? `<div class="small">${pos}</div>` : ''}
+          ${dept ? `<div class="small">${dept}</div>` : ''}
+        </td>
+        <td class="r">${formatNumber(creator.target)}</td>
+        <td class="c ${statusCls}">${completed ? 'Completed' : 'In Progress'}</td>
+        <td class="c">${creator.remarks?.length || 0}</td>
+        <td class="r">${formatNumber(getTotalViews(creator.remarks))}</td>
+        <td class="c">${countBigVideos(creator.remarks || [])}</td>
+        <td class="c ${pctCls}">${pct}%</td>
+      </tr>`
+    }
+    h += `</tbody></table>`
+
+    // Video details
+    if (includeVideoDetails) {
+      let creatorCount = 0
+      for (const creator of creators) {
+        const videos = creator.remarks || []
+        if (!videos.length) continue
+        const name = getName(creator.staff, staffMembers)
+        const pos = creator.user_created?.title || ''
+        const dept = creator.user_created?.department?.title || ''
+        const needsPageBreak = creatorCount > 0 || includeSummary
+        creatorCount++
+
+        const targetViews = formatNumber(creator.target)
+        const creatorVideos = videos.length
+        const creatorViews = formatNumber(getTotalViews(videos))
+        const creatorBig = countBigVideos(videos)
+        const completed = isCompleted(creator)
+        const pct = calcPct(creator)
+        const statusText = completed ? 'Completed' : 'In Progress'
+        const statusCls = completed ? 'green' : 'yellow'
+        const pctCls = pct >= 100 ? 'green' : pct >= 75 ? 'yellow' : 'red'
+
+        h += `
+  <div class="${needsPageBreak ? 'page-break' : ''}">
+    <div class="creator-hdr no-break">
+      <h3>${name} — Video Details</h3>
+      <p>${pos ? `${pos}` : ''}${pos && dept ? ' &bull; ' : ''}${dept ? `${dept}` : ''}</p>
+    </div>
+
+    <div class="summary-grid" style="margin-top: 10pt;">
+      <div class="card"><div class="val">${targetViews}</div><div class="lbl">Target Views</div></div>
+      <div class="card"><div class="val">${creatorVideos}</div><div class="lbl">Total Videos</div></div>
+      <div class="card"><div class="val">${creatorViews}</div><div class="lbl">Total Views</div></div>
+      <div class="card"><div class="val">${creatorBig}</div><div class="lbl">Big Videos</div></div>
+      <div class="card"><div class="val ${statusCls}">${statusText}</div><div class="lbl">Target Status</div></div>
+      <div class="card"><div class="val ${pctCls}">${pct}%</div><div class="lbl">Progress</div></div>
+    </div>
+
+    <table>
+      <thead><tr>
+        <th style="width:46%" class="video-th">Video Title</th>
+        <th class="r video-th" style="width:14%">Views</th>
+        <th class="c video-th" style="width:10%">Big</th>
+        <th class="c video-th" style="width:10%">Impact</th>
+        <th class="c video-th" style="width:13%">Date</th>
+        <th class="c video-th" style="width:7%">Status</th>
+      </tr></thead>
+      <tbody>`
+
+        for (const v of videos) {
+          const isBig = v.big_video === 'yes'
+          const isImpact = v.impact_video === 'yes'
+          const isActive = v.status === 'active'
+          const titleTxt = v.title.length > 60 ? v.title.slice(0, 60) + '…' : v.title
+
+          h += `
+        <tr>
+          <td>${titleTxt}</td>
+          <td class="r">${formatNumber(v.view)}</td>
+          <td class="c ${isBig ? 'red' : ''}">${isBig ? 'Yes' : 'No'}</td>
+          <td class="c ${isImpact ? 'yellow' : ''}">${isImpact ? 'Yes' : 'No'}</td>
+          <td class="c">${formatDate(v.date_created)}</td>
+          <td class="c ${isActive ? 'green' : 'red'}">${v.status}</td>
+        </tr>`
+        }
+        h += `</tbody></table>
+  </div>`
+      }
+    }
+
+    h += `
+  <div class="footer">Staff Performance Report &mdash; ${periodLabel} &mdash; ${new Date().toLocaleDateString()}</div>
+</div>
+</body>
+</html>`
+
+    return h
   }
 
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
+  // ─── Print renderer ───────────────────────────────────────────────────────────
+
+  const printReport = (htmlContent: string, filename: string): void => {
+    const win = window.open('', '_blank', 'width=900,height=700')
+    if (!win) {
+      alert('Please allow popups for this page to generate the PDF report.')
+      return
+    }
+
+    win.document.open()
+    win.document.write(htmlContent)
+    win.document.close()
+
+    // Set title directly
+    win.document.title = filename.replace(/\.pdf$/i, '')
+
+    // Wait for the browser to render the written content & fonts
+    const triggerPrint = () => {
+      if (win.document.fonts) {
+        win.document.fonts.ready.then(() => {
+          setTimeout(() => {
+            win.focus()
+            win.print()
+            win.onafterprint = () => win.close()
+          }, 400) // Small delay to guarantee layout calculations complete
+        }).catch(() => {
+          setTimeout(() => {
+            win.focus()
+            win.print()
+            win.onafterprint = () => win.close()
+          }, 600)
+        })
+      } else {
+        setTimeout(() => {
+          win.focus()
+          win.print()
+          win.onafterprint = () => win.close()
+        }, 800)
+      }
+    }
+
+    // Execute in the next event loop tick to allow initial browser parsing/rendering
+    setTimeout(triggerPrint, 100)
   }
 
-  const isCompleted = (creator: CreatorData): boolean => {
-    const totalViews = parseInt(getTotalViews(creator.remarks))
-    return totalViews >= creator.target
-  }
+  // ─── Public API ───────────────────────────────────────────────────────────────
 
-  const calculatePercent = (creator: CreatorData): number => {
-    const totalViews = parseInt(getTotalViews(creator.remarks))
-    return Math.round((totalViews / creator.target) * 100)
-  }
-
-  const getUserName = (staffId: string, staffMembers: Record<string, string>): string => {
-    return staffMembers[staffId] || 'Unknown'
-  }
-
-  // Main PDF generation function
   const generatePerformanceReport = async (
     creators: CreatorData[],
     staffMembers: Record<string, string>,
     currentPeriodLabel: string,
     options: ReportOptions = {}
   ): Promise<void> => {
-    // Load font first
-    await loadKhmerFont()
-
-    const {
-      title = 'Staff Performance Report',
-      subtitle = currentPeriodLabel,
-      includeSummary = true,
-      includeVideoDetails = true,
-      includeCharts = false
-    } = options
-
-    // Create new PDF document
-    const doc = new jsPDF('p', 'mm', 'a4')
-    const pageWidth = doc.internal.pageSize.width
-    const pageHeight = doc.internal.pageSize.height
-    let yPosition = 20
-
-    // Helper function to check if we need a new page
-    const checkPageBreak = (requiredSpace: number = 20): void => {
-      if (yPosition + requiredSpace > pageHeight - 20) {
-        doc.addPage()
-        yPosition = 20
-      }
-    }
-
-    // Add header
-    const addHeader = (): void => {
-      // Main title
-      doc.setFontSize(24)
-      setFont(doc, title, 'bold')
-      doc.setTextColor(31, 81, 255) // Blue color
-      renderText(doc, title, pageWidth / 2, yPosition, { align: 'center' })
-      yPosition += 12
-
-      // Subtitle
-      doc.setFontSize(14)
-      setFont(doc, subtitle, 'normal')
-      doc.setTextColor(107, 114, 128) // Gray color
-      renderText(doc, subtitle, pageWidth / 2, yPosition, { align: 'center' })
-      yPosition += 8
-
-      // Report generated date
-      doc.setFontSize(10)
-      const dateText = `Generated on: ${new Date().toLocaleDateString()}`
-      setFont(doc, dateText, 'normal')
-      renderText(doc, dateText, pageWidth / 2, yPosition, { align: 'center' })
-      yPosition += 15
-
-      // Add separator line
-      doc.setDrawColor(229, 231, 235)
-      doc.setLineWidth(0.5)
-      doc.line(20, yPosition, pageWidth - 20, yPosition)
-      yPosition += 10
-    }
-
-    // Add summary section
-    const addSummarySection = (): void => {
-      if (!includeSummary) return
-
-      checkPageBreak(40)
-
-      // Section title
-      doc.setFontSize(16)
-      setFont(doc, 'Performance Summary', 'bold')
-      doc.setTextColor(31, 41, 55) // Dark gray
-      renderText(doc, 'Performance Summary', 20, yPosition)
-      yPosition += 10
-
-      // Calculate summary stats
-      const totalCreators = creators.length
-      const totalVideos = creators.reduce((sum, c) => sum + (c.remarks?.length || 0), 0)
-      const totalViews = creators.reduce((sum, c) => sum + parseInt(getTotalViews(c.remarks || [])), 0)
-      const totalBigVideos = creators.reduce((sum, c) => sum + countBigVideos(c.remarks || []), 0)
-      const completedTargets = creators.filter(isCompleted).length
-
-      // Create summary cards data
-      const summaryData = [
-        ['Total Creators', totalCreators.toString()],
-        ['Total Videos', totalVideos.toString()],
-        ['Total Views', formatNumber(totalViews)],
-        ['Big Videos', totalBigVideos.toString()],
-        ['Completed Targets', `${completedTargets}/${totalCreators}`],
-        ['Completion Rate', `${Math.round((completedTargets / totalCreators) * 100)}%`]
-      ]
-
-      // Summary table with font support
-      autoTable(doc, {
-        startY: yPosition,
-        head: [['Metric', 'Value']],
-        body: summaryData,
-        theme: 'grid',
-        headStyles: {
-          fillColor: [59, 130, 246], // Blue
-          textColor: 255,
-          fontSize: 12,
-          fontStyle: 'bold',
-          font: fontLoaded ? 'NotoSansKhmer-Regular' : 'helvetica'
-        },
-        bodyStyles: {
-          fontSize: 11,
-          textColor: [31, 41, 55],
-          font: fontLoaded ? 'NotoSansKhmer-Regular' : 'helvetica'
-        },
-        alternateRowStyles: {
-          fillColor: [248, 250, 252] // Light gray
-        },
-        margin: { left: 20, right: 20 },
-        columnStyles: {
-          0: { cellWidth: 60, fontStyle: 'bold' },
-          1: { cellWidth: 40, halign: 'center' }
-        }
-      })
-
-      yPosition = (doc as any).lastAutoTable.finalY + 15
-    }
-
-    // Add performance table
-    const addPerformanceTable = (): void => {
-      checkPageBreak(60)
-
-      // Section title
-      doc.setFontSize(16)
-      setFont(doc, 'Individual Performance', 'bold')
-      doc.setTextColor(31, 41, 55)
-      renderText(doc, 'Individual Performance', 20, yPosition)
-      yPosition += 10
-
-      // Prepare table data with combined name column
-      const tableData = creators.map(creator => {
-        const creatorName = getUserName(creator.staff, staffMembers)
-        const position = creator.user_created?.title || 'N/A'
-        const department = creator.user_created?.department?.title || 'N/A'
-        
-        const target = formatNumber(creator.target)
-        const status = isCompleted(creator) ? 'Completed' : 'In Progress'
-        const videoCount = creator.remarks?.length || 0
-        const totalViews = formatNumber(getTotalViews(creator.remarks || []))
-        const bigVideos = countBigVideos(creator.remarks || [])
-        const progress = `${calculatePercent(creator)}%`
-
-        return [
-          `${creatorName}\n${position}\n${department}`,
-          target,
-          status,
-          videoCount.toString(),
-          totalViews,
-          bigVideos.toString(),
-          progress
-        ]
-      })
-
-      // Performance table with font support
-      autoTable(doc, {
-        startY: yPosition,
-        head: [['Name & Details', 'Target', 'Status', 'Videos', 'Total Views', 'Big Videos', 'Progress']],
-        body: tableData,
-        theme: 'striped',
-        headStyles: {
-          fillColor: [59, 130, 246],
-          textColor: 255,
-          fontSize: 10,
-          fontStyle: 'bold',
-          font: fontLoaded ? 'NotoSansKhmer-Regular' : 'helvetica'
-        },
-        bodyStyles: {
-          fontSize: 9,
-          textColor: [31, 41, 55],
-          font: fontLoaded ? 'NotoSansKhmer-Regular' : 'helvetica'
-        },
-        alternateRowStyles: {
-          fillColor: [248, 250, 252]
-        },
-        margin: { left: 20, right: 20 },
-        columnStyles: {
-          0: { cellWidth: 45, valign: 'top' },
-          1: { cellWidth: 20, halign: 'right' },
-          2: { cellWidth: 25, halign: 'center' },
-          3: { cellWidth: 15, halign: 'center' },
-          4: { cellWidth: 25, halign: 'right' },
-          5: { cellWidth: 18, halign: 'center' },
-          6: { cellWidth: 18, halign: 'center' }
-        },
-        didParseCell: (data) => {
-          // Set font for each cell based on content
-          if (data.cell.text && data.cell.text.length > 0) {
-            const cellText = data.cell.text.join(' ')
-            if (/[\u1780-\u17FF]/.test(cellText) && fontLoaded) {
-              data.cell.styles.font = 'NotoSansKhmer-Regular'
-            }
-          }
-
-          // Color code status column
-          if (data.column.index === 2) {
-            const statusText = data.cell.text?.[0]
-            if (statusText === 'Completed') {
-              data.cell.styles.textColor = [34, 197, 94] // Green
-              data.cell.styles.fontStyle = 'bold'
-            } else if (statusText === 'In Progress') {
-              data.cell.styles.textColor = [251, 191, 36] // Yellow
-              data.cell.styles.fontStyle = 'bold'
-            }
-          }
-          
-          // Color code progress column
-          if (data.column.index === 6) {
-            const progressText = data.cell.text?.[0]
-            if (progressText) {
-              const progress = parseInt(progressText)
-              if (!isNaN(progress)) {
-                if (progress >= 100) {
-                  data.cell.styles.textColor = [34, 197, 94] // Green
-                  data.cell.styles.fontStyle = 'bold'
-                } else if (progress >= 75) {
-                  data.cell.styles.textColor = [251, 191, 36] // Yellow
-                } else {
-                  data.cell.styles.textColor = [239, 68, 68] // Red
-                }
-              }
-            }
-          }
-        },
-        didDrawCell: (data) => {
-          // Custom drawing for the name column with font support
-          if (data.column.index === 0 && data.row.index < tableData.length) {
-            try {
-              const originalText = tableData[data.row.index]?.[0]
-              if (!originalText) return
-              
-              const lines = originalText.split('\n')
-              
-              if (lines.length >= 3) {
-                const [name, position, department] = lines
-                const cellX = data.cell.x + 3
-                let cellY = data.cell.y + 6
-                
-                // Draw name (bold, normal size)
-                setFont(doc, name, 'bold')
-                doc.setFontSize(9)
-                doc.setTextColor(31, 41, 55)
-                doc.text(name || '', cellX, cellY)
-                cellY += 4
-                
-                // Draw position (normal, smaller size, gray)
-                setFont(doc, position, 'normal')
-                doc.setFontSize(7)
-                doc.setTextColor(107, 114, 128)
-                doc.text(position || '', cellX, cellY)
-                cellY += 3
-                
-                // Draw department (normal, smaller size, gray)
-                setFont(doc, department, 'normal')
-                doc.setFontSize(7)
-                doc.setTextColor(107, 114, 128)
-                doc.text(department || '', cellX, cellY)
-              }
-            } catch (error) {
-              console.warn('Error in custom cell rendering:', error)
-            }
-          }
-        }
-      })
-
-      yPosition = (doc as any).lastAutoTable.finalY + 15
-    }
-
-    // Add detailed video listings
-    const addVideoDetails = (): void => {
-      if (!includeVideoDetails) return
-
-      creators.forEach((creator, creatorIndex) => {
-        const creatorName = getUserName(creator.staff, staffMembers)
-        const videos = creator.remarks || []
-
-        if (videos.length === 0) return
-
-        checkPageBreak(40)
-
-        // Creator name header
-        doc.setFontSize(14)
-        setFont(doc, creatorName, 'bold')
-        doc.setTextColor(31, 41, 55)
-        renderText(doc, `${creatorName} - Video Details`, 20, yPosition)
-        yPosition += 8
-
-        // Creator stats
-        doc.setFontSize(10)
-        setFont(doc, 'stats', 'normal')
-        doc.setTextColor(107, 114, 128)
-        const creatorStats = `${videos.length} videos • ${formatNumber(getTotalViews(videos))} total views • ${countBigVideos(videos)} big videos`
-        renderText(doc, creatorStats, 20, yPosition)
-        yPosition += 10
-
-        // Video details table
-        const videoData = videos.map(video => [
-          video.title.length > 30 ? video.title.substring(0, 30) + '...' : video.title,
-          formatNumber(video.view),
-          video.big_video === 'yes' ? 'Yes' : 'No',
-          video.impact_video === 'yes' ? 'Yes' : 'No',
-          formatDate(video.date_created),
-          video.status
-        ])
-
-        autoTable(doc, {
-          startY: yPosition,
-          head: [['Video Title', 'Views', 'Big Video', 'Impact', 'Date', 'Status']],
-          body: videoData,
-          theme: 'grid',
-          headStyles: {
-            fillColor: [79, 70, 229], // Indigo
-            textColor: 255,
-            fontSize: 9,
-            fontStyle: 'bold',
-            font: fontLoaded ? 'NotoSansKhmer-Regular' : 'helvetica'
-          },
-          bodyStyles: {
-            fontSize: 8,
-            textColor: [31, 41, 55],
-            font: fontLoaded ? 'NotoSansKhmer-Regular' : 'helvetica'
-          },
-          margin: { left: 20, right: 20 },
-          columnStyles: {
-            0: { cellWidth: 60 }, // Title
-            1: { cellWidth: 25, halign: 'right' }, // Views
-            2: { cellWidth: 20, halign: 'center' }, // Big Video
-            3: { cellWidth: 20, halign: 'center' }, // Impact
-            4: { cellWidth: 25, halign: 'center' }, // Date
-            5: { cellWidth: 20, halign: 'center' } // Status
-          },
-          didParseCell: (data) => {
-            // Set font for each cell based on content
-            if (data.cell.text && data.cell.text.length > 0) {
-              const cellText = data.cell.text.join(' ')
-              if (/[\u1780-\u17FF]/.test(cellText) && fontLoaded) {
-                data.cell.styles.font = 'NotoSansKhmer-Regular'
-              }
-            }
-
-            // Color code Big Video column
-            if (data.column.index === 2) {
-              if (data.cell.text[0] === 'Yes') {
-                data.cell.styles.textColor = [239, 68, 68] // Red
-                data.cell.styles.fontStyle = 'bold'
-              }
-            }
-            // Color code Impact column
-            if (data.column.index === 3) {
-              if (data.cell.text[0] === 'Yes') {
-                data.cell.styles.textColor = [251, 146, 60] // Orange
-                data.cell.styles.fontStyle = 'bold'
-              }
-            }
-            // Color code Status column
-            if (data.column.index === 5) {
-              if (data.cell.text[0] === 'active') {
-                data.cell.styles.textColor = [34, 197, 94] // Green
-              } else {
-                data.cell.styles.textColor = [239, 68, 68] // Red
-              }
-            }
-          }
-        })
-
-        yPosition = (doc as any).lastAutoTable.finalY + 15
-
-        // Add page break if not the last creator
-        if (creatorIndex < creators.length - 1) {
-          checkPageBreak(40)
-        }
-      })
-    }
-
-    // Add footer to all pages
-    const addFooter = (): void => {
-      const pageCount = doc.getNumberOfPages()
-      for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i)
-        doc.setFontSize(8)
-        doc.setTextColor(107, 114, 128)
-        
-        // Set font for footer text
-        setFont(doc, `Page ${i} of ${pageCount}`, 'normal')
-        doc.text(
-          `Page ${i} of ${pageCount}`,
-          pageWidth / 2,
-          pageHeight - 10,
-          { align: 'center' }
-        )
-        
-        setFont(doc, 'Staff Performance Report', 'normal')
-        doc.text(
-          'Staff Performance Report',
-          20,
-          pageHeight - 10
-        )
-        
-        const dateText = new Date().toLocaleDateString()
-        setFont(doc, dateText, 'normal')
-        doc.text(
-          dateText,
-          pageWidth - 20,
-          pageHeight - 10,
-          { align: 'right' }
-        )
-      }
-    }
-
-    // Generate the report
-    addHeader()
-    addSummarySection()
-    addPerformanceTable()
-    addVideoDetails()
-    addFooter()
-
-    // Save the PDF
-    const filename = `staff-performance-report-${currentPeriodLabel.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().slice(0, 10)}.pdf`
-    doc.save(filename)
+    const html = buildHtml(creators, staffMembers, currentPeriodLabel, options)
+    const safeLabel = currentPeriodLabel.replace(/\s+/g, '-').toLowerCase()
+    const date = new Date().toISOString().slice(0, 10)
+    printReport(html, `staff-performance-report-${safeLabel}-${date}.pdf`)
   }
 
-  // Generate summary report (without video details)
   const generateSummaryReport = async (
     creators: CreatorData[],
     staffMembers: Record<string, string>,
@@ -549,11 +440,10 @@ const loadKhmerFont = async (): Promise<void> => {
     await generatePerformanceReport(creators, staffMembers, currentPeriodLabel, {
       title: 'Staff Performance Summary',
       includeSummary: true,
-      includeVideoDetails: false
+      includeVideoDetails: false,
     })
   }
 
-  // Generate detailed report (with all video details)
   const generateDetailedReport = async (
     creators: CreatorData[],
     staffMembers: Record<string, string>,
@@ -562,14 +452,17 @@ const loadKhmerFont = async (): Promise<void> => {
     await generatePerformanceReport(creators, staffMembers, currentPeriodLabel, {
       title: 'Detailed Staff Performance Report',
       includeSummary: true,
-      includeVideoDetails: true
+      includeVideoDetails: true,
     })
   }
+
+  // no-op kept for API compatibility
+  const loadKhmerFont = async (): Promise<void> => {}
 
   return {
     generatePerformanceReport,
     generateSummaryReport,
     generateDetailedReport,
-    loadKhmerFont // Export for manual loading if needed
+    loadKhmerFont,
   }
 }

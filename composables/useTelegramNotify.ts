@@ -26,6 +26,9 @@ interface PRNotifyPayload {
   deadline?: string
   collectionLabel?: string
   attachDocumentUrl?: string  // full public URL to the attached file
+  editingProcessPhotos?: string[] // public URLs to editing process photos
+  productionLink?: string
+  checkingLink?: string
 }
 
 const statusEmoji: Record<string, string> = {
@@ -49,9 +52,29 @@ function buildMessage(p: PRNotifyPayload): string {
     statusText = `🔥 <b><u>[${p.status.toUpperCase()}]</u></b> 🔥 (🚨 <b>Focus Required!</b>)`
   }
 
+  // Calculate if nearly deadline (within 2 days or past, and not Completed)
+  let isNearlyDue = false
+  if (p.status !== 'Compleated' && p.deadline) {
+    try {
+      const deadline = new Date(p.deadline)
+      deadline.setHours(0,0,0,0)
+      const today = new Date()
+      today.setHours(0,0,0,0)
+      const diffTime = deadline.getTime() - today.getTime()
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      isNearlyDue = diffDays <= 2
+    } catch {}
+  }
+
   const divider = '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯'
 
-  let msg = `${actionLine}\n`
+  let msg = ''
+  if (isNearlyDue) {
+    msg += `⚠️ <b>🚨 គម្រោងជិតដល់ថ្ងៃកំណត់! (NEARLY DEADLINE!)</b> ⚠️\n`
+    msg += `${divider}\n`
+  }
+
+  msg += `${actionLine}\n`
   msg += `${divider}\n`
   msg += `📋 <b>ព័ត៌មានស្នើសុំ PR (PR Details)</b>\n`
   msg += `• 📌 <b>Title:</b> ${p.title}\n`
@@ -68,11 +91,30 @@ function buildMessage(p: PRNotifyPayload): string {
   msg += `${divider}\n`
   msg += `📅 <b>កាលបរិច្ឆេទ (Timeline)</b>\n`
   msg += `• 📅 <b>Start:</b> ${p.startDate ?? 'N/A'}\n`
-  msg += `• 🚩 <b>Deadline:</b> ${p.deadline ?? 'N/A'}\n`
+  let deadlineLine = `• 🚩 <b>Deadline:</b> ${p.deadline ?? 'N/A'}`
+  if (isNearlyDue && p.deadline) {
+    deadlineLine += ` 🚨 <b>(ជិតហួសកំណត់ / Nearly Due!)</b>`
+  }
+  msg += `${deadlineLine}\n`
+
+  if (p.productionLink || p.checkingLink) {
+    msg += `${divider}\n`
+    msg += `🔗 <b>តំណភ្ជាប់គម្រោង (Project Links)</b>\n`
+    if (p.productionLink) msg += `• 🎥 <b>Production Link:</b> <a href="${p.productionLink}">View Production ↗</a>\n`
+    if (p.checkingLink)    msg += `• 🔍 <b>Checking Link:</b> <a href="${p.checkingLink}">View Checking ↗</a>\n`
+  }
 
   if (p.attachDocumentUrl) {
     msg += `${divider}\n`
     msg += `📎 <b>Attachment:</b> <a href="${p.attachDocumentUrl}">View File</a>\n`
+  }
+
+  if (p.editingProcessPhotos && p.editingProcessPhotos.length > 0) {
+    msg += `${divider}\n`
+    msg += `🖼️ <b>រូបភាពកែសម្រួល (Editing Photos):</b>\n`
+    p.editingProcessPhotos.forEach((url, index) => {
+      msg += `• <a href="${url}">Photo ${index + 1}</a>\n`
+    })
   }
 
   return msg.trim()
@@ -125,6 +167,66 @@ async function sendDocumentToTelegram(fileUrl: string, caption: string, threadId
   }
 }
 
+/**
+ * Try to send as a Telegram photo (so the file previews natively with caption).
+ * Falls back to sendDocumentToTelegram if it fails.
+ */
+async function sendPhotoToTelegram(photoUrl: string, caption: string, threadId: number): Promise<void> {
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        message_thread_id: threadId,
+        photo: photoUrl,
+        caption,
+        parse_mode: 'HTML',
+      }),
+    })
+    const data = await res.json()
+    if (!data.ok) {
+      console.warn('[useTelegramNotify] sendPhoto failed:', data.description, '— falling back to sendDocument')
+      await sendDocumentToTelegram(photoUrl, caption, threadId)
+    }
+  } catch (err) {
+    console.warn('[useTelegramNotify] sendPhoto error — falling back to sendDocument', err)
+    await sendDocumentToTelegram(photoUrl, caption, threadId)
+  }
+}
+
+/**
+ * Send multiple photos as an album (media group) with caption.
+ * Falls back to sendToTelegram if it fails.
+ */
+async function sendMediaGroupToTelegram(urls: string[], caption: string, threadId: number): Promise<void> {
+  try {
+    const media = urls.map((url, index) => ({
+      type: 'photo',
+      media: url,
+      ...(index === 0 ? { caption, parse_mode: 'HTML' } : {})
+    }))
+
+    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        message_thread_id: threadId,
+        media,
+      }),
+    })
+    const data = await res.json()
+    if (!data.ok) {
+      console.warn('[useTelegramNotify] sendMediaGroup failed:', data.description, '— falling back to sendToTelegram')
+      await sendToTelegram(caption, threadId)
+    }
+  } catch (err) {
+    console.warn('[useTelegramNotify] sendMediaGroup error — falling back to sendToTelegram', err)
+    await sendToTelegram(caption, threadId)
+  }
+}
+
 export const useTelegramNotify = () => {
   /**
    * Notify the correct topic based on departmentName.
@@ -145,6 +247,14 @@ export const useTelegramNotify = () => {
 
     if (payload.attachDocumentUrl) {
       await sendDocumentToTelegram(payload.attachDocumentUrl, text, threadId)
+    } else if (payload.editingProcessPhotos && payload.editingProcessPhotos.length > 0) {
+      if (payload.editingProcessPhotos.length === 1) {
+        await sendPhotoToTelegram(payload.editingProcessPhotos[0], text, threadId)
+      } else {
+        // Telegram media group supports 2 to 10 photos
+        const photosToSend = payload.editingProcessPhotos.slice(0, 10)
+        await sendMediaGroupToTelegram(photosToSend, text, threadId)
+      }
     } else {
       await sendToTelegram(text, threadId)
     }

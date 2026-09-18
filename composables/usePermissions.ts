@@ -13,7 +13,7 @@ export function usePermissions() {
   // hrRoleId
   const hrRoleId = '90feab0a-4641-44bc-91ea-806387b95230'
   // editor roleID
-  const editorRoleId = 'af115dbc-3aad-4879-8c1e-5ed0059ec576'
+  const editorRoleId = 'fe656e58-5b01-496f-ac9c-9c3fadca70af'
 
   const isAdmin = computed(() => {
     return auth.user?.role?.id === adminRoleId
@@ -33,7 +33,7 @@ export function usePermissions() {
   })
 
   const isEditor = computed(() => {
-    return auth.user?.role?.id === editorRoleId
+    return auth.user?.role?.id === editorRoleId || auth.user?.role?.id === 'af115dbc-3aad-4879-8c1e-5ed0059ec576'
   })
 
   return {

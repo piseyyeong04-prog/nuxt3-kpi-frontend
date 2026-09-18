@@ -30,4 +30,4 @@ export const usePDFReport = () => {
   };
 };
 
-export class ActivityReportGenerator {
+// export class ActivityReportGenerator {

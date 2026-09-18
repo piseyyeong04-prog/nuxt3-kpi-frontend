@@ -298,7 +298,21 @@ const fetchViewRecords = async () => {
     );
     
     if (adViewsData.data) {
-      advertisementViews.value = adViewsData.data.sort(
+      // Group and sum by date to handle duplicate records on the same day
+      const grouped: Record<string, ViewRecord> = {};
+      for (const record of adViewsData.data) {
+        if (!grouped[record.date]) {
+          grouped[record.date] = {
+            date: record.date,
+            impressions: 0,
+            ad_clicks: 0
+          };
+        }
+        grouped[record.date].impressions += record.impressions || 0;
+        grouped[record.date].ad_clicks += record.ad_clicks || 0;
+      }
+
+      advertisementViews.value = Object.values(grouped).sort(
         (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
       );
       initChart();

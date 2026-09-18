@@ -68,6 +68,7 @@ export default defineNuxtConfig({
       TELEGRAM_BOT_TOKEN: process.env.NUXT_PUBLIC_TELEGRAM_BOT_TOKEN,
       TELEGRAM_CHAT_ID: process.env.NUXT_PUBLIC_TELEGRAM_CHAT_ID,
       TELEGRAM_THREAD_ID: process.env.NUXT_PUBLIC_TELEGRAM_THREAD_ID,
+      FORM_API_BASE_URL: process.env.FORM_API_BASE_URL,
     },
   },
 

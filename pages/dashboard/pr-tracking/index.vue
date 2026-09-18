@@ -19,6 +19,17 @@
       </div>
     </div>
 
+    <!-- Alert Banner -->
+    <div v-if="nearlyDeadlineCount > 0" class="mb-6 p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-2xl flex items-center gap-3 animate-pulse">
+      <div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/40 flex items-center justify-center text-red-600 dark:text-red-400">
+        <Icon icon="mdi:alert-decagram" class="text-2xl" />
+      </div>
+      <div>
+        <h4 class="font-bold text-red-800 dark:text-red-300 text-sm">គម្រោងជិតដល់ថ្ងៃកំណត់! (Nearly Deadline Alerts)</h4>
+        <p class="text-xs text-red-600 dark:text-red-400">There are {{ nearlyDeadlineCount }} project(s) close to or past their deadline. Please check the highlighted records below.</p>
+      </div>
+    </div>
+
     <!-- Stats -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
       <div v-for="s in stats" :key="s.label" class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 flex items-center gap-3">
@@ -69,10 +80,19 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(r, i) in paginated" :key="r.id" class="border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
-              <td class="py-3 px-4 text-gray-400">{{ (page-1)*pageSize+i+1 }}</td>
+            <tr v-for="(r, i) in paginated" :key="r.id"
+              :class="[
+                'border-b border-gray-50 dark:border-gray-800 transition',
+                isNearlyDeadline(r)
+                  ? 'bg-red-50/40 dark:bg-red-950/10 hover:bg-red-100/40 dark:hover:bg-red-950/20'
+                  : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
+              ]"
+            >
+              <td :class="['py-3 px-4 text-gray-400', isNearlyDeadline(r) ? 'border-l-4 border-l-red-500 font-bold text-red-500' : '']">
+                {{ (page-1)*pageSize+i+1 }}
+              </td>
               <td class="py-3 px-4">
-                <p class="font-medium text-gray-900 dark:text-white">{{ r.title }}</p>
+                <p :class="['font-medium', isNearlyDeadline(r) ? 'text-red-700 dark:text-red-400 font-bold' : 'text-gray-900 dark:text-white']">{{ r.title }}</p>
                 <p class="text-xs text-gray-400">{{ r.client }}</p>
               </td>
               <td class="py-3 px-4 hidden md:table-cell text-gray-600 dark:text-gray-300">
@@ -86,7 +106,10 @@
               <td class="py-3 px-4 hidden lg:table-cell text-xs text-gray-400">
                 <span v-if="r.start_pr">{{ fmtDate(r.start_pr) }}</span>
                 <span v-if="r.start_pr && r.deadline_pr"> → </span>
-                <span v-if="r.deadline_pr">{{ fmtDate(r.deadline_pr) }}</span>
+                <span v-if="r.deadline_pr" :class="isNearlyDeadline(r) ? 'text-red-600 dark:text-red-400 font-bold inline-flex items-center gap-1 mt-0.5' : ''">
+                  <Icon v-if="isNearlyDeadline(r)" icon="mdi:alert-circle" class="text-red-500 text-sm animate-pulse" />
+                  {{ fmtDate(r.deadline_pr) }}
+                </span>
                 <span v-if="!r.start_pr && !r.deadline_pr">—</span>
               </td>
               <td class="py-3 px-4">
@@ -289,6 +312,94 @@
 
             </div>
           </div>
+
+          <!-- Editing Process Images (Visible only when Status is 'Editing') -->
+          <div v-if="form.status === 'Editing'" class="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="flex items-center gap-2 px-4 py-2 bg-purple-50 dark:bg-purple-900/20 border-b border-purple-100 dark:border-purple-800">
+              <Icon icon="mdi:image-multiple" class="text-purple-500" />
+              <span class="text-xs font-semibold text-purple-700 dark:text-purple-300 uppercase tracking-wide">Editing Process Photos</span>
+            </div>
+            <div class="p-4 space-y-4">
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div v-for="(img, idx) in editingFiles" :key="idx" class="relative group aspect-square border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-800 flex items-center justify-center">
+                  <img v-if="img.previewUrl" :src="img.previewUrl" class="w-full h-full object-cover" />
+                  <div v-else class="flex flex-col items-center text-gray-400">
+                    <Icon icon="mdi:file-document" class="text-3xl" />
+                    <span class="text-[10px] truncate max-w-full px-1">{{ img.file?.name }}</span>
+                  </div>
+                  <!-- Delete button -->
+                  <button
+                    type="button"
+                    class="absolute top-1.5 right-1.5 w-6 h-6 flex items-center justify-center rounded-full bg-red-600 hover:bg-red-700 text-white shadow-md transition opacity-0 group-hover:opacity-100"
+                    @click="removeMultiFile(idx)"
+                  >
+                    <Icon icon="mdi:close" class="text-xs" />
+                  </button>
+                </div>
+                <!-- Uploader dropzone -->
+                <label
+                  for="multi-file-upload"
+                  class="aspect-square border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-purple-400 hover:bg-purple-50/30 dark:hover:bg-purple-900/10 transition"
+                >
+                  <Icon icon="mdi:camera-plus" class="text-2xl text-gray-400 mb-1" />
+                  <span class="text-[10px] text-gray-500 font-semibold">Upload Photo</span>
+                  <input id="multi-file-upload" type="file" multiple class="hidden" @change="onMultiFilePick" accept="image/*" />
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Project Links (Production Link & Checking Link - Editable by Editor/Creator/Admin) -->
+          <div class="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 border-b border-indigo-100 dark:border-indigo-800">
+              <Icon icon="mdi:link-variant" class="text-indigo-500" />
+              <span class="text-xs font-semibold text-indigo-700 dark:text-indigo-300 uppercase tracking-wide">Project Links</span>
+            </div>
+            <div class="p-4 space-y-3">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Production Link</label>
+                  <input v-model="form.production_link" type="url" class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="https://..." />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Checking Link</label>
+                  <input v-model="form.checking_link" type="url" class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="https://..." />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Management Process Guidance Comments (Only Admin role 3a5cb98e-02f8-4f09-afd9-dcd43288c756 can edit) -->
+          <div class="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="flex items-center gap-2 px-4 py-2 bg-rose-50 dark:bg-rose-900/20 border-b border-rose-100 dark:border-rose-800">
+              <Icon icon="mdi:comment-text-multiple" class="text-rose-500" />
+              <span class="text-xs font-semibold text-rose-700 dark:text-rose-300 uppercase tracking-wide">Process Guidance Comments</span>
+            </div>
+            <div class="p-4 space-y-3">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Plan Process Guidance</label>
+                  <textarea v-model="form.comment_plan" :disabled="!isAdmin" rows="2" :class="['w-full px-3 py-1.5 border border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-400 resize-none', !isAdmin ? disabledCls : 'bg-white dark:bg-gray-700']" placeholder="Admin guidance for Plan process..."></textarea>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Processing Guidance</label>
+                  <textarea v-model="form.comment_processing" :disabled="!isAdmin" rows="2" :class="['w-full px-3 py-1.5 border border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-400 resize-none', !isAdmin ? disabledCls : 'bg-white dark:bg-gray-700']" placeholder="Admin guidance for Processing..."></textarea>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Shooting / Writing Guidance</label>
+                  <textarea v-model="form.comment_shooting" :disabled="!isAdmin" rows="2" :class="['w-full px-3 py-1.5 border border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-400 resize-none', !isAdmin ? disabledCls : 'bg-white dark:bg-gray-700']" placeholder="Admin guidance for Shooting/Writing..."></textarea>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Editing Guidance</label>
+                  <textarea v-model="form.comment_editing" :disabled="!isAdmin" rows="2" :class="['w-full px-3 py-1.5 border border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-400 resize-none', !isAdmin ? disabledCls : 'bg-white dark:bg-gray-700']" placeholder="Admin guidance for Editing..."></textarea>
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Checking Guidance</label>
+                  <textarea v-model="form.comment_checking" :disabled="!isAdmin" rows="2" :class="['w-full px-3 py-1.5 border border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-400 resize-none', !isAdmin ? disabledCls : 'bg-white dark:bg-gray-700']" placeholder="Admin guidance for Checking..."></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
         </form>
         <!-- Fixed Footer -->
         <div class="flex items-center justify-between px-5 py-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-2xl flex-shrink-0">
@@ -340,6 +451,61 @@
             <a :href="`http://46.250.231.152:8056/assets/${viewRec.attach_document}`" target="_blank" class="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline">
               <Icon icon="mdi:file-download" /> Download / View File
             </a>
+          </div>
+          <!-- Process Images View Section -->
+          <div v-if="viewRec.editing_process && viewRec.editing_process.length" class="col-span-2">
+            <p class="text-xs text-gray-400 mb-1 font-semibold">Editing Process Images</p>
+            <div class="grid grid-cols-3 gap-2 mt-1">
+              <div v-for="item in viewRec.editing_process" :key="item.id || (typeof item.directus_files_id === 'object' ? item.directus_files_id?.id : item.directus_files_id)" class="relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                <a :href="`${useRuntimeConfig().public.API_BASE_URL || 'http://46.250.231.152:8056'}/assets/${typeof item.directus_files_id === 'object' ? item.directus_files_id?.id : item.directus_files_id}`" target="_blank">
+                  <img :src="`${useRuntimeConfig().public.API_BASE_URL || 'http://46.250.231.152:8056'}/assets/${typeof item.directus_files_id === 'object' ? item.directus_files_id?.id : item.directus_files_id}`" class="w-full h-full object-cover hover:scale-105 transition duration-300" />
+                </a>
+              </div>
+            </div>
+          </div>
+          <!-- Project Links View Section -->
+          <div v-if="viewRec.production_link || viewRec.checking_link" class="col-span-2 grid grid-cols-2 gap-3 mt-2 border-t border-gray-100 dark:border-gray-700/50 pt-3">
+            <div v-if="viewRec.production_link">
+              <p class="text-xs text-gray-400 mb-1 font-semibold">Production Link</p>
+              <a :href="viewRec.production_link" target="_blank" class="inline-flex items-center gap-2 text-sm text-indigo-600 dark:text-indigo-400 hover:underline font-medium">
+                <Icon icon="mdi:launch" /> Go to Production ↗
+              </a>
+            </div>
+            <div v-if="viewRec.checking_link">
+              <p class="text-xs text-gray-400 mb-1 font-semibold">Checking Link</p>
+              <a :href="viewRec.checking_link" target="_blank" class="inline-flex items-center gap-2 text-sm text-indigo-600 dark:text-indigo-400 hover:underline font-medium">
+                <Icon icon="mdi:launch" /> Go to Checking ↗
+              </a>
+            </div>
+          </div>
+          <!-- Process Guidance Comments View (Visible to everyone if any exist) -->
+          <div v-if="viewRec.comment_plan || viewRec.comment_processing || viewRec.comment_shooting || viewRec.comment_editing || viewRec.comment_checking" class="col-span-2 rounded-xl border border-rose-200 dark:border-rose-900/50 overflow-hidden mt-2">
+            <div class="flex items-center gap-2 px-4 py-2 bg-rose-50 dark:bg-rose-900/20 border-b border-rose-100 dark:border-rose-900">
+              <Icon icon="mdi:comment-text-multiple" class="text-rose-500" />
+              <span class="text-xs font-semibold text-rose-700 dark:text-rose-300 uppercase tracking-wide">Process Guidance Details</span>
+            </div>
+            <div class="p-4 space-y-3 text-xs">
+              <div v-if="viewRec.comment_plan" class="border-b border-gray-100 dark:border-gray-700/50 pb-2">
+                <p class="font-bold text-gray-700 dark:text-gray-300">Plan Comment:</p>
+                <p class="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{{ viewRec.comment_plan }}</p>
+              </div>
+              <div v-if="viewRec.comment_processing" class="border-b border-gray-100 dark:border-gray-700/50 pb-2">
+                <p class="font-bold text-gray-700 dark:text-gray-300">Processing Comment:</p>
+                <p class="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{{ viewRec.comment_processing }}</p>
+              </div>
+              <div v-if="viewRec.comment_shooting" class="border-b border-gray-100 dark:border-gray-700/50 pb-2">
+                <p class="font-bold text-gray-700 dark:text-gray-300">Shooting / Writing Comment:</p>
+                <p class="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{{ viewRec.comment_shooting }}</p>
+              </div>
+              <div v-if="viewRec.comment_editing" class="border-b border-gray-100 dark:border-gray-700/50 pb-2">
+                <p class="font-bold text-gray-700 dark:text-gray-300">Editing Comment:</p>
+                <p class="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{{ viewRec.comment_editing }}</p>
+              </div>
+              <div v-if="viewRec.comment_checking">
+                <p class="font-bold text-gray-700 dark:text-gray-300">Checking Comment:</p>
+                <p class="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{{ viewRec.comment_checking }}</p>
+              </div>
+            </div>
           </div>
         </div>
         <div class="p-5 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2">
@@ -428,8 +594,63 @@ const onFilePick = (e: Event) => {
 }
 const isImage = (name: string) => /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(name)
 
-interface Form { title:string; client:string; status:string; creator_or_writer:string; editor:string; start_pr:string; deadline_pr:string; description:string; attach_document:string }
-const blank = (): Form => ({ title:'', client:'', status:'Plan', creator_or_writer:'', editor:'', start_pr:'', deadline_pr:'', description:'', attach_document:'' })
+// Multi-image process uploading state
+const editingFiles = ref<{ id?: string; file?: File; previewUrl?: string }[]>([])
+const onMultiFilePick = (e: Event) => {
+  const files = (e.target as HTMLInputElement).files
+  if (!files) return
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i]
+    const previewUrl = file.type.startsWith('image/') ? URL.createObjectURL(file) : ''
+    editingFiles.value.push({ file, previewUrl })
+  }
+}
+const removeMultiFile = (index: number) => {
+  const item = editingFiles.value[index]
+  if (item.previewUrl && !item.id) {
+    URL.revokeObjectURL(item.previewUrl)
+  }
+  editingFiles.value.splice(index, 1)
+}
+
+interface Form {
+  title: string;
+  client: string;
+  status: string;
+  creator_or_writer: string;
+  editor: string;
+  start_pr: string;
+  deadline_pr: string;
+  description: string;
+  attach_document: string;
+  editing_process: { id?: string | number; directus_files_id: string }[];
+  comment_plan: string;
+  comment_processing: string;
+  comment_shooting: string;
+  comment_editing: string;
+  comment_checking: string;
+  production_link: string;
+  checking_link: string;
+}
+const blank = (): Form => ({
+  title: '',
+  client: '',
+  status: 'Plan',
+  creator_or_writer: '',
+  editor: '',
+  start_pr: '',
+  deadline_pr: '',
+  description: '',
+  attach_document: '',
+  editing_process: [],
+  comment_plan: '',
+  comment_processing: '',
+  comment_shooting: '',
+  comment_editing: '',
+  comment_checking: '',
+  production_link: '',
+  checking_link: ''
+})
 const form = ref<Form>(blank())
 
 // helpers
@@ -437,6 +658,23 @@ const fullName = (u?: DirectusUser|null) => u ? (`${u.first_name??''} ${u.last_n
 const fmtDate = (d: string) => new Date(d).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})
 const toDateInput = (d?:string|null) => d ? d.slice(0,10) : ''
 const roleLabel = (r?: string) => r === CREATOR_ROLE_ID ? 'Creator' : r === WRITER_ROLE_ID ? 'Writer' : r === ADMIN_ROLE_ID ? 'Admin' : 'Editor'
+
+const isNearlyDeadline = (r: PRTrackingExpanded) => {
+  if (r.status === 'Compleated' || !r.deadline_pr) return false
+  try {
+    const deadline = new Date(r.deadline_pr)
+    deadline.setHours(0,0,0,0)
+    const today = new Date()
+    today.setHours(0,0,0,0)
+    const diffTime = deadline.getTime() - today.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    return diffDays <= 2
+  } catch {
+    return false
+  }
+}
+
+const nearlyDeadlineCount = computed(() => records.value.filter(r => isNearlyDeadline(r)).length)
 
 /** True when the selected creator/writer is a Writer role user */
 const isWriterSelected = computed(() => {
@@ -454,6 +692,7 @@ const currentUserRole = computed(() => authStore.user?.role?.id ?? '')
 const isCurrentUserWriter  = computed(() => currentUserRole.value === WRITER_ROLE_ID)
 const isCurrentUserCreator = computed(() => currentUserRole.value === CREATOR_ROLE_ID)
 const isCurrentUserEditor  = computed(() => currentUserRole.value === EDITOR_ROLE_ID)
+const isAdmin              = computed(() => currentUserRole.value === ADMIN_ROLE_ID)
 /** Writer, Creator, or Editor — limited to status + attach_document edits only */
 const isLimitedRole = computed(() => isCurrentUserWriter.value || isCurrentUserCreator.value || isCurrentUserEditor.value)
 const disabledCls   = 'opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-800'
@@ -520,7 +759,7 @@ const loadUsers = async () => {
 }
 
 // modal openers
-const openCreate = () => { editing.value=false; editingId.value=undefined; form.value=blank(); pickedFile.value=null; showForm.value=true }
+const openCreate = () => { editing.value=false; editingId.value=undefined; form.value=blank(); pickedFile.value=null; editingFiles.value=[]; showForm.value=true }
 const openEdit   = (r: PRTrackingExpanded) => {
   editing.value  = true
   editingId.value = r.id
@@ -534,8 +773,29 @@ const openEdit   = (r: PRTrackingExpanded) => {
     deadline_pr: toDateInput(r.deadline_pr),
     description: r.description ?? '',
     attach_document: r.attach_document ?? '',
+    editing_process: r.editing_process ? r.editing_process.map(item => ({
+      id: item.id,
+      directus_files_id: (typeof item.directus_files_id === 'object' ? item.directus_files_id?.id : item.directus_files_id) ?? ''
+    })) : [],
+    comment_plan: r.comment_plan ?? '',
+    comment_processing: r.comment_processing ?? '',
+    comment_shooting: r.comment_shooting ?? '',
+    comment_editing: r.comment_editing ?? '',
+    comment_checking: r.comment_checking ?? '',
+    production_link: r.production_link ?? '',
+    checking_link: r.checking_link ?? '',
   }
   pickedFile.value = null
+  
+  const apiBase = useRuntimeConfig().public.API_BASE_URL || 'http://46.250.231.152:8056'
+  editingFiles.value = r.editing_process ? r.editing_process.map(item => {
+    const fileId = typeof item.directus_files_id === 'object' ? item.directus_files_id?.id : item.directus_files_id
+    return {
+      id: fileId,
+      previewUrl: fileId ? `${apiBase}/assets/${fileId}` : ''
+    }
+  }).filter(f => f.id) : []
+
   showForm.value = true
 }
 const openView = (r: PRTrackingExpanded) => { viewRec.value = r; showView.value = true }
@@ -556,26 +816,62 @@ const submitForm = async () => {
       }
     }
 
+    // Upload editing process images if any
+    const finalEditingProcess: { directus_files_id: string }[] = [];
+    for (const item of editingFiles.value) {
+      if (item.id) {
+        finalEditingProcess.push({ directus_files_id: item.id })
+      } else if (item.file) {
+        try {
+          const newId = await uploadFile(item.file)
+          finalEditingProcess.push({ directus_files_id: newId })
+        } catch {
+          toast('Failed to upload process image', 'error')
+          isSaving.value = false
+          return
+        }
+      }
+    }
+    form.value.editing_process = finalEditingProcess
+
     const currentRoleId = authStore.user?.role?.id
     const isLimited = currentRoleId === WRITER_ROLE_ID || currentRoleId === CREATOR_ROLE_ID || currentRoleId === EDITOR_ROLE_ID
 
     // Writer, Creator & Editor may only update the fields their Directus policy permits
-    const payload: any = isLimited
-      ? {
-          status:          form.value.status,
-          attach_document: form.value.attach_document || null,
-        }
-      : {
-          title:             form.value.title,
-          client:            form.value.client,
-          status:            form.value.status,
-          creator_or_writer: form.value.creator_or_writer || null,
-          editor:            form.value.editor || null,
-          start_pr:          form.value.start_pr || null,
-          deadline_pr:       form.value.deadline_pr || null,
-          description:       form.value.description || null,
-          attach_document:   form.value.attach_document || null,
-        }
+    const payload: any = {}
+    if (isLimited) {
+      payload.status = form.value.status
+      payload.attach_document = form.value.attach_document || null
+      if (currentRoleId === EDITOR_ROLE_ID) {
+        payload.editing_process = form.value.editing_process
+      }
+      if (currentRoleId === CREATOR_ROLE_ID || currentRoleId === EDITOR_ROLE_ID || currentRoleId === WRITER_ROLE_ID) {
+        payload.production_link = form.value.production_link || null
+        payload.checking_link = form.value.checking_link || null
+      }
+    } else {
+      payload.title = form.value.title
+      payload.client = form.value.client
+      payload.status = form.value.status
+      payload.creator_or_writer = form.value.creator_or_writer || null
+      payload.editor = form.value.editor || null
+      payload.start_pr = form.value.start_pr || null
+      payload.deadline_pr = form.value.deadline_pr || null
+      payload.description = form.value.description || null
+      payload.attach_document = form.value.attach_document || null
+      payload.editing_process = form.value.editing_process
+      payload.production_link = form.value.production_link || null
+      payload.checking_link = form.value.checking_link || null
+      
+      // Only Admin role (3a5cb98e-02f8-4f09-afd9-dcd43288c756) is allowed to comment
+      if (currentRoleId === ADMIN_ROLE_ID) {
+        payload.comment_plan = form.value.comment_plan || null
+        payload.comment_processing = form.value.comment_processing || null
+        payload.comment_shooting = form.value.comment_shooting || null
+        payload.comment_editing = form.value.comment_editing || null
+        payload.comment_checking = form.value.comment_checking || null
+      }
+    }
 
     if (editing.value && editingId.value !== undefined) {
       const updated = await update(editingId.value, payload)
@@ -588,6 +884,12 @@ const submitForm = async () => {
 
       const apiBase = useRuntimeConfig().public.API_BASE_URL || 'http://46.250.231.152:8056'
       const attachUrl = form.value.attach_document ? `${apiBase}/assets/${form.value.attach_document}` : undefined
+      const processPhotos = form.value.editing_process
+        ? form.value.editing_process.map(img => {
+            const fileId = typeof img.directus_files_id === 'object' ? (img.directus_files_id as any)?.id : img.directus_files_id
+            return fileId ? `${apiBase}/assets/${fileId}` : ''
+          }).filter(url => url)
+        : []
 
       const editorUser2  = editorList.value.find(u  => u.id === form.value.editor)
       notifyPR({
@@ -601,6 +903,9 @@ const submitForm = async () => {
         startDate: form.value.start_pr    || undefined,
         deadline:  form.value.deadline_pr || undefined,
         attachDocumentUrl: attachUrl,
+        editingProcessPhotos: processPhotos,
+        productionLink: form.value.production_link || undefined,
+        checkingLink: form.value.checking_link || undefined,
       })
     } else {
       const created = await create(payload)
@@ -609,10 +914,16 @@ const submitForm = async () => {
       // ── Telegram notify on create ────────────────────────────────────────
       const creatorUser3 = creatorList.value.find(u => u.id === form.value.creator_or_writer)
       const deptName = creatorUser3?.department?.title ?? authStore.user?.department?.title ?? undefined
-
+ 
       const apiBase = useRuntimeConfig().public.API_BASE_URL || 'http://46.250.231.152:8056'
       const attachUrl = form.value.attach_document ? `${apiBase}/assets/${form.value.attach_document}` : undefined
-
+      const processPhotos = form.value.editing_process
+        ? form.value.editing_process.map(img => {
+            const fileId = typeof img.directus_files_id === 'object' ? (img.directus_files_id as any)?.id : img.directus_files_id
+            return fileId ? `${apiBase}/assets/${fileId}` : ''
+          }).filter(url => url)
+        : []
+ 
       const editorUser3  = editorList.value.find(u  => u.id === form.value.editor)
       notifyPR({
         action: 'created',
@@ -625,6 +936,9 @@ const submitForm = async () => {
         startDate: form.value.start_pr    || undefined,
         deadline:  form.value.deadline_pr || undefined,
         attachDocumentUrl: attachUrl,
+        editingProcessPhotos: processPhotos,
+        productionLink: form.value.production_link || undefined,
+        checkingLink: form.value.checking_link || undefined,
       })
     }
     showForm.value = false

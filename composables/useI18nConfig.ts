@@ -55,7 +55,12 @@ export const useI18nConfig = () => {
           project: 'Project',
           about: 'About',
           full_name: 'SOUN Soratha',
-          hero_des: `Hello, I'm Soratha, a passionate Full Stack Developer with a knack for crafting robust, scalable web applications. With expertise in both front-end and back-end technologies`
+          hero_des: `Hello, I'm Soratha, a passionate Full Stack Developer with a knack for crafting robust, scalable web applications. With expertise in both front-end and back-end technologies`,
+          video: 'Video',
+          evaluate: 'Evaluate',
+          technology_cambodia: 'Technology Cambodia',
+          healthy_cambodia: 'Healthy Cambodia',
+          business_cambodia: 'Business Cambodia'
         },
         km: {
           signIn: 'ចូលគណនី',
@@ -78,7 +83,12 @@ export const useI18nConfig = () => {
           project: 'គម្រោង',
           about: 'អំពីយើង',
           full_name: 'សួន សុរដ្ឋា',
-          hero_des: `ជំរាបសួរ ខ្ញុំឈ្មោះ សួន​ សុរដ្ឋា ដែលជា Full Stack Developer ដែលមានជំនាញក្នុងការបង្កើតកម្មវិធីគេហទំព័រដ៏រឹងមាំ និងអាចធ្វើមាត្រដ្ឋានបាន។ ជាមួយនឹងជំនាញទាំងផ្នែកខាងមុខ និងផ្នែកខាងក្រោយនៃបច្ចេកវិទ្យា`
+          hero_des: `ជំរាបសួរ ខ្ញុំឈ្មោះ សួន​ សុរដ្ឋា ដែលជា Full Stack Developer ដែលមានជំនាញក្នុងការបង្កើតកម្មវិធីគេហទំព័រដ៏រឹងមាំ និងអាចធ្វើមាត្រដ្ឋានបាន។ ជាមួយនឹងជំនាញទាំងផ្នែកខាងមុខ និងផ្នែកខាងក្រោយនៃបច្ចេកវិទ្យា`,
+          video: 'វីដេអូ',
+          evaluate: 'វាយតម្លៃ',
+          technology_cambodia: 'បច្ចេកវិទ្យាកម្ពុជា',
+          healthy_cambodia: 'សុខភាពកម្ពុជា',
+          business_cambodia: 'ធុរកិច្ចកម្ពុជា'
         },
       },
     },
