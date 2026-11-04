@@ -23,10 +23,27 @@
                         <span>{{ clients.length }} clients</span>
                     </div>
                 </div>
-                <div class=" flex justify-end">
+                <div class="flex flex-wrap items-center justify-end gap-3 mt-4">
+                    <!-- Export to Excel Button -->
+                    <button @click="exportToExcel" :disabled="isExportingExcel || !clients.length"
+                        class="px-5 py-2.5 flex items-center bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-medium rounded-xl shadow hover:scale-105 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+                        <Icon v-if="!isExportingExcel" icon="heroicons:arrow-down-tray" class="h-4 w-4 mr-2" />
+                        <Icon v-else icon="heroicons:arrow-path" class="h-4 w-4 mr-2 animate-spin" />
+                        {{ isExportingExcel ? 'Exporting...' : 'Export Excel (.xlsx)' }}
+                    </button>
+
+                    <!-- Export to PDF Button -->
+                    <button @click="exportToPDF" :disabled="isExportingPDF || !clients.length"
+                        class="px-5 py-2.5 flex items-center bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white font-medium rounded-xl shadow hover:scale-105 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+                        <Icon v-if="!isExportingPDF" icon="heroicons:document-arrow-down" class="h-4 w-4 mr-2" />
+                        <Icon v-else icon="heroicons:arrow-path" class="h-4 w-4 mr-2 animate-spin" />
+                        {{ isExportingPDF ? 'Generating...' : 'Export PDF' }}
+                    </button>
+
+                    <!-- Import Clients Button -->
                     <button @click="openImportModal"
-                        class="px-6 flex py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-xl shadow hover:scale-105 transition">
-                        <Icon icon="heroicons:cloud-arrow-up" class="h-5 w-5 mr-2" />
+                        class="px-5 py-2.5 flex items-center bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-xl shadow hover:scale-105 transition text-sm">
+                        <Icon icon="heroicons:cloud-arrow-up" class="h-4 w-4 mr-2" />
                         Import Clients
                     </button>
                 </div>
@@ -368,9 +385,25 @@
                         </h3>
                         <p class="text-gray-300 mt-1">Manage your client relationships</p>
                     </div>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2">
-                        <span class="text-white font-semibold">{{ filteredClients.length }}</span>
-                        <span class="text-gray-300 ml-1">clients</span>
+                    <div class="flex items-center gap-2">
+                        <button @click="exportToExcel" :disabled="isExportingExcel || !filteredClients.length"
+                            title="Export filtered clients to Excel"
+                            class="px-3.5 py-2 flex items-center bg-emerald-600/90 hover:bg-emerald-600 text-white text-xs font-medium rounded-xl shadow transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <Icon v-if="!isExportingExcel" icon="heroicons:arrow-down-tray" class="h-3.5 w-3.5 mr-1.5" />
+                            <Icon v-else icon="heroicons:arrow-path" class="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                            Excel
+                        </button>
+                        <button @click="exportToPDF" :disabled="isExportingPDF || !filteredClients.length"
+                            title="Export filtered clients to PDF"
+                            class="px-3.5 py-2 flex items-center bg-rose-600/90 hover:bg-rose-600 text-white text-xs font-medium rounded-xl shadow transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <Icon v-if="!isExportingPDF" icon="heroicons:document-arrow-down" class="h-3.5 w-3.5 mr-1.5" />
+                            <Icon v-else icon="heroicons:arrow-path" class="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                            PDF
+                        </button>
+                        <div class="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2">
+                            <span class="text-white font-semibold">{{ filteredClients.length }}</span>
+                            <span class="text-gray-300 ml-1">clients</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -801,12 +834,18 @@
 import { ref, onMounted } from 'vue';
 import { Dialog, DialogPanel, DialogTitle, TransitionRoot, TransitionChild } from '@headlessui/vue';
 import { Icon } from '@iconify/vue';
+import Swal from 'sweetalert2';
 import { useApi } from '~/composables/useApi';
 import { useExcelImport, type ImportResult } from '~/composables/useExcelImport';
 import type { IResponse } from '~/types/api';
-const isImportModalOpen = ref(false)
-const openImportModal = () => (isImportModalOpen.value = true)
-const closeImportModal = () => (isImportModalOpen.value = false)
+
+const isImportModalOpen = ref(false);
+const openImportModal = () => (isImportModalOpen.value = true);
+const closeImportModal = () => (isImportModalOpen.value = false);
+
+// Export states
+const isExportingExcel = ref(false);
+const isExportingPDF = ref(false);
 // Define selectedClient with proper typing
 
 definePageMeta({
@@ -1138,11 +1177,302 @@ const editClient = (client: Client | null) => {
 };
 
 
-// Simple notification system (you can replace with your preferred notification library)
-const showNotification = (message: string, type: 'success' | 'error') => {
-    // This is a placeholder - implement with your preferred notification system
-    // For example, using vue3-toastify or similar
-    console.log(`${type.toUpperCase()}: ${message}`);
+// Notification system using SweetAlert2 toast
+const showNotification = (message: string, type: 'success' | 'error' | 'warning' = 'success') => {
+    Swal.fire({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        icon: type,
+        title: message
+    });
+};
+
+// ==========================================
+// Export to Excel (Styled with ExcelJS)
+// ==========================================
+const exportToExcel = async () => {
+    const list = filteredClients.value;
+    if (!list || list.length === 0) {
+        showNotification('No client data to export', 'warning');
+        return;
+    }
+
+    if (isExportingExcel.value) return;
+    isExportingExcel.value = true;
+
+    try {
+        const excelModule = await import('exceljs');
+        const ExcelJS = (excelModule as any).default || excelModule;
+        const workbook = new ExcelJS.Workbook();
+        workbook.creator = 'Baksey KPI System';
+        workbook.created = new Date();
+
+        const worksheet = workbook.addWorksheet('Clients', {
+            views: [{ showGridLines: true }]
+        });
+
+        const headerBg = 'FF1E40AF'; // Royal Indigo/Blue
+        const subHeaderBg = 'FFF1F5F9'; // Light slate
+        const zebraBg = 'FFF8FAFC'; // Light slate alternating
+        const borderColor = 'FFE2E8F0';
+
+        const thinBorder: any = {
+            top: { style: 'thin', color: { argb: borderColor } },
+            left: { style: 'thin', color: { argb: borderColor } },
+            bottom: { style: 'thin', color: { argb: borderColor } },
+            right: { style: 'thin', color: { argb: borderColor } }
+        };
+
+        // Title row (Row 1)
+        const titleRow = worksheet.addRow(['CLIENT DATA MANAGER - CLIENT DATABASE']);
+        titleRow.height = 32;
+        titleRow.getCell(1).font = { name: 'Calibri', size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+        titleRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: headerBg } };
+        titleRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+        worksheet.mergeCells(titleRow.number, 1, titleRow.number, 11);
+
+        // Metadata row (Row 2)
+        const filterInfo = selectedUser.value ? ` | Staff: ${selectedUser.value}` : '';
+        const searchInfo = searchQuery.value ? ` | Search: "${searchQuery.value}"` : '';
+        const metaText = `Total Records: ${list.length} clients | Export Date: ${new Date().toLocaleString()}${filterInfo}${searchInfo}`;
+        const metaRow = worksheet.addRow([metaText]);
+        metaRow.height = 20;
+        metaRow.getCell(1).font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF475569' } };
+        metaRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: subHeaderBg } };
+        metaRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle', indent: 1 };
+        worksheet.mergeCells(metaRow.number, 1, metaRow.number, 11);
+
+        // Blank spacer row (Row 3)
+        const spacerRow = worksheet.addRow([]);
+        spacerRow.height = 8;
+
+        // Table headers (Row 4)
+        const headers = [
+            'No.',
+            'Business Name',
+            'Industry',
+            'Contact Person',
+            'Phone Number',
+            'Main Incharge',
+            'Task / Project',
+            'Telegram',
+            'Facebook Link',
+            'Last Contact',
+            'Remarks'
+        ];
+
+        const headerRow = worksheet.addRow(headers);
+        headerRow.height = 26;
+        headerRow.eachCell((cell) => {
+            cell.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } }; // Blue-600
+            cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+            cell.border = {
+                top: { style: 'thin', color: { argb: 'FF1D4ED8' } },
+                bottom: { style: 'medium', color: { argb: 'FF1D4ED8' } },
+                left: { style: 'thin', color: { argb: 'FF3B82F6' } },
+                right: { style: 'thin', color: { argb: 'FF3B82F6' } }
+            };
+        });
+
+        // Data rows (Row 5+)
+        list.forEach((client, idx) => {
+            const inchargeName = client.user_created
+                ? `${client.user_created.first_name || ''} ${client.user_created.last_name || ''}`.trim()
+                : '—';
+
+            const rowData = [
+                idx + 1,
+                client.business_name || '',
+                client.industry || '',
+                client.contact_person || '',
+                client.contact || '',
+                inchargeName,
+                client.task || '',
+                client.telegram_contact || '',
+                client.facebook_link || '',
+                client.date_of_last_contact ? formatDate(client.date_of_last_contact) : '',
+                client.remark || ''
+            ];
+
+            const row = worksheet.addRow(rowData);
+            row.height = 22;
+
+            const isEven = idx % 2 === 1;
+            const rowFill: any = isEven
+                ? { type: 'pattern', pattern: 'solid', fgColor: { argb: zebraBg } }
+                : { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFFFF' } };
+
+            row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+                cell.font = { name: 'Calibri', size: 10, color: { argb: 'FF1E293B' } };
+                cell.fill = rowFill;
+                cell.border = thinBorder;
+
+                if (colNumber === 1 || colNumber === 5 || colNumber === 10) {
+                    cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                } else if (colNumber === 2) {
+                    cell.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0F172A' } };
+                    cell.alignment = { horizontal: 'left', vertical: 'middle' };
+                } else {
+                    cell.alignment = { horizontal: 'left', vertical: 'middle' };
+                }
+            });
+        });
+
+        // Column widths
+        const columnWidths = [6, 30, 20, 22, 18, 22, 24, 18, 26, 16, 30];
+        worksheet.columns.forEach((col, i) => {
+            col.width = columnWidths[i] || 16;
+        });
+
+        // Trigger file download
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const dateStr = new Date().toISOString().split('T')[0];
+        a.download = `BM_Clients_${dateStr}.xlsx`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        showNotification(`Successfully exported ${list.length} clients to Excel!`, 'success');
+    } catch (err: any) {
+        console.error('Excel export error:', err);
+        showNotification(err.message || 'Failed to export Excel file', 'error');
+    } finally {
+        isExportingExcel.value = false;
+    }
+};
+
+// ==========================================
+// Export to PDF (Styled with jsPDF & AutoTable)
+// ==========================================
+const exportToPDF = async () => {
+    const list = filteredClients.value;
+    if (!list || list.length === 0) {
+        showNotification('No client data to export', 'warning');
+        return;
+    }
+
+    if (isExportingPDF.value) return;
+    isExportingPDF.value = true;
+
+    try {
+        const { default: jsPDF } = await import('jspdf');
+        const atMod = await import('jspdf-autotable');
+        const autoTable = (atMod as any).default || atMod;
+
+        // Landscape A4 for wide table presentation
+        const doc = new jsPDF('landscape', 'mm', 'a4');
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        // Header Background Banner
+        doc.setFillColor(30, 64, 175); // Dark blue / indigo
+        doc.rect(14, 10, pageWidth - 28, 20, 'F');
+
+        // Header Title
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(15);
+        doc.setTextColor(255, 255, 255);
+        doc.text('CLIENT DATA MANAGER - CLIENT DATABASE', pageWidth / 2, 19, { align: 'center' });
+
+        // Metadata Subtitle
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(219, 234, 254);
+        const metaText = `Total Clients: ${list.length} | Generated: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}${selectedUser.value ? ` | Staff: ${selectedUser.value}` : ''}${searchQuery.value ? ` | Search: "${searchQuery.value}"` : ''}`;
+        doc.text(metaText, pageWidth / 2, 26, { align: 'center' });
+
+        // Map client data to table rows
+        const tableData = list.map((client, idx) => [
+            String(idx + 1),
+            client.business_name || '—',
+            client.industry || '—',
+            client.contact_person || '—',
+            client.contact || '—',
+            client.user_created ? `${client.user_created.first_name || ''} ${client.user_created.last_name || ''}`.trim() : '—',
+            client.task || '—',
+            client.telegram_contact || '—',
+            client.date_of_last_contact ? formatDate(client.date_of_last_contact) : '—',
+            client.remark || '—'
+        ]);
+
+        autoTable(doc, {
+            startY: 34,
+            head: [[
+                '#',
+                'Business Name',
+                'Industry',
+                'Contact Person',
+                'Phone',
+                'Main Incharge',
+                'Task / Project',
+                'Telegram',
+                'Last Contact',
+                'Remarks'
+            ]],
+            body: tableData,
+            theme: 'striped',
+            styles: {
+                fontSize: 8,
+                cellPadding: 2.5,
+                valign: 'middle',
+                overflow: 'linebreak',
+                font: 'helvetica'
+            },
+            headStyles: {
+                fillColor: [37, 99, 235], // Blue-600
+                textColor: [255, 255, 255],
+                fontStyle: 'bold',
+                halign: 'center',
+                fontSize: 8.5
+            },
+            alternateRowStyles: {
+                fillColor: [248, 250, 252] // Slate-50
+            },
+            columnStyles: {
+                0: { halign: 'center', cellWidth: 10 },
+                1: { fontStyle: 'bold', cellWidth: 38 },
+                2: { cellWidth: 26 },
+                3: { cellWidth: 26 },
+                4: { halign: 'center', cellWidth: 24 },
+                5: { cellWidth: 26 },
+                6: { cellWidth: 32 },
+                7: { cellWidth: 24 },
+                8: { halign: 'center', cellWidth: 24 },
+                9: { cellWidth: 'auto' }
+            },
+            margin: { left: 14, right: 14, bottom: 16 },
+            didDrawPage: (data: any) => {
+                const pageCount = (doc as any).internal.getNumberOfPages();
+                doc.setFontSize(8);
+                doc.setTextColor(148, 163, 184); // Slate-400
+                doc.text(
+                    `Baksey KPI System  •  Page ${data.pageNumber} of ${pageCount}`,
+                    pageWidth / 2,
+                    pageHeight - 8,
+                    { align: 'center' }
+                );
+            }
+        });
+
+        const dateStr = new Date().toISOString().split('T')[0];
+        doc.save(`BM_Clients_${dateStr}.pdf`);
+
+        showNotification(`Successfully exported ${list.length} clients to PDF!`, 'success');
+    } catch (err: any) {
+        console.error('PDF export error:', err);
+        showNotification(err.message || 'Failed to export PDF file', 'error');
+    } finally {
+        isExportingPDF.value = false;
+    }
 };
 
 // Initialize on component mount
