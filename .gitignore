@@ -22,3 +22,7 @@ logs
 .env
 .env.*
 !.env.example
+
+# Large desktop installers (host on GitHub Releases / S3 / R2)
+public/downloads/
+env.example

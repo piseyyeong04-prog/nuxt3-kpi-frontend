@@ -144,6 +144,10 @@
               Need access?
               <NuxtLink to="#" class="contact-link">Contact Administrator</NuxtLink>
             </p>
+            <button type="button" class="download-app-link" @click="showDownloadModal = true">
+              <Icon icon="heroicons:arrow-down-tray" class="dl-icon" />
+              Download Desktop App
+            </button>
             <div class="security-badges">
               <span class="s-badge">
                 <Icon icon="heroicons:shield-check" />
@@ -158,6 +162,8 @@
         </div>
       </div>
     </div>
+
+    <DownloadAppModal v-model="showDownloadModal" />
   </div>
 </template>
 
@@ -172,8 +178,17 @@ const password = ref('');
 const rememberMe = ref(false);
 const isLoading = ref(false);
 const showPassword = ref(false);
+const showDownloadModal = ref(false);
 
 const auth = useAuthStore();
+
+onMounted(() => {
+  if (process.client && !localStorage.getItem('kpi-download-popup-dismissed')) {
+    setTimeout(() => {
+      showDownloadModal.value = true;
+    }, 1200);
+  }
+});
 
 const features = [
   {
@@ -660,6 +675,26 @@ definePageMeta({ layout: 'custom' });
   transition: color 0.2s;
 }
 .forgot-link:hover { color: #0284c7; }
+
+.download-app-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.65rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 0.55rem;
+  border: 1px solid rgba(14, 165, 233, 0.35);
+  color: #0284c7;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+.download-app-link:hover {
+  background: rgba(14, 165, 233, 0.08);
+  border-color: rgba(14, 165, 233, 0.6);
+}
+.dl-icon { width: 15px; height: 15px; }
 
 .input-wrap {
   position: relative;

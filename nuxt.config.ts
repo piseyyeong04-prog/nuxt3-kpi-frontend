@@ -69,6 +69,11 @@ export default defineNuxtConfig({
       TELEGRAM_CHAT_ID: process.env.NUXT_PUBLIC_TELEGRAM_CHAT_ID,
       TELEGRAM_THREAD_ID: process.env.NUXT_PUBLIC_TELEGRAM_THREAD_ID,
       FORM_API_BASE_URL: process.env.FORM_API_BASE_URL,
+      // Base URL for desktop installers. Use a GitHub Releases / S3 / R2 prefix
+      // in production so large binaries never enter the Git repository.
+      DOWNLOAD_BASE_URL:
+        process.env.DOWNLOAD_BASE_URL ||
+        'https://github.com/ZensYing/kpi-desktop-releases/releases/latest/download',
     },
   },
 

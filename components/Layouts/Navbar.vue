@@ -124,6 +124,11 @@ const menuItems = [
     icon: 'ix:about',
     text: { en: 'About', km: 'អំពីយើង' },
   },
+  {
+    to: '/download',
+    icon: 'mdi:download',
+    text: { en: 'Download', km: 'ទាញយក' },
+  },
 ];
 
 // Create a computed array to dynamically return the correct language text
