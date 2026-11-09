@@ -521,7 +521,7 @@
 
                   <!-- Status -->
                   <td class="py-4 px-6">
-                    <span v-if="isCompleted({ ...creator, remarks: getRemarksInCurrentPeriod(creator) })"
+                    <span v-if="isWriterCompleted({ ...creator, remarks: getRemarksInCurrentPeriod(creator) })"
                       class="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full text-xs font-medium">
                       Completed
                     </span>
@@ -533,7 +533,7 @@
                   <!-- Views in KPI Period -->
                   <td class="py-4 px-6 font-medium"
                     :class="index % 2 === 0 ? 'text-indigo-600 dark:text-indigo-400' : 'text-rose-600 dark:text-rose-400'">
-                    {{ getTotalViews(getRemarksInCurrentPeriod(creator)) }}
+                    {{ getWriterTotalViews(getRemarksInCurrentPeriod(creator)) }}
                   </td>
 
                   <!-- Article Count (KPI period only) -->
@@ -1470,14 +1470,17 @@ import { getKpiPeriodsFromArticles } from '~/utils/writers';
 
 // Import writer utilities
 import {
-  getTotalViews,
-  isCompleted,
+  getWriterTotalViews,
+  getTotalArticlesCountInCurrentPeriod,
+  getTotalViewsAcrossAllInCurrentPeriod,
+  getCompletedTargetsCountInCurrentPeriod,
+  getTotalPrViewsAcrossAllInCurrentPeriod,
+  isWriterCompleted,
   calculatePercent,
   getPercentClass,
   getProgressBarColor,
-  getCompletedTargetsCount,
   getTotalArticlesCount,
-  getTotalViewsAcrossAll
+  getTotalViewsAcrossAll,
 } from '~/utils/writers';
 
 // Import formatting utilities

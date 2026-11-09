@@ -230,6 +230,7 @@ const togglePasswordVisibility = () => {
 };
 
 definePageMeta({
+  layout: 'custom',
   middleware: [
     function (to, from) {
       if (import.meta.client) {
@@ -313,7 +314,6 @@ const handleLogin = async () => {
   }
 };
 
-definePageMeta({ layout: 'custom' });
 </script>
 
 <style scoped>

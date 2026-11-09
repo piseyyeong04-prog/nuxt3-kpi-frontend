@@ -45,7 +45,7 @@ export interface IEditor {
  * @param remarks List of remarks containing view data
  * @returns Total views as a string
  */
-export const getTotalViews = (remarks: IRemark[] | undefined): string => {
+export const getEditorTotalViews = (remarks: IRemark[] | undefined): string => {
   if (!remarks || remarks.length === 0) return '0';
 
   let total = 0;
@@ -63,7 +63,7 @@ export const getTotalViews = (remarks: IRemark[] | undefined): string => {
  * @param creator Creator object with target and remarks
  * @returns boolean indicating if target is completed
  */
-export const isCompleted = (creator: IEditor): boolean => {
+export const isEditorCompleted = (creator: IEditor): boolean => {
   const kpiRemarks = filterRemarksByKpiMonth(creator.remarks || []);
   const target = parseInt(creator.target || '0');
   return kpiRemarks.length >= target;
@@ -138,7 +138,8 @@ export const getTotalViewsAcrossAll = (editors: IEditor[]): string => {
   
   let totalViews = 0;
   editors.forEach(creator => {
-    totalViews += parseInt(getTotalViews(creator.remarks) || '0');
+    totalViews += parseInt
+          (getEditorTotalViews(creator.remarks) || '0');
   });
   return totalViews.toString();
 };

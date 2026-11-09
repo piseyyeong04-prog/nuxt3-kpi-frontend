@@ -634,15 +634,42 @@ const menuItems: MenuItem[] = [
         ]
       },
       {
-        to: '/dashboard/track-performance-staff/writers',
+        to: '#writers',
         icon: 'mdi:pen',
-        label: { en: 'Writers', km: 'អ្នកសរសេរ' }
+        label: { en: 'Writers', km: 'អ្នកសរសេរ' },
+        hasNestedSubmenu: true,
+        nestedSubmenu:[
+          {
+            to:'/dashboard/track-performance-staff/writers',
+            icon:'mdi:account-circle',
+            label:{en:'Writers',km:'អ្នកសរសេរ'}
+          },
+          {
+            to:'/dashboard/track-performance-staff/writers/history',
+            icon:'mdi:history',
+            label:{en: 'View History',km:'មើលប្រវត្តិ'}
+          }
+        ]
       },
       {
-        to: '/dashboard/track-performance-staff/editors',
-        icon: 'mdi:movie-edit',
-        label: { en: 'Editors', km: 'អ្នកកែសម្រួល' }
+        to:'#editors',
+        icon:'mdi:pen',
+        label:{en: 'Editors', km:'អ្នកកែសម្រួល'},
+        hasNestedSubmenu:true,
+        nestedSubmenu:[
+          {
+            to: '/dashboard/track-performance-staff/editors',
+            icon: 'mdi:movie-edit',
+            label: { en: 'Editors', km: 'អ្នកកែសម្រួល' }
+          },
+          {
+            to:'/dashboard/track-performance-staff/editors/history',
+            icon:'mdi:history',
+            label:{en: 'View History',km:'មើលប្រវត្តិ'}
+          }
+        ]
       }
+      
     ]
   },
   {

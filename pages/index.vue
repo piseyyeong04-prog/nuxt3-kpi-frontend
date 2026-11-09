@@ -314,7 +314,7 @@ import {
   type IRemark
 } from '~/utils/creators';
 import { 
-  getTotalViews as getWriterTotalViews,
+  getWriterTotalViews,
   type IWriter,
   type IRemark as IWriterRemark
 } from '~/utils/writers';

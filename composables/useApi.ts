@@ -33,7 +33,12 @@ export const useApi = async <T>(endpoint: string, options: IAPIOption): Promise<
     const axiosError = error as AxiosError;
     
     // If it's a 401 unauthorized error and we have a refresh token, try to refresh
-    if (axiosError.response?.status === 401 && localStorage.getItem('refresh_token')) {
+    const isRefreshRequest = endpoint.replace(/\/$/, '').endsWith('/auth/refresh');
+    if (
+      axiosError.response?.status === 401 &&
+      !isRefreshRequest &&
+      localStorage.getItem('refresh_token')
+    ) {
       try {
         console.log('Access token expired, attempting to refresh...');
         const refreshSuccess = await authStore.refresh();

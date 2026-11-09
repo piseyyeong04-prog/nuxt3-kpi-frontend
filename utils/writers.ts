@@ -35,7 +35,7 @@ export interface IWriter {
  * @param remarks List of remarks containing view data
  * @returns Total views as a string
  */
-export const getTotalViews = (remarks: IRemark[] | undefined): string => {
+export const getWriterTotalViews = (remarks: IRemark[] | undefined): string => {
   if (!remarks || remarks.length === 0) return '0';
 
   let total = 0;
@@ -66,10 +66,10 @@ export const getTotaFacebookLink = (remarks: IRemark[] | undefined): string => {
  * @param creator Creator object with target and remarks
  * @returns boolean indicating if target is completed
  */
-export const isCompleted = (creator: IWriter): boolean => {
+export const isWriterCompleted = (creator: IWriter): boolean => {
   if (creator.status === 'completed') return true;
 
-  const totalViews = parseInt(getTotalViews(creator.remarks) || '0');
+  const totalViews = parseInt(getWriterTotalViews(creator.remarks) || '0');
   const target = parseInt(creator.target || '0');
 
   return totalViews >= target;
@@ -81,10 +81,14 @@ export const isCompleted = (creator: IWriter): boolean => {
  * @returns Percentage as a number
  */
 export const calculatePercent = (creator: IWriter): number => {
-  const totalViews = parseInt(getTotalViews(creator.remarks) || '0');
+  const totalViews = parseInt
+    (getWriterTotalViews(creator.remarks) || '0'
+  );
+
   const target = parseInt(creator.target || '0');
 
   if (target === 0) return 0;
+  
   return Math.round((totalViews / target) * 100);
 };
 
@@ -117,7 +121,7 @@ export const getProgressBarColor = (percent: number): string => {
  */
 export const getCompletedTargetsCount = (creators: IWriter[]): number => {
   if (!creators || creators.length === 0) return 0;
-  return creators.filter(isCompleted).length;
+  return creators.filter(isWriterCompleted).length;
 };
 
 /**
@@ -143,7 +147,7 @@ export const getTotalViewsAcrossAll = (creators: IWriter[]): string => {
 
   let totalViews = 0;
   creators.forEach(creator => {
-    totalViews += parseInt(getTotalViews(creator.remarks) || '0');
+    totalViews += parseInt(getWriterTotalViews(creator.remarks) || '0');
   });
   return totalViews.toString();
 };

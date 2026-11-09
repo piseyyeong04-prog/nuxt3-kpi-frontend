@@ -828,8 +828,8 @@ import { filterRemarksByKpiMonth } from '~/utils/editors';
 
 // Import writer utilities
 import {
-  getTotalViews,
-  isCompleted,
+  getEditorTotalViews,
+  isEditorCompleted as isCompleted,
   calculatePercent,
   getPercentClass,
   getProgressBarColor,
@@ -892,7 +892,7 @@ const checkDuplicateArticleLink = async (link: string): Promise<boolean> => {
     const fields = encodeURIComponent('id,facebook_link');
     const response = await useApi(`/items/remark_link_editor?filter=${filter}&fields=${fields}`, {
       method: 'GET'
-    });
+    });           //Api sends request to directus & wait for the result
 
     // If there are any results, a duplicate exists
     if (response && Array.isArray((response as any).data) && (response as any).data.length > 0) {
@@ -1085,7 +1085,7 @@ const closeArticlesModal = () => {
   writerArticles.value = [];
 };
 const totalViews = computed(() => {
-  return getTotalViews(writerArticles.value);
+  return getEditorTotalViews(writerArticles.value);
 });
 
 const averageEngagement = computed(() => {
